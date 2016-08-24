@@ -1,5 +1,6 @@
 package ar.edu.unlp.sedici.dspace.xmlui.util;
 
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
@@ -7,6 +8,20 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.dspace.app.util.Util;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.apache.xalan.extensions.ExpressionContext;
+import org.apache.xpath.NodeSet;
+import org.apache.xpath.objects.XNodeSet;
+import org.apache.xpath.objects.XNodeSetForDOM;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
+import org.dspace.services.factory.DSpaceServicesFactory;;
 
 public class XSLTHelper {
 	
@@ -111,5 +126,42 @@ public class XSLTHelper {
 		
 
 	}
+	
+	/*
+	 * Retorna un conjunto de property keys desde el dspace.cfg cuyo prefijo coincida.
+	 */
+	public static XNodeSet getPropertyKeys(ExpressionContext context, String prefix){
+		
+		 java.util.List<String> keys = DSpaceServicesFactory.getInstance().getConfigurationService().getPropertyKeys(prefix);
+		 return collectionToNodeSet(context, keys);
+	
+	}
+	
+	/*
+	 * Crea un conjunto de nodos texto a partir de una colección de Objetos
+	 */
+	private static XNodeSet collectionToNodeSet(ExpressionContext context, List list){
+		XNodeSet result = null ;
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance() ;
+            DocumentBuilder dBuilder;
+            dBuilder = dbf.newDocumentBuilder();
+            Document doc = dBuilder.newDocument();
+
+            NodeSet ns = new NodeSet();
+
+            
+            for(int i=0; i < list.size(); i++){
+            	ns.addNode( doc.createTextNode(list.get(i).toString())) ;
+            }
+
+            result = new XNodeSetForDOM((NodeList)ns, context.getXPathContext());
+
+        } catch (ParserConfigurationException | TransformerException e) {
+            e.printStackTrace();
+        }
+        return result ;
+	}
+	
 }
 
