@@ -22,6 +22,8 @@ import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.app.xmlui.wing.element.Text;
 import org.dspace.app.xmlui.wing.element.TextArea;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -45,7 +47,9 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     private static final Message T_para1 =
         message("xmlui.ArtifactBrowser.Contact.para1");
 
-    private static java.util.List<DSpaceObject> result;
+    private static java.util.List<org.dspace.content.Item> itemsResult = new ArrayList<org.dspace.content.Item>();
+    private static java.util.List<org.dspace.content.Collection> collectionsResult = new ArrayList<org.dspace.content.Collection>();
+    private static java.util.List<org.dspace.content.Community> communitiesResult = new ArrayList<org.dspace.content.Community>();
 	
     private static final ConfigurationService configurationService =DSpaceServicesFactory.getInstance().getConfigurationService();
     
@@ -97,20 +101,45 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         
         Division resultado=contact.addDivision("Resultado");
         List losResultados=resultado.addList("resultatos");
-        if(result !=null){
-	        for(DSpaceObject dso: result){
-	        	Item unResultado=losResultados.addItem();
-	        	unResultado.addText("valor").setValue(dso.getName());
-	        }
+        for(Community com: this.communitiesResult){
+        	List communities = losResultados.addList("communities");
+        	Item aCommunity = communities.addItem();
+        	aCommunity.addText("valor").setValue(com.getName());
+        }
+        for(Collection col: this.collectionsResult){
+        	List collections = losResultados.addList("collections");
+        	Item aCollection = collections.addItem();
+        	aCollection.addText("valor").setValue(col.getName());
+        }
+        for(org.dspace.content.Item item: this.itemsResult){
+        	List items = losResultados.addList("items");
+        	Item anItem = items.addItem();
+        	anItem.addText("valor").setValue(item.getName());
         }
     }
 
-	public java.util.List<DSpaceObject> getResult() {
-		return result;
+	public static java.util.List<org.dspace.content.Item> getItemsResult() {
+		return itemsResult;
 	}
 
-	public static void setResult(java.util.List<DSpaceObject> list) {
-		result = list;
+	public static void setItemsResult(java.util.List<org.dspace.content.Item> itemsResult) {
+		SelectionPage.itemsResult = itemsResult;
+	}
+
+	public static java.util.List<org.dspace.content.Collection> getCollectionsResult() {
+		return collectionsResult;
+	}
+
+	public static void setCollectionsResult(java.util.List<org.dspace.content.Collection> collectionsResult) {
+		SelectionPage.collectionsResult = collectionsResult;
+	}
+
+	public static java.util.List<org.dspace.content.Community> getCommunitiesResult() {
+		return communitiesResult;
+	}
+
+	public static void setCommunitiesResult(java.util.List<org.dspace.content.Community> communitiesResult) {
+		SelectionPage.communitiesResult = communitiesResult;
 	}
     
     

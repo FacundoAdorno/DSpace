@@ -23,14 +23,8 @@ public abstract class Manager {
 	protected static final CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
 	protected static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 	protected static final HandleManager handleManager= new HandleManager();
+	protected static final ResultManager resultManager= new ResultManager();
 	protected static final MetadataManager metadataManager= new MetadataManager();
 	protected static final ConditionManager conditionManager= new ConditionManager();
-	protected static List<DSpaceObject> result= new ArrayList();
-	protected static DSpaceObject dso;
-	protected  static String schema;
-	protected  static String element;
-	protected  static String qualifier;	
-	
-	
-	
+
 }

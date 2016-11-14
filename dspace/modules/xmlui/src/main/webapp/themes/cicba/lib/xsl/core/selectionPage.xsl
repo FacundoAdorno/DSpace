@@ -9,16 +9,17 @@
 
 	<xsl:template match="dri:div[@id='aspect.ELProcessor.SelectionPage.div.contact']">
 		<form id="home-search-form" action="executePreConfigQuery" class="form-inline" role="form">
-			<select name="propertyName" id="propertyName">
-				<xsl:for-each select="dri:list[@id='aspect.ELProcessor.SelectionPage.list.options']/dri:item">				
-						<option>
-							<xsl:attribute name="value">
-				    			<xsl:value-of select="dri:field[@n='identifier']"></xsl:value-of>
-				    		</xsl:attribute>
-				    		<xsl:value-of select="dri:field[@n='description']"></xsl:value-of>
-						</option>							
-				</xsl:for-each>
-			</select>
+<!-- 			<select name="propertyName" id="propertyName"> -->
+<!-- 				<xsl:for-each select="dri:list[@id='aspect.ELProcessor.SelectionPage.list.options']/dri:item">				 -->
+<!-- 						<option> -->
+<!-- 							<xsl:attribute name="value"> -->
+<!-- 				    			<xsl:value-of select="dri:field[@n='identifier']"></xsl:value-of> -->
+<!-- 				    		</xsl:attribute> -->
+<!-- 				    		<xsl:value-of select="dri:field[@n='description']"></xsl:value-of> -->
+<!-- 						</option>							 -->
+<!-- 				</xsl:for-each> -->
+<!-- 			</select> -->
+			<input name="query" id="query"></input>
 			<button type="submit" name="lr" class="btn btn-link">Ejecutar</button>
 		</form>
 	</xsl:template>

@@ -15,6 +15,7 @@ import org.dspace.authorize.AuthorizeConfiguration;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.service.AuthorizeService;
+import org.dspace.content.Collection;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.service.*;
 import org.dspace.core.Constants;
@@ -64,6 +65,13 @@ public class CommunityServiceImpl extends DSpaceObjectServiceImpl<Community> imp
     {
         super();
 
+    }
+    
+    @Override
+    public Iterator<Community> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList, List<String> query_op, List<String> query_val, String regexClause, int offset, int limit)
+          throws SQLException, AuthorizeException, IOException
+    {
+        return communityDAO.findByMetadataQuery(context, listFieldList, query_op, query_val, regexClause, offset, limit);
     }
 
     @Override

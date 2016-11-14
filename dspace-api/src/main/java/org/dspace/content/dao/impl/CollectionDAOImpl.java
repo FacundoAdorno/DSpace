@@ -7,6 +7,7 @@
  */
 package org.dspace.content.dao.impl;
 
+import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
@@ -23,9 +24,12 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.BasicTransformerAdapter;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Hibernate implementation of the Database Access Object interface class for the Collection object.
@@ -36,9 +40,18 @@ import java.util.Map;
  */
 public class CollectionDAOImpl extends AbstractHibernateDSODAO<Collection> implements CollectionDAO
 {
+	private static final Logger log = Logger.getLogger(CollectionDAOImpl.class);
+	
     protected CollectionDAOImpl()
     {
         super();
+    }
+    
+    @Override
+    public Iterator<Collection> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList, List<String> query_op, List<String> query_val, String regexClause, int offset, int limit) throws SQLException {
+    	Criteria criteria = createCriteria(context, Collection.class, "collection");
+    	criteria = findByMetadataQuery(criteria, "collection", log, context, listFieldList, query_op, query_val, new ArrayList<UUID>(), regexClause, offset, limit );
+    	return criteria.list().iterator();
     }
 
     /**

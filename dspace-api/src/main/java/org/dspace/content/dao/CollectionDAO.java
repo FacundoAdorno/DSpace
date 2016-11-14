@@ -15,8 +15,10 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Database Access Object interface class for the Collection object.
@@ -44,4 +46,8 @@ public interface CollectionDAO extends DSpaceObjectLegacySupportDAO<Collection> 
     int countRows(Context context) throws SQLException;
 
     List<Map.Entry<Collection, Long>> getCollectionsWithBitstreamSizesTotal(Context context) throws SQLException;
+
+	public Iterator<Collection> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList,
+			List<String> query_op, List<String> query_val, String regexClause, int offset,
+			int limit) throws SQLException;
 }

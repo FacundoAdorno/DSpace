@@ -14,7 +14,9 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Database Access Object interface class for the Community object.
@@ -38,4 +40,8 @@ public interface CommunityDAO extends DSpaceObjectLegacySupportDAO<Community> {
     public List<Community> findAuthorizedByGroup(Context context, EPerson currentUser, List<Integer> actions) throws SQLException;
 
     int countRows(Context context) throws SQLException;
+
+	Iterator<Community> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList,
+			List<String> query_op, List<String> query_val, String regexClause, int offset,
+			int limit) throws SQLException;
 }

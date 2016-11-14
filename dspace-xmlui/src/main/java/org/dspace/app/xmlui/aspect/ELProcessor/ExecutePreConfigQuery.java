@@ -27,18 +27,13 @@ public class ExecutePreConfigQuery extends AbstractAction{
         this.setContext(ContextUtil.obtainContext(objectModel));
 
 		Request request = ObjectModelHelper.getRequest(objectModel);
-		String property=request.getParameter("propertyName");
-		//as it's optional, handle might be null
-		String handle=request.getParameter("handle");
+		//String property=request.getParameter("propertyName");
 		//TODO puede que no exista la property que se trata de levantar, esto devolveria null
 		//hay que manearlo y mostrar mensaje de error
-		String query=configService.getProperty(propertyPrefix+property);
+		//String query=configService.getProperty(propertyPrefix+property);
 		
-		if(handle != "" & handle != null){
-			query += "handle";
-		}
-		
-		this.instanciateMainProcessor().process(query,handle,this.getContext());
+		String query=request.getParameter("query");
+		this.instanciateMainProcessor().process(query,this.getContext());
 		return null;
 	}
 

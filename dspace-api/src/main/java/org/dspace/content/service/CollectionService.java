@@ -12,15 +12,18 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.UUID;
 
 /**
  * Service interface class for the Collection object.
@@ -340,4 +343,9 @@ public interface CollectionService extends DSpaceObjectService<Collection>, DSpa
      * @throws SQLException if database error
      */
     List<Map.Entry<Collection, Long>> getCollectionsWithBitstreamSizesTotal(Context context) throws SQLException;
+
+
+	Iterator<Collection> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList,
+			List<String> query_op, List<String> query_val, String regexClause, int offset,
+			int limit) throws SQLException, AuthorizeException, IOException;
 }

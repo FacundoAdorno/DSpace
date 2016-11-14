@@ -11,14 +11,17 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.MetadataField;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.UUID;
 
 /**
  * Service interface class for the Community object.
@@ -302,4 +305,9 @@ public interface CommunityService extends DSpaceObjectService<Community>, DSpace
     public List<Community> findAuthorizedGroupMapped(Context context, List<Integer> actions) throws SQLException;
 
     int countTotal(Context context) throws SQLException;
+
+
+	Iterator<Community> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList,
+			List<String> query_op, List<String> query_val, String regexClause, int offset,
+			int limit) throws SQLException, AuthorizeException, IOException;
 }

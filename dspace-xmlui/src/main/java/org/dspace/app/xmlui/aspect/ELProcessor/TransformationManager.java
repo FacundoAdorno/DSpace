@@ -1,18 +1,22 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 
 public class TransformationManager extends Manager{
 
-
+	protected static List<DSpaceObject> result= new ArrayList();
+	protected static DSpaceObject dso = null;
+	
 	public static List<Item> modifyItemsFromHandle(String handle, String metadata, String newValue) throws Exception{
 		
 		MetadataField metadataField=metadataManager.getMetadataFieldFromString(metadata);

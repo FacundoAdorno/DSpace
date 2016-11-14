@@ -73,6 +73,13 @@ public class CollectionServiceImpl extends DSpaceObjectServiceImpl<Collection> i
     {
         super();
     }
+    
+    @Override
+    public Iterator<Collection> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList, List<String> query_op, List<String> query_val, String regexClause, int offset, int limit)
+          throws SQLException, AuthorizeException, IOException
+    {
+        return collectionDAO.findByMetadataQuery(context, listFieldList, query_op, query_val, regexClause, offset, limit);
+    }
 
     @Override
     public Collection create(Context context, Community community) throws SQLException, AuthorizeException {

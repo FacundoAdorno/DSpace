@@ -8,6 +8,8 @@
 package org.dspace.content.dao.impl;
 
 import org.apache.commons.collections.ListUtils;
+import org.apache.log4j.Logger;
+import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.MetadataField;
 import org.dspace.content.dao.CommunityDAO;
@@ -22,8 +24,11 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Hibernate implementation of the Database Access Object interface class for the Community object.
@@ -34,9 +39,18 @@ import java.util.List;
  */
 public class CommunityDAOImpl extends AbstractHibernateDSODAO<Community> implements CommunityDAO
 {
+	private static final Logger log = Logger.getLogger(CommunityDAOImpl.class);
+	
     protected CommunityDAOImpl()
     {
         super();
+    }
+    
+    @Override
+    public Iterator<Community> findByMetadataQuery(Context context, List<List<MetadataField>> listFieldList, List<String> query_op, List<String> query_val, String regexClause, int offset, int limit) throws SQLException {
+    	Criteria criteria = createCriteria(context, Community.class, "community");
+    	criteria = findByMetadataQuery(criteria, "collection", log, context, listFieldList, query_op, query_val, new ArrayList<UUID>(), regexClause, offset, limit );
+    	return criteria.list().iterator();
     }
 
     /**
