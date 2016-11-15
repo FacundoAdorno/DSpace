@@ -40,7 +40,7 @@ public class HandleManager extends Manager{
 		
 		if(dso instanceof Item){
 			//quieren un item y me pasaron un handle de item, devuelvo el item
-			resultManager.addItem((Item) dso);
+			ResultContainer.addItem((Item) dso);
 			return;
 		}else if (dso instanceof Collection){
 			uuids.add(((Collection) dso).getID());			
@@ -50,7 +50,7 @@ public class HandleManager extends Manager{
 				uuids.add(((Collection) col).getID());
 			}
 		}
-		conditionManager.getItemsFromCondition(condition, uuids);
+		factoryManager.getConditionManager().getItemsFromCondition(condition, uuids);
 		
 	}
 	
@@ -63,14 +63,14 @@ public class HandleManager extends Manager{
 			throw new Exception("The handle is from an Item");
 		}else if(dso instanceof Collection){
 			//quieren una coleccion y me pasaron un handle de una, devuelvo la coleccion
-			resultManager.addCollection((Collection) dso);
+			ResultContainer.addCollection((Collection) dso);
 			return;
 		}else if(dso instanceof Community){
 			getCollectionsFromCommunity((Community)dso);
-			resultManager.setResultCollections((List<Collection>)(List) result);
+			ResultContainer.addCollections((List<Collection>)(List) result);
 		}
 		
-		conditionManager.getCollectionsFromCondition(condition);
+		factoryManager.getConditionManager().getCollectionsFromCondition(condition);
 	}
 	
 	public void getCommunitiesFromCondition(String condition) throws Exception{
@@ -83,10 +83,10 @@ public class HandleManager extends Manager{
 		}else if(dso instanceof Collection){
 			throw new Exception("The handle is from a Collection");
 		}else if(dso instanceof Community){
-			resultManager.addCommunity((Community)dso);
+			ResultContainer.addCommunity((Community)dso);
 		}
 		
-		conditionManager.getCommunitiesFromCondition(condition);
+		factoryManager.getConditionManager().getCommunitiesFromCondition(condition);
 	}
 
 	private void getCollectionsFromCommunity(Community com){

@@ -51,7 +51,7 @@ public class MetadataManager extends Manager{
 		Iterator<Item> items = itemService.findByMetadataQuery(MainProcessor.getContext(), listFieldList, queryOP, valueList, collectionsUUIDs, "", 0, 0);
 		List<Item> result  = IteratorUtils.toList(items);
 		
-		resultManager.setResultItems(result);
+		ResultContainer.addItems(result);
 	}
 	
 	public void getCollectionsFromMetadataAndValue(List<Condition> conditions, List<UUID> collectionsUUIDs) throws Exception{		
@@ -61,7 +61,7 @@ public class MetadataManager extends Manager{
 		Iterator<Collection> collections = collectionService.findByMetadataQuery(MainProcessor.getContext(), listFieldList, queryOP, valueList, "", 0, 0);
 		List<Collection> result = IteratorUtils.toList(collections);
 		
-		resultManager.setResultCollections(result);
+		ResultContainer.addCollections(result);
 	}
 	
 	public void getCommunitiesFromMetadataAndValue(List<Condition> conditions, List<UUID> collectionsUUIDs) throws Exception{		
@@ -71,7 +71,7 @@ public class MetadataManager extends Manager{
 		Iterator<Community> communities = communityService.findByMetadataQuery(MainProcessor.getContext(), listFieldList, queryOP, valueList, "", 0, 0);
 		List<Community> result = IteratorUtils.toList(communities);
 		
-		resultManager.setResultCommunities(result);
+		ResultContainer.addCommunities(result);
 	}
 	
 	private void processConditions(List<Condition> conditions) throws Exception{

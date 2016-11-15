@@ -26,10 +26,10 @@ public class InstanciadorEL {
 		
 		processor.getELManager().defineBean("Items", IteratorUtils.toList(itemService.findAll(context)));
 		try{
-			processor.defineFunction("seleccionar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionManager", "selectItems");
-			processor.defineFunction("seleccionar", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionManager", "selectCollections");
-			processor.defineFunction("seleccionar", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionManager", "selectCommunities");
-			processor.defineFunction("transformar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationManager", "modifyItemsFromHandle");			
+			processor.defineFunction("seleccionar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectItems");
+			processor.defineFunction("seleccionar", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCollections");
+			processor.defineFunction("seleccionar", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCommunities");
+			processor.defineFunction("transformar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyItemsFromHandle");			
 		}catch (Exception e){
 			e.printStackTrace();
 		}

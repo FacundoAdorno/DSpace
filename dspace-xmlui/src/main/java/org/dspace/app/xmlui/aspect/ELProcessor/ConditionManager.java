@@ -12,23 +12,22 @@ public class ConditionManager extends Manager{
 
 	private List<Condition> conditions;
 	
-	
 	public void getItemsFromCondition(String condition, List<UUID> collectionsUUIDs) throws Exception{
 		
 		this.separeteCondition(condition);
-		metadataManager.getItemsFromMetadataAndValue(this.conditions, collectionsUUIDs);
+		factoryManager.getMetadataManager().getItemsFromMetadataAndValue(this.conditions, collectionsUUIDs);
 	}
 	
 	public void getCollectionsFromCondition(String condition) throws Exception{
 			
 		this.separeteCondition(condition);
-		metadataManager.getCollectionsFromMetadataAndValue(this.conditions, null);
+		factoryManager.getMetadataManager().getCollectionsFromMetadataAndValue(this.conditions, null);
 	}
 
 	public void getCommunitiesFromCondition(String condition) throws Exception{
 		
 		this.separeteCondition(condition);
-		metadataManager.getCommunitiesFromMetadataAndValue(this.conditions, null);
+		factoryManager.getMetadataManager().getCommunitiesFromMetadataAndValue(this.conditions, null);
 	}
 	
 	public void addCondition(Condition condition){

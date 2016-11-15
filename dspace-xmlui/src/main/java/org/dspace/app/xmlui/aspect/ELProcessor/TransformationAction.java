@@ -11,28 +11,17 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
+import org.dspace.content.factory.ContentServiceFactory;
+import org.dspace.content.service.ItemService;
 
-public class TransformationManager extends Manager{
+public class TransformationAction{
 
+	protected static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 	protected static List<DSpaceObject> result= new ArrayList();
 	protected static DSpaceObject dso = null;
 	
-	public static List<Item> modifyItemsFromHandle(String handle, String metadata, String newValue) throws Exception{
+	public static void modifyItemsFromHandle(String condition, String newValues) throws Exception{
 		
-		MetadataField metadataField=metadataManager.getMetadataFieldFromString(metadata);
-		if(metadataField == null){
-			throw new Exception("There is no such metadata");
-		}		
-		handleManager.handleResolver(handle);		
-		if((dso instanceof Item)){
-			 updateItem((Item)dso, metadataField, newValue);			 
-		}else if(dso instanceof Collection){
-			 updateItemsFromCollection((Collection)dso, metadataField, newValue);
-		}else if(dso instanceof Community){
-			updateItemsFromCommunity((Community)dso, metadataField, newValue);
-		}
-		
-		return (List<Item>)(List<?>) result;
 		
 
 	}
