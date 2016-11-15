@@ -18,7 +18,14 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
-public class MatchingIPs extends RuleType{
+/**
+ * 
+ * Esta clase realiza la busqueda por subgrupo de ip xxx.xxx.xxx.---
+ * 
+ * @author gordo
+ *
+ */
+public class SubnetSearch extends RuleType{
 
 	private Map<String, List<String>> occurrences = new HashMap<String, List<String>>();
 	

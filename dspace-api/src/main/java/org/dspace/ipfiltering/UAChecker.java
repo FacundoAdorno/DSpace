@@ -12,8 +12,16 @@ import java.util.List;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 
+/**
+ * 
+ * busca palabras claves como bot, spider, crawler, etc en los user agent
+ * 
+ * @author gordo
+ *
+ */
 public class UAChecker extends RuleType{
 
 	private String[] substr;
@@ -36,6 +44,7 @@ public class UAChecker extends RuleType{
 		solrQuery.setQuery("userAgent:/("+queryString+".*bot.*|.*crawler.*|.*spider.*)/");
 		solrQuery.setFacet(true);
     	solrQuery.addFacetField("userAgent");
+    	solrQuery.addFacetField("ip");
     	solrQuery.setFacetMinCount(1);
 	}
 	
@@ -45,13 +54,15 @@ public class UAChecker extends RuleType{
     	 	
     	if(response.getFacetField("userAgent").getValues().size() > 0)
     	{
-    		List<Count> list = response.getFacetField("userAgent").getValues();
-    		System.out.println("Los siguientes user agent no estan registrados como bot y podrian pertenecer a fuentes sospechosas. "
-    				+ "Se recomienda agregarlos a los archivos de spiders en /config/spiders/agents");
-    		for(Count c: list)
-    		{
-    			System.out.println("-> "+c);
-    		}		
+    		List<Count> list = response.getFacetField("ip").getValues();
+    		String[] str = list.get(0).toString().split(" ");
+			String access = str[1]
+					.replace("(", "")
+					.replace(")", "");
+    		FacetField UA = response.getFacetField("userAgent");
+    		FacetField ip = response.getFacetField("ip");
+    		String report = UA.toString();
+    		ipFoundList.add(new CandidateIP(ip.toString(), Integer.parseInt(access), report));
     	}
 		return ipFoundList;
 	}

@@ -1,6 +1,5 @@
 /**
  * The contents of this file are subject to the license and copyright
-
  * detailed in the LICENSE and NOTICE files at the root of the source
  * tree and available online at
  *
@@ -11,6 +10,16 @@
  * @deprecated
  */
 package org.dspace.ipfiltering;
+
+
+/*
+ * NOTA
+ * 
+ * 
+ * Esta clase no se usa, la hice para probar ejecutar las consultas de forma concurrente
+ * 
+ */
+
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;

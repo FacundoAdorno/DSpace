@@ -99,10 +99,6 @@ public class CandidateIP implements Comparable{
 		return 0;
 	}
 
-	
-	/*
-	 * eehhh masomeno
-	 */
 	public CandidateIP addOccurrence(Float weight)
 	{
 		this.occurrences++;

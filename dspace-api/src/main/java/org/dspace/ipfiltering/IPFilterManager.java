@@ -62,7 +62,7 @@ public class IPFilterManager
 		}
 		premadeSolrQuery.addFilterQuery("-isBot: true");
 		
-		//set the result viewer
+		//Set ResultViewer
 		String viewerStr = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("ipFilter.resultViewer");
 		if ((viewerStr == null) || ("".equals(viewerStr))){
 			viewer = new DetailedView();
@@ -116,7 +116,7 @@ public class IPFilterManager
 	
 	
 	public void filter() throws SolrServerException, InstantiationException, IllegalAccessException, ClassNotFoundException, MissingArgumentException
-	{			
+	{
 		ArrayList<Rule> rulesList = this.getRules();
 		
 		for(Rule rule: rulesList)

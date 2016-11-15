@@ -13,12 +13,11 @@ import org.apache.commons.cli.MissingArgumentException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.dspace.core.Constants;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.joda.time.DateTime;
 
 /**
- * Filter by access in specified time lapses
+ * Filtra por accesos en determinados lapsos de tiempoCI	
  * 
  * @author gordo
  *
@@ -37,8 +36,6 @@ public class AccessInTime extends RuleType {
     	settings.put("count", DSpaceServicesFactory.getInstance().getConfigurationService().getProperty(prefix+".count"));
     	settings.put("gap", DSpaceServicesFactory.getInstance().getConfigurationService().getProperty(prefix+".gap"));
     	
-    	validateSettings();
-    	
     	timeIterator  = new DateTime(settings.get("startDateStr"));
 		endDate = new DateTime(settings.get("endDateStr"));
     	
@@ -46,21 +43,30 @@ public class AccessInTime extends RuleType {
 	
 	public void buildQuery()
 	{	
-		solrQuery.setQuery("time:["+timeIterator.toString()+"Z TO "+getDateLimit().toString()+"Z] AND type:"+settings.get("type"));
+		solrQuery.setQuery("time:["+timeIterator.toString()+"Z TO "+getDateLimit().toString()+"Z]");
+		solrQuery.setParam("type", "/"+settings.get("type")+"/");
 		solrQuery.setFacet(true);
 		solrQuery.addFacetField("ip");
+		solrQuery.addFacetField("type");
 		solrQuery.setFacetMinCount(Integer.parseInt(settings.get("count")));
 	}
 	
+	
+	/*
+	 *la fecha límite varia dependiendo de si se está analizando un período grande de tiempo, por ejemplo, los accesos del ultimo año
+	 *o si se estan analizando lapsos de tiempo pequeños dentro de un lapso mayor, por ejemplo, los accesos hora a hora durante
+	 *el ultimo año
+	 */
 	public DateTime getDateLimit(){
 		return ("0".equals(settings.get("gap"))) ? endDate : timeIterator.plusHours(Integer.parseInt(settings.get("gap")));
 	}
 	
 	public void runQuery() throws SolrServerException{
 		QueryResponse response = solrServer.query(solrQuery);
-    	if(response.getFacetFields().get(0).getValues().size() > 0)
+		
+    	if(response.getFacetField("ip").getValues().size() > 0)
     	{
-    		List<Count> list = response.getFacetFields().get(0).getValues();
+    		List<Count> list = response.getFacetField("ip").getValues();
     		for(Count c: list)
     		{
     			String[] str = c.toString().split(" ");
@@ -68,7 +74,8 @@ public class AccessInTime extends RuleType {
     			String access = str[1]
     					.replace("(", "")
     					.replace(")", "");
-    			String report = "ip: "+ip+" date: "+timeIterator.toString()+" and "+getDateLimit().toString()+" got "+access+" access - type: "+Constants.typeText[Integer.valueOf(settings.get("type"))];
+    			    			
+    			String report = "ip: "+ip+" date: "+timeIterator.toString()+" and "+getDateLimit().toString()+" got "+access+" access \n";
     			ipFoundList.add(new CandidateIP(ip, Integer.parseInt(access), report));
     		}
     	}
@@ -76,43 +83,17 @@ public class AccessInTime extends RuleType {
 	
 	public List<CandidateIP> eval() throws SolrServerException 
 	{
-		
 		if("0".equals(settings.get("gap"))){
     		runQuery();
 		}else{
 			while(timeIterator.isBefore(endDate)){
 				runQuery();
 				timeIterator = timeIterator.plusHours(Integer.parseInt(settings.get("gap")));
-	        	solrQuery.setQuery("time:["+timeIterator.toString()+"Z TO "+timeIterator.plusHours(Integer.parseInt(settings.get("gap"))).toString()+"Z] AND type:"+settings.get("type"));
+	        	solrQuery.setQuery("time:["+timeIterator.toString()+"Z TO "+timeIterator.plusHours(Integer.parseInt(settings.get("gap"))).toString()+"Z]");
 			}
 		}
 		
 		return ipFoundList;
-		
-//    	DateTime startDate = new DateTime(settings.get("startDateStr"));
-//    	DateTime endDate = new DateTime(settings.get("endDateStr"));
-//    	
-//    	Days days = Days.daysBetween(startDate, endDate);
-//    	
-//    	DateTime endDate1 = startDate.plusDays(days.getDays()/2);
-//    	DateTime startDate2 = endDate1.plusDays(1);
-//    	
-//    	ASTQueryThread t1 = new ASTQueryThread(startDate, endDate1, settings.get("type"), settings.get("count"), ownerRule, solrQuery);
-//    	ASTQueryThread t2 = new ASTQueryThread(startDate2, endDate, settings.get("type"), settings.get("count"), ownerRule, solrQuery);
-//    	
-//    	t1.setName("t1");
-//    	t1.start();
-//    	t2.setName("t2");
-//    	t2.start();
-//    	
-//    	try {
-//			t1.join();
-//			t2.join();
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//    
 		
 	}
 }
