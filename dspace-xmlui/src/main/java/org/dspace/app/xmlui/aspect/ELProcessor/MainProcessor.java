@@ -16,10 +16,9 @@ public class MainProcessor {
 	
 	private static InstanciadorEL instanciador;
 	private static ELProcessor processor;
-	private static Context context;
 	
 	public void process(String query, Context context) throws SQLException {
-		setContext(context);
+		TransactionManager.setContext(context);
 		if(query==null){
 			return;
 		}
@@ -27,7 +26,14 @@ public class MainProcessor {
 			processor=getInstanciador().instanciar(context);
 		}
 		query = this.prepareQuery(query);
-		processor.eval(query);
+		try{
+			processor.eval(query);
+		}
+		catch(Exception e){
+			TransactionManager.roolback();
+			throw e;
+		}
+		
 		
 	}
 	
@@ -56,12 +62,6 @@ public class MainProcessor {
 		MainProcessor.instanciador = instanciador;
 	}
 
-	public static Context getContext() {
-		return context;
-	}
-
-	public static void setContext(Context context) {
-		MainProcessor.context = context;
-	}
+	
 	
 }

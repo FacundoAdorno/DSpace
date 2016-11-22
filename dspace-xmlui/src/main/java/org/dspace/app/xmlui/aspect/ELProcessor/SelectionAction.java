@@ -1,22 +1,24 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
-public class SelectionAction{
+import org.dspace.core.Context;
+
+public class SelectionAction extends Action{
 	
 	public static void selectItems(String value) throws Exception{
 				
-		new FactoryManager().getHandleManager().getItemsFromCondition(value);
+		new ResolverFactory().getHandleResolver().getItemsFromCondition(value);
 		setResult();
 	}	
 	
 	public static void selectCollections(String value) throws Exception{
 		
-		new FactoryManager().getHandleManager().getCollectionsFromCondition(value);
+		new ResolverFactory().getHandleResolver().getCollectionsFromCondition(value);
 		setResult();
 	}
 	
 	public static void selectCommunities(String value) throws Exception{
 		
-		new FactoryManager().getHandleManager().getCommunitiesFromCondition(value);
+		new ResolverFactory().getHandleResolver().getCommunitiesFromCondition(value);
 		setResult();
 	}	
 	

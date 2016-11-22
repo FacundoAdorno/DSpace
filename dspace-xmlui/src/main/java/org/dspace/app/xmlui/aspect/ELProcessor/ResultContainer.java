@@ -10,9 +10,23 @@ import org.dspace.content.Community;
 
 public class ResultContainer{
 	
+	private static String mensaje = "";
 	private static List<Item> items = new ArrayList<Item>();
 	private static List<Collection> collections = new ArrayList<Collection>();
 	private static List<Community> communities = new ArrayList<Community>();
+	
+	public static List<Item> getItems(){
+		return items;
+	}
+	
+	public static List<Collection> getCollections(){
+		return collections;
+	}
+	
+	public static List<Community> getCommunities(){
+		return communities;
+	}
+	
 	
 	public static void cleanResults(){
 		items = new ArrayList<Item>();
@@ -49,5 +63,15 @@ public class ResultContainer{
 	public static void addCommunity(Community comm) {
 		communities.add(comm);
 	}
+
+	public static String getMensaje() {
+		return mensaje;
+	}
+
+	public static void setMensaje(String mensaje) {
+		ResultContainer.mensaje = mensaje;
+	}
+	
+	
 	
 }

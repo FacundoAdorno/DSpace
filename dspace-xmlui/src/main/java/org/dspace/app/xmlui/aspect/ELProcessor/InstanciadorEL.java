@@ -29,7 +29,7 @@ public class InstanciadorEL {
 			processor.defineFunction("seleccionar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectItems");
 			processor.defineFunction("seleccionar", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCollections");
 			processor.defineFunction("seleccionar", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCommunities");
-			processor.defineFunction("transformar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyItemsFromHandle");			
+			processor.defineFunction("transformar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyItems");			
 		}catch (Exception e){
 			e.printStackTrace();
 		}

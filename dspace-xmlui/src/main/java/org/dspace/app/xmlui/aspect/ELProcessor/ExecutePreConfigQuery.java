@@ -15,8 +15,6 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 
 public class ExecutePreConfigQuery extends AbstractAction{
 
-	private static final String propertyPrefix= "el.processor.query.";
-	private static ConfigurationService configService=DSpaceServicesFactory.getInstance().getConfigurationService();
 	private static MainProcessor mainProcessor;
 	private Context context;
 	
