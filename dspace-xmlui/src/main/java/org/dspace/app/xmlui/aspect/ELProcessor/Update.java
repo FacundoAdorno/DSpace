@@ -1,6 +1,7 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +16,8 @@ import org.dspace.core.Context;
 public class Update {
 
 	protected void update(List<MetadataValue> mvList, MetadataField metadataField, String newValue, String regex, boolean updateAll, DSpaceObject dso) throws SQLException, AuthorizeException{
+		List<String> newValues = new ArrayList<String>();
+		boolean anyChange = false;
 		for(MetadataValue mv: mvList){
 			Pattern pat = Pattern.compile(regex);
 			Matcher mat = pat.matcher(mv.getValue());
@@ -29,11 +32,18 @@ public class Update {
 				}
 			}			
 			mat.appendTail(sb);
+			newValues.add(sb.toString());
+			if(sb.toString() != mv.getValue()){
+				anyChange = true;
+			}			
+		}
+		if(anyChange){
 			Context c = TransactionManager.getContext();
-			doUpdate(c, dso, metadataField, sb.toString());
-		}		
+			doUpdate(c, dso, metadataField, newValues);
+		}
+		
 	}
 	
-	protected void doUpdate(Context c, DSpaceObject item, MetadataField metadataField, String newValue) throws SQLException, AuthorizeException{}
+	protected void doUpdate(Context c, DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{}
 	
 }

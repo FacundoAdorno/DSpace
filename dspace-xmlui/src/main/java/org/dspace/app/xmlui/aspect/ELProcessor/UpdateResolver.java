@@ -63,7 +63,7 @@ public class UpdateResolver extends Resolver {
 	private void updateItems(List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
 		for(Item item : ResultContainer.getItems()){
 			for(Condition con: conditions){
-				new UpdateItem().updateItem( (Item)TransactionManager.reload(item), con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
+				new UpdateItem().updateItem( item, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
 			}			
 		}
 	}

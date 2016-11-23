@@ -18,11 +18,13 @@ public class UpdateCollection extends Update{
 	protected static final CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
 	
 	@Override
-	public void doUpdate(Context c, DSpaceObject coll, MetadataField metadataField, String newValue) throws SQLException, AuthorizeException{
-		Collection collection = collectionService.find(c, coll.getID());
+	public void doUpdate(Context c, DSpaceObject coll, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
+		Collection collection = (Collection)TransactionManager.reload(coll);
 		collectionService.clearMetadata(c, (Collection)collection, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		collectionService.addMetadata(c, (Collection)collection, metadataField, "es", newValue);		
-		collectionService.update(c, (Collection)collection);
+		for(String newValue: newValues){			
+			collectionService.addMetadata(c, (Collection)collection, metadataField, "es", newValue);		
+			collectionService.update(c, (Collection)collection);
+		}		
 	}
 	
 	public void updateCollection(Collection collection, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{

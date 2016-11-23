@@ -19,10 +19,13 @@ public class UpdateItem extends Update{
 	protected static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 	
 	@Override
-	public void doUpdate(Context c, DSpaceObject item, MetadataField metadataField, String newValue) throws SQLException, AuthorizeException{
+	public void doUpdate(Context c, DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
+		item = TransactionManager.reload(item);
 		itemService.clearMetadata(c, (Item)item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		itemService.addMetadata(c, (Item)item, metadataField, "es", newValue);		
-		itemService.update(c, (Item)item);
+		for(String newValue : newValues){
+			itemService.addMetadata(c, (Item)item, metadataField, "es", newValue);		
+			itemService.update(c, (Item)item);
+		}		
 	}
 	
 	public void updateItem(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{

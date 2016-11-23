@@ -18,11 +18,13 @@ public class UpdateCommunity extends Update{
 	protected static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 	
 	@Override
-	public void doUpdate(Context c, DSpaceObject comm, MetadataField metadataField, String newValue) throws SQLException, AuthorizeException{
-		Community community = communityService.find(c, comm.getID());
+	public void doUpdate(Context c, DSpaceObject comm, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
+		Community community = (Community)TransactionManager.reload(comm);
 		communityService.clearMetadata(c, (Community)community, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		communityService.addMetadata(c, (Community)community, metadataField, "es", newValue);		
-		communityService.update(c, (Community)community);
+		for(String newValue: newValues){
+			communityService.addMetadata(c, (Community)community, metadataField, "es", newValue);		
+			communityService.update(c, (Community)community);
+		}		
 	}
 	
 	public void updateCommunity(Community community, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
