@@ -35,9 +35,9 @@ public class ResultContainer{
 	}
 	
 	public static void setSelectionPage(){
-		SelectionPage.addItems(items);
-		SelectionPage.addCollections(collections);
-		SelectionPage.addCommunities(communities);
+		SelectionPage.setItemsResult(items);
+		SelectionPage.setCollectionsResult(collections);
+		SelectionPage.setCommunitiesResult(communities);
 	}
 	
 	public static void addItems(List<Item> items){

@@ -6,14 +6,20 @@ public class GenericCondition {
 
 	public static void createCondition(String[] arrayCondition, ConditionResolver conditionManager, String typeCondition, MetadataResolver mr) throws Exception{
 		
-		if(arrayCondition.length == 2){
-			MetadataField mf = mr.getMetadataFieldFromString(arrayCondition[0]);
-			if(mf == null){
-				throw new Exception("No existe el metadato"+arrayCondition[0]);
-			}
-			Condition condition = new Condition(mf, arrayCondition[1], typeCondition);
-			conditionManager.addCondition(condition);
+		MetadataField mf = mr.getMetadataFieldFromString(arrayCondition[0]);
+		if(mf == null){
+			throw new Exception("No existe el metadato"+arrayCondition[0]);
 		}
+		Condition condition = null;
+		if(arrayCondition.length == 2){			
+			condition = new Condition(mf, arrayCondition[1], typeCondition, ".+");
+		}
+		else if(arrayCondition.length == 3){
+			condition = new Condition(mf, arrayCondition[2], typeCondition, arrayCondition[1]);
+		}else{
+			throw new Exception("La condicion de transformacion esta mal formada");
+		}
+		conditionManager.addCondition(condition);
 	}
 	
 }

@@ -3,7 +3,8 @@ package org.dspace.app.xmlui.aspect.ELProcessor;
 public class ResolverFactory {
 	
 	private HandleResolver handleResolver;
-	private ConditionResolver conditionResolver;
+	private ConditionForSelectResolver conditionSelectResolver;
+	private ConditionForUpdateResolver conditionUpdateResolver;
 	private MetadataResolver metadataResolver;
 	private UpdateResolver updateResolver;
 
@@ -14,11 +15,18 @@ public class ResolverFactory {
 		return handleResolver;
 	}
 	
-	public ConditionResolver getConditionResolver(){
-		if(conditionResolver == null){
-			conditionResolver = new ConditionResolver();
+	public ConditionForSelectResolver getConditionSelectResolver(){
+		if(conditionSelectResolver == null){
+			conditionSelectResolver = new ConditionForSelectResolver();
 		}
-		return conditionResolver;
+		return conditionSelectResolver;
+	}
+	
+	public ConditionForUpdateResolver getConditionUpdateResolver(){
+		if(conditionUpdateResolver == null){
+			conditionUpdateResolver = new ConditionForUpdateResolver();
+		}
+		return conditionUpdateResolver;
 	}
 
 	public MetadataResolver getMetadataResolver(){

@@ -1,7 +1,5 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
-import org.dspace.core.Context;
-
 public class SelectionAction extends Action{
 	
 	public static void selectItems(String value) throws Exception{
@@ -21,10 +19,5 @@ public class SelectionAction extends Action{
 		new ResolverFactory().getHandleResolver().getCommunitiesFromCondition(value);
 		setResult();
 	}	
-	
-	private static void setResult(){
-		ResultContainer.setSelectionPage();
-		ResultContainer.cleanResults();
-	}
 	
 }

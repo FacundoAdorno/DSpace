@@ -3,11 +3,9 @@ package org.dspace.app.xmlui.aspect.ELProcessor;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import org.apache.cocoon.ProcessingException;
 import org.apache.cocoon.caching.CacheableProcessingComponent;
-import org.apache.cocoon.util.HashUtil;
 import org.apache.excalibur.source.SourceValidity;
 import org.apache.excalibur.source.impl.validity.NOPValidity;
 import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
@@ -19,8 +17,6 @@ import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.Item;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.PageMeta;
-import org.dspace.app.xmlui.wing.element.Text;
-import org.dspace.app.xmlui.wing.element.TextArea;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -101,21 +97,21 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         
         Division resultado=contact.addDivision("Resultado");
         List losResultados=resultado.addList("resultatos");
-        if(!this.getCommunitiesResult().isEmpty()){
+        if(!getCommunitiesResult().isEmpty()){
         	List communities = losResultados.addList("communities");
-        	for(Community comm: this.getCommunitiesResult()){            	
+        	for(Community comm: getCommunitiesResult()){            	
             	addDSOResult(communities, comm);
             }
         }
-        if(!this.getCollectionsResult().isEmpty()){
+        if(!getCollectionsResult().isEmpty()){
         	List collections = losResultados.addList("collections");
-        	for(Collection coll: this.getCollectionsResult()){
+        	for(Collection coll: getCollectionsResult()){
             	addDSOResult(collections, coll);
             }
         }
-        if(!this.getItemsResult().isEmpty()){
+        if(!getItemsResult().isEmpty()){
         	List items = losResultados.addList("items");
-        	for(org.dspace.content.Item item: this.getItemsResult()){
+        	for(org.dspace.content.Item item: getItemsResult()){
             	addDSOResult(items, item);
             }
         }
@@ -167,31 +163,5 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
 	public static void setCommunitiesResult(java.util.List<org.dspace.content.Community> communitiesResult) {
 		SelectionPage.communitiesResult = communitiesResult;
 	}
-	
-	public static void addItems(java.util.List<org.dspace.content.Item> items){
-		SelectionPage.getItemsResult().addAll(items);
-	}
-	
-	public static void addItem(org.dspace.content.Item item){
-		SelectionPage.getItemsResult().add(item);
-	}
-	
-	public static void addCollections(java.util.List<org.dspace.content.Collection> colls){
-		SelectionPage.getCollectionsResult().addAll(colls);
-	}
-	
-	public static void addCollection(org.dspace.content.Collection coll){
-		SelectionPage.getCollectionsResult().add(coll);
-	}
-	
-	public static void addCommunities(java.util.List<org.dspace.content.Community> comms){
-		SelectionPage.getCommunitiesResult().addAll(comms);
-	}
-	
-	public static void addCommunity(org.dspace.content.Community comm){
-		SelectionPage.getCommunitiesResult().add(comm);
-	}
-    
-    
 
 }

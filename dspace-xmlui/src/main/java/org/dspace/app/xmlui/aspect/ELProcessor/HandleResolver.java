@@ -51,7 +51,7 @@ public class HandleResolver extends Resolver{
 				uuids.add(((Collection) col).getID());
 			}
 		}
-		factoryManager.getConditionResolver().getItemsFromCondition(condition, uuids);
+		factoryManager.getConditionSelectResolver().getItemsFromCondition(condition, uuids);
 		
 	}
 	
@@ -63,7 +63,7 @@ public class HandleResolver extends Resolver{
 		if(dso instanceof Item){
 			throw new Exception("The handle is from an Item");
 		}else if(dso instanceof Collection){
-			//quieren una coleccion y me pasaron un handle de una, devuelvo la coleccion
+			//quieren una coleccion y me pasaron el handle de una, devuelvo la coleccion
 			ResultContainer.addCollection((Collection) dso);
 			return;
 		}else if(dso instanceof Community){
@@ -71,7 +71,7 @@ public class HandleResolver extends Resolver{
 			ResultContainer.addCollections((List<Collection>)(List) result);
 		}
 		
-		factoryManager.getConditionResolver().getCollectionsFromCondition(condition);
+		factoryManager.getConditionSelectResolver().getCollectionsFromCondition(condition);
 	}
 	
 	public void getCommunitiesFromCondition(String condition) throws Exception{
@@ -87,7 +87,7 @@ public class HandleResolver extends Resolver{
 			ResultContainer.addCommunity((Community)dso);
 		}
 		
-		factoryManager.getConditionResolver().getCommunitiesFromCondition(condition);
+		factoryManager.getConditionSelectResolver().getCommunitiesFromCondition(condition);
 	}
 
 	private void getCollectionsFromCommunity(Community com){
