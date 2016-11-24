@@ -21,9 +21,9 @@ public class UpdateCommunity extends Update{
 		Community community = (Community)TransactionManager.reload(comm);
 		communityService.clearMetadata(c, (Community)community, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 		for(String newValue: newValues){
-			communityService.addMetadata(c, (Community)community, metadataField, "es", newValue);		
-			communityService.update(c, (Community)community);
-		}		
+			communityService.addMetadata(c, (Community)community, metadataField, "es", newValue);
+		}
+		communityService.update(c, (Community)community);
 	}
 	
 	public void updateCommunity(Community community, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{

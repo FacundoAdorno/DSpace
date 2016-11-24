@@ -125,7 +125,7 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     	anItem.addText("name").setValue(dso.getName());
     }
     
-    private static void cleanVariables(){
+    public static void cleanVariables(){
     	SelectionPage.setCollectionsResult(new java.util.ArrayList<org.dspace.content.Collection>());
     	SelectionPage.setCommunitiesResult(new java.util.ArrayList<org.dspace.content.Community>());
     	SelectionPage.setItemsResult(new java.util.ArrayList<org.dspace.content.Item>());

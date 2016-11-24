@@ -19,6 +19,10 @@ public class Update {
 		List<String> newValues = new ArrayList<String>();
 		boolean anyChange = false;
 		for(MetadataValue mv: mvList){
+			if(anyChange && !updateAll){
+				newValues.add(mv.getValue());
+				continue;
+			}
 			Pattern pat = Pattern.compile(regex);
 			Matcher mat = pat.matcher(mv.getValue());
 			StringBuffer sb = new StringBuffer();
@@ -35,7 +39,7 @@ public class Update {
 			newValues.add(sb.toString());
 			if(sb.toString() != mv.getValue()){
 				anyChange = true;
-			}			
+			}
 		}
 		if(anyChange){
 			Context c = TransactionManager.getContext();

@@ -23,9 +23,9 @@ public class UpdateItem extends Update{
 		item = TransactionManager.reload(item);
 		itemService.clearMetadata(c, (Item)item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 		for(String newValue : newValues){
-			itemService.addMetadata(c, (Item)item, metadataField, "es", newValue);		
-			itemService.update(c, (Item)item);
-		}		
+			itemService.addMetadata(c, (Item)item, metadataField, "es", newValue);
+		}	
+		itemService.update(c, (Item)item);
 	}
 	
 	public void updateItem(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{

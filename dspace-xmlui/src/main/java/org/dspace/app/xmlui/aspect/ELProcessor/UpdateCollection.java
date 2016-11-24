@@ -21,9 +21,9 @@ public class UpdateCollection extends Update{
 		Collection collection = (Collection)TransactionManager.reload(coll);
 		collectionService.clearMetadata(c, (Collection)collection, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 		for(String newValue: newValues){			
-			collectionService.addMetadata(c, (Collection)collection, metadataField, "es", newValue);		
-			collectionService.update(c, (Collection)collection);
-		}		
+			collectionService.addMetadata(c, (Collection)collection, metadataField, "es", newValue);
+		}
+		collectionService.update(c, (Collection)collection);
 	}
 	
 	public void updateCollection(Collection collection, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
