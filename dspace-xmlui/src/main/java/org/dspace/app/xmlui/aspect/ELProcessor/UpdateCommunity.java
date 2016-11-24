@@ -17,7 +17,6 @@ public class UpdateCommunity extends Update{
 	
 	protected static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 	
-	@Override
 	public void doUpdate(Context c, DSpaceObject comm, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
 		Community community = (Community)TransactionManager.reload(comm);
 		communityService.clearMetadata(c, (Community)community, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);

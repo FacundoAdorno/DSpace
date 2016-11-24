@@ -17,7 +17,6 @@ public class UpdateCollection extends Update{
 
 	protected static final CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
 	
-	@Override
 	public void doUpdate(Context c, DSpaceObject coll, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
 		Collection collection = (Collection)TransactionManager.reload(coll);
 		collectionService.clearMetadata(c, (Collection)collection, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
