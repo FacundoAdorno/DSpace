@@ -1,4 +1,87 @@
 
+
+# Herramienta de Transformacion
+
+Para usar y probar la herramienta hay que acceder a '/transformer/selectionPage' (el nombre me quedo viejo jejej)
+Ahi encontraran un input donde tendran que escribir la consulta y un boton de submit
+Hay 2 tipos de consultas disponibles:
+-Seleccion
+-Transformacion
+
+Para ver los resultados de la seleccion se debe mirar el dri, para ver los resultados de la transformacion se puede acceder al item,
+coleccion o comunidad modificado y checkear que se hayan realizado los cambios.
+
+Seleccion:
+Para usar esta funcionalidad no es necesario estar logueado. A traves de una consulta de seleccion se puede seleccionar
+Items, colecciones y comunidades. Se pueden aplicar filtros ya sea por handle o por igualdad, mayor, menor o like de metadatos. Varios
+filtros pueden ser aplicados simultaneamente.
+
+El formato de la consulta es el siguiente:
+seleccionar:item(condicion1 ,condicion2)
+
+La primer palabra indica el tipo de actividad, en este caso seleccionar. Luego de los dos puntos ':' viene el tipo de DSO que se queire
+seleccionar 'item', 'coleccion' o 'comunidad'. Luego dentro de los parentesis van las condiciones por las cuales se quire seleccionar,
+en caso de ser mas de una se separan por coma ','. No hay restricciones en cuanto a los espacios entre las condiciones ni en su orden!
+
+-Ej seleccion de un item por su handle:
+seleccionar:item(handle= 11746/3184)
+-Ej seleccion de items que pertenezcan a una collecion:
+seleccionar:item(handle =11746/43)
+-Ej seleccion de items cuyo dc.title sea identico a un valor:
+seleccionar:item(dc.title=un titulo )
+-Ej seleccion de items cuyo dc.title contenga un valor(like):
+seleccionar:item(dc.title~un titulo)
+-Ej seleccion de items cuyo dcterms.extent sea mayor a un valor:
+seleccionar:item(dcterms.extend > 123)
+-Ej seleccion de items cuyo dcterms.extent sea menor a un valor:
+seleccionar:item(dcterms.extend < 123)
+-Ej seleccion de items en base a multiples condiciones:
+seleccionar:item(dc.title~ titulo, dc.abstract=valor especifico)
+
+Para seleccionar colecciones o comunidades basta con cambiar la palabra clave 'item' por 'coleccion' o 'comunidad'
+
+Transformacion:
+
+Para usar esta funcionalidad es necesario estar logueado!! A traves de una consulta de seleccion se puede transformar items,
+colecciones y comunidades. La primera parte de la consulta contendra una consulta de seleccion (con la misma funcionalidad que fue
+explicado arriba) y la segunda parte contendra la consulta de transformacion, permitiendo el uso de expresiones regulares. Tambien 
+permite elegir si se quiere trnasformar solo el primer matcheo(replace first) o todos los matcheos(replace all)
+
+El formato de una transformacion es el siguiente:
+
+transformarFirst:item(condicionDeSeleccion1, condicionDeSeleccion2 - condicionDeTransformacion1 , condicionDeTransformacion2)
+
+La primera palabra indica el tipo de accion que realizara la consulta, en este caso 'transformarFirst' indica que modificara
+solo la primera ocurrencia, si se pusiera 'transformarAll' se modificarian todas las ocurrencias. Luego de los dos puntos ':'
+se indica el tipo de DSO a transformar, en esta caso 'item'. Dentro de los parentesis encontramos 2 secciones, las cuales estan
+separadas por un guion medio '-', la primera seccion son las condiciones de seleccion (iguales a lo expilcado en la consulta de seleccion)
+la segunda seccion son las condiciones de transformacion las cuales tienen el siguiente formato:
+metadato;expresion regular;nuevo valor
+
+Como puede verse la condicion de transformacion tiene 3 partes, las cuales estan separadas por punto y coma ';'.
+La primera parte es el nombre del metadato, la seguna es una expresion regular (esta puede omitirse, en tal caso se reemplazara
+todo el contenido del metadato por el nuevo valor), finalmente la tercera parte es el nuevo valor a poner.
+
+
+-Ej transformacion del dc.title de un item seleccionado por su handle:
+transformarFirst:item(handle=11746/3184 - dc.title;nuevo valor)
+Esta consulta seleccionara el item cuyo handle sea 11746/3184 y luego reemplazara el titulo por 'nuevo valor'
+-Ej transformacion del dc.title de un item seleccionado por su handle si cumple una condicion:
+transformarFirst:item(handle=11746/3184 - dc.title;preuba;prueba)
+Esta consulta seleccionara el item cuyo handle sea 11746/3184 y luego si encuentra la palabra 'preuba' la reemplazara por prueba
+Cabe destacar que si la palabra 'preuba' aparece mas de una vez esta consulta reemplazara solo la primera ocurrencia!!
+Para reemplazar todas las ocurrencias la consulta es:
+transformarAll:item(handle=11746/3184 - dc.title;preuba;prueba)
+
+Al igual que en la seleccion se puede transformar varios metadatos en simultaneo
+transformarFirst:item(handle=11746/3184 - dc.title;prueba , dc.abstract;vlor;valor)
+Esta consulta seleccionara el item cuyo handle es 11746/3184 y reepmlazara el contenido del titulo por 'prueba'
+y reemplzara la primera ocurrencia de 'vlor' que encuentre en el abstract por 'valor'
+
+Cabe destacar que si en una misma consulta se realizan varias operaciones y al menos un falla se hace un roolback y se corta la ejecucion.
+
+
+
 # DSpace
 
 [![Build Status](https://travis-ci.org/DSpace/DSpace.png?branch=master)](https://travis-ci.org/DSpace/DSpace)
