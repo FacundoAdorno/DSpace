@@ -26,15 +26,24 @@ public class InstanciadorEL {
 		
 		processor.getELManager().defineBean("Items", IteratorUtils.toList(itemService.findAll(context)));
 		try{
+			//Item
 			processor.defineFunction("seleccionar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectItems");
-			processor.defineFunction("seleccionar", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCollections");
-			processor.defineFunction("seleccionar", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCommunities");
 			processor.defineFunction("transformarFirst", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyFirstItems");
 			processor.defineFunction("transformarAll", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyAllItems");
+			processor.defineFunction("agregar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "addItemMetadata");
+			processor.defineFunction("eliminar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "deleteItemMetadata");
+			//collection
+			processor.defineFunction("seleccionar", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCollections");
 			processor.defineFunction("transformarFirst", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyFirstCollections");
 			processor.defineFunction("transformarAll", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyAllCollections");
+			processor.defineFunction("agregar", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "addCollectionMetadata");
+			processor.defineFunction("eliminar", "coleccion", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "deleteCollectionMetadata");
+			//community
+			processor.defineFunction("seleccionar", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectCommunities");
 			processor.defineFunction("transformarFirst", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyFirstCommunities");
 			processor.defineFunction("transformarAll", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "modifyAllCommunities");
+			processor.defineFunction("agregar", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "addCommunityMetadata");
+			processor.defineFunction("eliminar", "comunidad", "org.dspace.app.xmlui.aspect.ELProcessor.TransformationAction", "deleteCommunityMetadata");
 		}catch (Exception e){
 			e.printStackTrace();
 		}

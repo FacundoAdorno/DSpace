@@ -19,19 +19,25 @@ public class UpdateItem extends Update{
 	protected static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 	
 	@Override
-	public void doUpdate(Context c, DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
-		item = TransactionManager.reload(item);
-		itemService.clearMetadata(c, (Item)item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
+	public void doUpdate(DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{	
+		delete((Item)item, metadataField, "", "", false);
 		for(String newValue : newValues){
-			itemService.addMetadata(c, (Item)item, metadataField, "es", newValue);
+			add((Item)item, metadataField, newValue, "", false);
 		}	
 		itemService.update(c, (Item)item);
 	}
 	
-	public void updateItem(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
+	public void modify(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
 		List<MetadataValue> mvList = itemService.getMetadata(item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		update(mvList, metadataField, newValue, regex, updateAll, item );
+		super.update(mvList, metadataField, newValue, regex, updateAll, item);
 	}
 	
+	public void add(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
+		itemService.addMetadata(c, (Item)item, metadataField, "es", newValue);
+	}
+	
+	public void delete(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
+		itemService.clearMetadata(c, (Item)item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
+	}
 	
 }

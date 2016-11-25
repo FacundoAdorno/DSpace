@@ -11,7 +11,7 @@ public class ConditionForUpdateResolver extends ConditionResolver{
 	
 	@Override
 	public void checkConditions(String oneCondition, MetadataResolver mr) throws Exception{
-		RegexCondition.createCondition(oneCondition, this, mr);
+		
 	}
 	
 }

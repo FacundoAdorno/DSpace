@@ -9,19 +9,19 @@ public class ConditionForSelectResolver extends ConditionResolver{
 	public void getItemsFromCondition(String condition, List<UUID> collectionsUUIDs) throws Exception{
 		
 		this.separeteCondition(condition);
-		factoryManager.getMetadataResolver().getItemsFromMetadataAndValue(this.conditions, collectionsUUIDs);
+		resolverFactory.getMetadataResolver().getItemsFromMetadataAndValue(this.conditions, collectionsUUIDs);
 	}
 	
 	public void getCollectionsFromCondition(String condition) throws Exception{
 			
 		this.separeteCondition(condition);
-		factoryManager.getMetadataResolver().getCollectionsFromMetadataAndValue(this.conditions, null);
+		resolverFactory.getMetadataResolver().getCollectionsFromMetadataAndValue(this.conditions, null);
 	}
 
 	public void getCommunitiesFromCondition(String condition) throws Exception{
 		
 		this.separeteCondition(condition);
-		factoryManager.getMetadataResolver().getCommunitiesFromMetadataAndValue(this.conditions, null);
+		resolverFactory.getMetadataResolver().getCommunitiesFromMetadataAndValue(this.conditions, null);
 	}
 	
 	@Override

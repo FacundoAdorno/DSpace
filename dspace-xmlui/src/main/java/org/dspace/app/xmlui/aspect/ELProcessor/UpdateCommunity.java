@@ -17,18 +17,25 @@ public class UpdateCommunity extends Update{
 	
 	protected static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 	
-	public void doUpdate(Context c, DSpaceObject comm, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
-		Community community = (Community)TransactionManager.reload(comm);
-		communityService.clearMetadata(c, (Community)community, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
+	public void doUpdate( DSpaceObject comm, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
+		delete((Community)comm, metadataField, "", "", false);
 		for(String newValue: newValues){
-			communityService.addMetadata(c, (Community)community, metadataField, "es", newValue);
+			add((Community)comm, metadataField, newValue, "", false);
 		}
-		communityService.update(c, (Community)community);
+		communityService.update(c, (Community)comm);
 	}
 	
-	public void updateCommunity(Community community, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		List<MetadataValue> mvList = communityService.getMetadata(community, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		update(mvList, metadataField, newValue, regex, updateAll, community );
+	public void modify(Community comm, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
+		List<MetadataValue> mvList = communityService.getMetadata(comm, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
+		super.update(mvList, metadataField, newValue, regex, updateAll, comm);
+	}
+	
+	public void add(Community comm, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
+		communityService.addMetadata(c, (Community)comm, metadataField, "es", newValue);
+	}
+	
+	public void delete(Community comm, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
+		communityService.clearMetadata(c, (Community)comm, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 	}
 
 }

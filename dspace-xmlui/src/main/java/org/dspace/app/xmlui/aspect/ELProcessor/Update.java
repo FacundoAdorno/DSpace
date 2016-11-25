@@ -14,6 +14,8 @@ import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 
 public class Update {
+	
+	protected Context c = TransactionManager.getContext();
 
 	protected void update(List<MetadataValue> mvList, MetadataField metadataField, String newValue, String regex, boolean updateAll, DSpaceObject dso) throws SQLException, AuthorizeException{
 		List<String> newValues = new ArrayList<String>();
@@ -42,12 +44,11 @@ public class Update {
 			}
 		}
 		if(anyChange){
-			Context c = TransactionManager.getContext();
-			doUpdate(c, dso, metadataField, newValues);
+			doUpdate(dso, metadataField, newValues);
 		}
 		
 	}
 	
-	protected void doUpdate(Context c, DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{}
+	protected void doUpdate( DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{}
 	
 }

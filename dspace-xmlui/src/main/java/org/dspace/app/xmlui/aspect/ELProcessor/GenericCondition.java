@@ -8,7 +8,7 @@ public class GenericCondition {
 		
 		MetadataField mf = mr.getMetadataFieldFromString(arrayCondition[0]);
 		if(mf == null){
-			throw new Exception("No existe el metadato"+arrayCondition[0]);
+			throw new Exception("No existe el metadato "+arrayCondition[0]);
 		}
 		Condition condition = null;
 		if(arrayCondition.length == 2){			

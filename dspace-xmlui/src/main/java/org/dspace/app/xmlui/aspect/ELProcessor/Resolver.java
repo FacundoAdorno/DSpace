@@ -22,5 +22,5 @@ abstract class Resolver {
 	protected static final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 	protected static final CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
 	protected static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
-	protected ResolverFactory factoryManager = new ResolverFactory();
+	protected ResolverFactory resolverFactory = new ResolverFactory();
 }

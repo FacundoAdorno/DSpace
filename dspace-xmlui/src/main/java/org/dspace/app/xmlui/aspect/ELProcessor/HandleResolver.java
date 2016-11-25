@@ -51,7 +51,7 @@ public class HandleResolver extends Resolver{
 				uuids.add(((Collection) col).getID());
 			}
 		}
-		factoryManager.getConditionSelectResolver().getItemsFromCondition(condition, uuids);
+		resolverFactory.getConditionSelectResolver().getItemsFromCondition(condition, uuids);
 		
 	}
 	
@@ -71,7 +71,7 @@ public class HandleResolver extends Resolver{
 			ResultContainer.addCollections((List<Collection>)(List) result);
 		}
 		
-		factoryManager.getConditionSelectResolver().getCollectionsFromCondition(condition);
+		resolverFactory.getConditionSelectResolver().getCollectionsFromCondition(condition);
 	}
 	
 	public void getCommunitiesFromCondition(String condition) throws Exception{
@@ -87,7 +87,7 @@ public class HandleResolver extends Resolver{
 			ResultContainer.addCommunity((Community)dso);
 		}
 		
-		factoryManager.getConditionSelectResolver().getCommunitiesFromCondition(condition);
+		resolverFactory.getConditionSelectResolver().getCommunitiesFromCondition(condition);
 	}
 
 	private void getCollectionsFromCommunity(Community com){

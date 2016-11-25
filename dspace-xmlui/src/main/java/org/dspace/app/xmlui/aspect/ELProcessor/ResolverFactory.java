@@ -4,7 +4,8 @@ public class ResolverFactory {
 	
 	private HandleResolver handleResolver;
 	private ConditionForSelectResolver conditionSelectResolver;
-	private ConditionForUpdateResolver conditionUpdateResolver;
+	private ConditionForAddModifyResolver conditionAddModifyResolver;
+	private ConditionForDeleteResolver conditionDeleteResolver;
 	private MetadataResolver metadataResolver;
 	private UpdateResolver updateResolver;
 
@@ -22,11 +23,18 @@ public class ResolverFactory {
 		return conditionSelectResolver;
 	}
 	
-	public ConditionForUpdateResolver getConditionUpdateResolver(){
-		if(conditionUpdateResolver == null){
-			conditionUpdateResolver = new ConditionForUpdateResolver();
+	public ConditionForAddModifyResolver getConditionAddModifyResolver(){
+		if(conditionAddModifyResolver == null){
+			conditionAddModifyResolver = new ConditionForAddModifyResolver();
 		}
-		return conditionUpdateResolver;
+		return conditionAddModifyResolver;
+	}
+	
+	public ConditionForDeleteResolver getConditionDeleteResolver(){
+		if(conditionDeleteResolver == null){
+			conditionDeleteResolver = new ConditionForDeleteResolver();
+		}
+		return conditionDeleteResolver;
 	}
 
 	public MetadataResolver getMetadataResolver(){
