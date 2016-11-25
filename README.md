@@ -42,10 +42,10 @@ Para seleccionar colecciones o comunidades basta con cambiar la palabra clave 'i
 
 Transformacion:
 
-Para usar esta funcionalidad es necesario estar logueado!! A traves de una consulta de seleccion se puede transformar items,
-colecciones y comunidades. La primera parte de la consulta contendra una consulta de seleccion (con la misma funcionalidad que fue
-explicado arriba) y la segunda parte contendra la consulta de transformacion, permitiendo el uso de expresiones regulares. Tambien 
-permite elegir si se quiere trnasformar solo el primer matcheo(replace first) o todos los matcheos(replace all)
+Para usar esta funcionalidad es necesario estar logueado!! A traves de una consulta de seleccion se puede modificar, agregar y eliminar
+metadatos de items, colecciones y comunidades. La primera parte de la consulta contendra una consulta de seleccion (con la misma
+funcionalidad que fue explicado arriba) y la segunda parte contendra la consulta de transformacion, permitiendo el uso de expresiones 
+regulares. Tambien permite elegir si se quiere trnasformar solo el primer matcheo(replace first) o todos los matcheos(replace all)
 
 El formato de una transformacion es el siguiente:
 
@@ -72,6 +72,10 @@ Esta consulta seleccionara el item cuyo handle sea 11746/3184 y luego si encuent
 Cabe destacar que si la palabra 'preuba' aparece mas de una vez esta consulta reemplazara solo la primera ocurrencia!!
 Para reemplazar todas las ocurrencias la consulta es:
 transformarAll:item(handle=11746/3184 - dc.title;preuba;prueba)
+-Ej agregar el metadato dc.title al item seleccionado por su handle:
+agregar:item(handle=11746/3184 - dc.title;nuevo titulo)
+-Ej eliminar el metadato dc.title al item seleccionado por su handle:
+eliminar:item(handle=11746/3184 - dc.title)
 
 Al igual que en la seleccion se puede transformar varios metadatos en simultaneo
 transformarFirst:item(handle=11746/3184 - dc.title;prueba , dc.abstract;vlor;valor)
