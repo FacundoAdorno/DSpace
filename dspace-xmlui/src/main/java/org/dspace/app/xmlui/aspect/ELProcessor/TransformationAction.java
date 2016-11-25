@@ -22,15 +22,27 @@ public class TransformationAction extends Action{
 		setResult();
 	}	
 	
-	public static void modifyCollections(String condition, String newValues) throws Exception{
+	public static void modifyFirstCollections(String condition, String newValues) throws Exception{
 		ResolverFactory rf= new ResolverFactory();
-		rf.getUpdateResolver().modifyCollections(condition, newValues);
+		rf.getUpdateResolver().modifyFirstCollections(condition, newValues);
 		setResult();
 	}
 	
-	public static void modifyCommunities(String condition, String newValues) throws Exception{
+	public static void modifyAllCollections(String condition, String newValues) throws Exception{
 		ResolverFactory rf= new ResolverFactory();
-		rf.getUpdateResolver().modifyCommunities(condition, newValues);
+		rf.getUpdateResolver().modifyAllCollections(condition, newValues);
+		setResult();
+	}
+	
+	public static void modifyFirstCommunities(String condition, String newValues) throws Exception{
+		ResolverFactory rf= new ResolverFactory();
+		rf.getUpdateResolver().modifyFirstCommunities(condition, newValues);
+		setResult();
+	}
+	
+	public static void modifyAllCommunities(String condition, String newValues) throws Exception{
+		ResolverFactory rf= new ResolverFactory();
+		rf.getUpdateResolver().modifyAllCommunities(condition, newValues);
 		setResult();
 	}
 	

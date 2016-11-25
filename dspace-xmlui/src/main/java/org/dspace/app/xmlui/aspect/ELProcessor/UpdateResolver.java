@@ -30,7 +30,7 @@ public class UpdateResolver extends Resolver {
 		updateItems(conditions, true);
 	}
 	
-	public List<Condition> modifyCollections(String condition, String newValues) throws Exception{
+	private List<Condition> modifyCollections(String condition, String newValues) throws Exception{
 		factoryManager.getHandleResolver().getCollectionsFromCondition(condition);
 		return factoryManager.getConditionUpdateResolver().prepareUpdate(newValues);
 	}
@@ -45,7 +45,7 @@ public class UpdateResolver extends Resolver {
 		updateCollections(conditions, false);
 	}
 	
-	public List<Condition> modifyCommunities(String condition, String newValues) throws Exception{
+	private List<Condition> modifyCommunities(String condition, String newValues) throws Exception{
 		factoryManager.getHandleResolver().getCommunitiesFromCondition(condition);
 		return factoryManager.getConditionUpdateResolver().prepareUpdate(newValues);
 	}
