@@ -20,23 +20,41 @@ public class UpdateItem extends Update{
 	
 	@Override
 	public void doUpdate(DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{	
-		delete((Item)item, metadataField, "", "", false);
+		doDelete((Item)item, metadataField);
 		for(String newValue : newValues){
-			add((Item)item, metadataField, newValue, "", false);
+			doAdd((Item)item, metadataField, newValue, "");
 		}	
 		itemService.update(c, (Item)item);
 	}
 	
-	public void modify(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		List<MetadataValue> mvList = itemService.getMetadata(item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		super.update(mvList, metadataField, newValue, regex, updateAll, item);
+	@Override
+	public void modify(DSpaceObject item, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			List<MetadataValue> mvList = itemService.getMetadata((Item)item, condition.getMetadataField().getMetadataSchema().getName(), condition.getMetadataField().getElement(), condition.getMetadataField().getQualifier(), Item.ANY);
+			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, item);
+		}
+		
 	}
 	
-	public void add(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		itemService.addMetadata(c, (Item)item, metadataField, "es", newValue);
+	@Override
+	public void add(DSpaceObject item, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			this.doAdd((Item)item, condition.getMetadataField(), "es", condition.getMetadataValue());
+		}		
 	}
 	
-	public void delete(Item item, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
+	private void doAdd( Item item, MetadataField metadataField, String language, String newValue) throws SQLException{
+		itemService.addMetadata(c, item, metadataField, language, newValue);
+	}
+	
+	@Override
+	public void delete(DSpaceObject item, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			doDelete((Item)item, condition.getMetadataField());
+		}		
+	}
+	
+	private void doDelete(Item item, MetadataField metadataField) throws SQLException{
 		itemService.clearMetadata(c, (Item)item, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 	}
 	

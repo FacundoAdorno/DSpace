@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
@@ -50,37 +51,31 @@ public class UpdateResolver extends Resolver {
 	private void updateItems(List<Condition> conditions, boolean updateAll, String action) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		UpdateItem updateItem = new UpdateItem();
 		for(Item item : ResultContainer.getItems()){
-			for(Condition con: conditions){
-				Method m = updateItem.getClass().getMethod(action, Item.class ,MetadataField.class, String.class, String.class, boolean.class );
-				item = (Item) TransactionManager.reload(item);
-				m.invoke(updateItem, item, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll );
-				//updateItem.updateItem( item, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
-			}			
+			updateDSO(conditions, updateAll, action, item, updateItem);
+			//updateItem.updateItem( item, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
 		}
 	}
 	
 	private void updateCollections(List<Condition> conditions, boolean updateAll, String action) throws SQLException, AuthorizeException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
 		UpdateCollection updateCollection = new UpdateCollection(); 
 		for(Collection coll : ResultContainer.getCollections()){
-			for(Condition con: conditions){
-				Method m = updateCollection.getClass().getMethod(action, Collection.class ,MetadataField.class, String.class, String.class, boolean.class );
-				coll = (Collection) TransactionManager.reload(coll);
-				m.invoke(updateCollection, coll, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll );
-				//updateCollection.updateCollection(coll, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
-			}			
+			updateDSO(conditions, updateAll, action, coll, updateCollection);
+			//updateCollection.updateCollection(coll, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
 		}
 	}
 	
 	private void updateCommunities(List<Condition> conditions, boolean updateAll, String action) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		UpdateCommunity updateCommunity = new UpdateCommunity();
 		for(Community comm : ResultContainer.getCommunities()){
-			for(Condition con: conditions){
-				Method m = updateCommunity.getClass().getMethod(action, Community.class ,MetadataField.class, String.class, String.class, boolean.class );
-				comm = (Community) TransactionManager.reload(comm);
-				m.invoke(updateCommunity, comm, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll );
-				//updateCommunity.updateCommunity(comm, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
-			}			
+			updateDSO(conditions, updateAll, action, comm, updateCommunity);
+			//updateCommunity.updateCommunity(comm, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
 		}
+	}
+	
+	private void updateDSO(List<Condition> conditions, boolean updateAll, String action, DSpaceObject dso, Update update) throws SQLException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+		Method m = update.getClass().getMethod(action, DSpaceObject.class, List.class, boolean.class );
+		dso = TransactionManager.reload(dso);
+		m.invoke(update, dso, conditions, updateAll);
 	}
 	
 	private List<Condition> prepareConditions(String newValues, String action) throws Exception{

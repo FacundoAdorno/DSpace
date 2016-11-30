@@ -26,7 +26,9 @@ public class Update {
 				continue;
 			}
 			Pattern pat = Pattern.compile(regex);
-			Matcher mat = pat.matcher(mv.getValue());
+			//escapeo el string
+			String quoteReplacement = Matcher.quoteReplacement(mv.getValue());
+			Matcher mat = pat.matcher(quoteReplacement);
 			StringBuffer sb = new StringBuffer();
 			if(updateAll){
 				while(mat.find()){
@@ -50,5 +52,23 @@ public class Update {
 	}
 	
 	protected void doUpdate( DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{}
+
+	public void modify(DSpaceObject item, List<Condition> conditions, boolean updateAll)
+			throws SQLException, AuthorizeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void add(DSpaceObject dso, List<Condition> conditions, boolean updateAll)
+			throws SQLException, AuthorizeException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void delete(DSpaceObject item, List<Condition> conditions, boolean updateAll)
+			throws SQLException, AuthorizeException {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -18,24 +18,41 @@ public class UpdateCommunity extends Update{
 	protected static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 	
 	public void doUpdate( DSpaceObject comm, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
-		delete((Community)comm, metadataField, "", "", false);
+		doDelete((Community)comm, metadataField);
 		for(String newValue: newValues){
-			add((Community)comm, metadataField, newValue, "", false);
+			doAdd((Community)comm, metadataField, newValue, "");
 		}
 		communityService.update(c, (Community)comm);
 	}
 	
-	public void modify(Community comm, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		List<MetadataValue> mvList = communityService.getMetadata(comm, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		super.update(mvList, metadataField, newValue, regex, updateAll, comm);
+	@Override
+	public void modify(DSpaceObject comm, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			List<MetadataValue> mvList = communityService.getMetadata((Community)comm, condition.getMetadataField().getMetadataSchema().getName(), condition.getMetadataField().getElement(), condition.getMetadataField().getQualifier(), Item.ANY);
+			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, comm);
+		}		
 	}
 	
-	public void add(Community comm, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		communityService.addMetadata(c, (Community)comm, metadataField, "es", newValue);
+	@Override
+	public void add(DSpaceObject comm, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			this.doAdd((Community)comm, condition.getMetadataField(), "es", condition.getMetadataValue());
+		}
 	}
 	
-	public void delete(Community comm, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		communityService.clearMetadata(c, (Community)comm, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
+	private void doAdd( Community comm, MetadataField metadataField, String language, String newValue) throws SQLException{
+		communityService.addMetadata(c, comm, metadataField, language, newValue);
+	}
+	
+	@Override
+	public void delete(DSpaceObject comm, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			doDelete((Community)comm, condition.getMetadataField());
+		}
+	}
+	
+	private void doDelete(Community comm, MetadataField metadataField) throws SQLException{
+		communityService.clearMetadata(c, comm, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 	}
 
 }

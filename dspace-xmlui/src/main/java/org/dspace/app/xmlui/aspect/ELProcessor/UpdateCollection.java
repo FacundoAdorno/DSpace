@@ -19,24 +19,42 @@ public class UpdateCollection extends Update{
 	protected static final CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
 	
 	public void doUpdate( DSpaceObject coll, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
-		delete((Collection)coll, metadataField, "", "", false);
+		doDelete((Collection)coll, metadataField);
 		for(String newValue: newValues){			
-			add((Collection)coll, metadataField, newValue, "", false);
+			doAdd((Collection)coll, metadataField, newValue, "");
 		}
 		collectionService.update(c, (Collection)coll);
 	}
 	
-	public void modify(Collection coll, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		List<MetadataValue> mvList = collectionService.getMetadata(coll, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
-		super.update(mvList, metadataField, newValue, regex, updateAll, coll);
+	@Override
+	public void modify(DSpaceObject coll, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{		
+		for(Condition condition: conditions){
+			List<MetadataValue> mvList = collectionService.getMetadata((Collection)coll, condition.getMetadataField().getMetadataSchema().getName(), condition.getMetadataField().getElement(), condition.getMetadataField().getQualifier(), Item.ANY);
+			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, coll);
+		}
 	}
 	
-	public void add(Collection coll, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		collectionService.addMetadata(c, (Collection)coll, metadataField, "es", newValue);
+	@Override
+	public void add(DSpaceObject coll, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			this.doAdd((Collection)coll, condition.getMetadataField(), "es", condition.getMetadataValue());
+		}
+		
 	}
 	
-	public void delete(Collection coll, MetadataField metadataField, String newValue, String regex, boolean updateAll) throws SQLException, AuthorizeException{
-		collectionService.clearMetadata(c, (Collection)coll, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
+	private void doAdd(Collection coll, MetadataField metadataField, String language, String newValue) throws SQLException{
+		collectionService.addMetadata(c, coll, metadataField, language, newValue);
+	}
+	
+	@Override
+	public void delete(DSpaceObject coll, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
+		for(Condition condition: conditions){
+			doDelete((Collection)coll, condition.getMetadataField());
+		}
+	}
+	
+	private void doDelete(Collection coll, MetadataField metadataField) throws SQLException{
+		collectionService.clearMetadata(c, coll, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 	}
 	
 	
