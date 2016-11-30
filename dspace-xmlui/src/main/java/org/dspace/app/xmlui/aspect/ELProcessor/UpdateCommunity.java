@@ -1,6 +1,7 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
@@ -17,6 +18,7 @@ public class UpdateCommunity extends Update{
 	
 	protected static final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
 	
+	@Override
 	public void doUpdate( DSpaceObject comm, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
 		doDelete((Community)comm, metadataField);
 		for(String newValue: newValues){
@@ -28,8 +30,8 @@ public class UpdateCommunity extends Update{
 	@Override
 	public void modify(DSpaceObject comm, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
 		for(Condition condition: conditions){
-			List<MetadataValue> mvList = communityService.getMetadata((Community)comm, condition.getMetadataField().getMetadataSchema().getName(), condition.getMetadataField().getElement(), condition.getMetadataField().getQualifier(), Item.ANY);
-			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, comm);
+			List<MetadataValue> mvList = getMetadataValueList(comm, condition.getMetadataField());
+			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, comm, false);
 		}		
 	}
 	
@@ -49,6 +51,11 @@ public class UpdateCommunity extends Update{
 		for(Condition condition: conditions){
 			doDelete((Community)comm, condition.getMetadataField());
 		}
+	}
+	
+	@Override
+	protected List<MetadataValue> getMetadataValueList(DSpaceObject dso, MetadataField metadataField){
+		return communityService.getMetadata((Community)dso, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 	}
 	
 	private void doDelete(Community comm, MetadataField metadataField) throws SQLException{

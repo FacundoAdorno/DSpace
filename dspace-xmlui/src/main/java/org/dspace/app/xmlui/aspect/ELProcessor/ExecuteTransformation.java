@@ -4,30 +4,23 @@ import java.util.Map;
 
 import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.acting.AbstractAction;
-import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Redirector;
-import org.apache.cocoon.environment.Request;
 import org.apache.cocoon.environment.SourceResolver;
 import org.dspace.app.xmlui.utils.ContextUtil;
-import org.dspace.core.Context;
-import org.dspace.services.ConfigurationService;
-import org.dspace.services.factory.DSpaceServicesFactory;
 
-public class ExecutePreConfigQuery extends AbstractAction{
+public class ExecuteTransformation extends AbstractAction{
 
 	private static MainProcessor mainProcessor;	
 	
 	@Override
 	public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
             String source, Parameters parameters) throws Exception {
-
-		Request request = ObjectModelHelper.getRequest(objectModel);
+		// TODO Auto-generated method stub
 		
-		String query=request.getParameter("query");
-		this.instanciateMainProcessor().process(query, ContextUtil.obtainContext(objectModel));
+		this.instanciateMainProcessor().executeTransformation(ContextUtil.obtainContext(objectModel));
 		return null;
 	}
-
+	
 	public  MainProcessor instanciateMainProcessor() {
 		if(mainProcessor==null){
 			mainProcessor=new MainProcessor();
@@ -35,5 +28,4 @@ public class ExecutePreConfigQuery extends AbstractAction{
 		return mainProcessor;
 	}
 
-	
 }

@@ -30,7 +30,7 @@ public class UpdateCollection extends Update{
 	public void modify(DSpaceObject coll, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{		
 		for(Condition condition: conditions){
 			List<MetadataValue> mvList = collectionService.getMetadata((Collection)coll, condition.getMetadataField().getMetadataSchema().getName(), condition.getMetadataField().getElement(), condition.getMetadataField().getQualifier(), Item.ANY);
-			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, coll);
+			//super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, coll);
 		}
 	}
 	

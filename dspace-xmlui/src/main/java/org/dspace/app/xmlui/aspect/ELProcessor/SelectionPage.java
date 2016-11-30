@@ -2,6 +2,7 @@ package org.dspace.app.xmlui.aspect.ELProcessor;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
 import org.apache.cocoon.ProcessingException;
@@ -95,8 +96,8 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         	oneItem.addText("identifier").setValue(option);
         }
         
-        Division resultado=contact.addDivision("Resultado");
-        List losResultados=resultado.addList("resultatos");
+        Division resultado = contact.addDivision("Resultado");
+        List losResultados = resultado.addList("resultatos");
         if(!getCommunitiesResult().isEmpty()){
         	List communities = losResultados.addList("communities");
         	for(Community comm: getCommunitiesResult()){            	
@@ -116,8 +117,20 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
             }
         }
         
+        try{
+        	java.util.List<DSpaceObjectPreview> previews = PreviewManager.showPreview(this);
+        	for(DSpaceObjectPreview preview: previews){
+            	System.out.println("preview");
+            }
+        }
+        catch(Exception e){
+        	//mensaje de error ?
+        }
+        
+        
         SelectionPage.cleanVariables();
     }
+    
     
     private void addDSOResult(List items,DSpaceObject dso) throws WingException{
     	Item anItem = items.addItem();

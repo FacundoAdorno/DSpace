@@ -35,6 +35,7 @@ collections / items / and bitstreams.
         </map:matchers>
         <map:actions>
         	<map:action name="executePreConfigQuery" src="org.dspace.app.xmlui.aspect.ELProcessor.ExecutePreConfigQuery" />
+        	<map:action name="executeTransformation" src="org.dspace.app.xmlui.aspect.ELProcessor.ExecuteTransformation" />
         </map:actions>
     </map:components>
 
@@ -111,8 +112,13 @@ collections / items / and bitstreams.
                 <map:serialize type="xml"/>
             </map:match>
             
-            <map:match pattern="transformer/executePreConfigQuery">
+           <map:match pattern="transformer/executePreConfigQuery">
                <map:act type="executePreConfigQuery"/>
+               <map:transform type="selectionPage"/>
+           </map:match>
+           
+           <map:match pattern="transformer/executeTransformation">
+               <map:act type="executeTransformation"/>
                <map:transform type="selectionPage"/>
            </map:match>
 

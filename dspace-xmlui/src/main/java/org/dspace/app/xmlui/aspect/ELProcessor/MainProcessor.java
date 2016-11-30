@@ -1,5 +1,6 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import javax.el.ELProcessor;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.core.Context;
@@ -32,9 +34,12 @@ public class MainProcessor {
 		catch(Exception e){
 			TransactionManager.roolback();
 			throw e;
-		}
-		
-		
+		}	
+	}
+	
+	public void executeTransformation(Context context) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException, AuthorizeException{
+		TransactionManager.setContext(context);
+		new ResolverFactory().getUpdateResolver().executeUpdate();
 	}
 	
 	private String prepareQuery(String query){

@@ -1,11 +1,13 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
@@ -30,10 +32,9 @@ public class UpdateItem extends Update{
 	@Override
 	public void modify(DSpaceObject item, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
 		for(Condition condition: conditions){
-			List<MetadataValue> mvList = itemService.getMetadata((Item)item, condition.getMetadataField().getMetadataSchema().getName(), condition.getMetadataField().getElement(), condition.getMetadataField().getQualifier(), Item.ANY);
-			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, item);
+			List<MetadataValue> mvList = getMetadataValueList(item, condition.getMetadataField());
+			super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, item, false);
 		}
-		
 	}
 	
 	@Override
@@ -52,6 +53,11 @@ public class UpdateItem extends Update{
 		for(Condition condition: conditions){
 			doDelete((Item)item, condition.getMetadataField());
 		}		
+	}
+	
+	@Override
+	protected List<MetadataValue> getMetadataValueList(DSpaceObject dso, MetadataField metadataField){
+		return itemService.getMetadata((Item)dso, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 	}
 	
 	private void doDelete(Item item, MetadataField metadataField) throws SQLException{

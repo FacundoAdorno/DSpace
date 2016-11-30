@@ -18,57 +18,49 @@ import org.dspace.core.Context;
 
 public class UpdateResolver extends Resolver {
 	
-	private List<Condition> prepareItemConditions(String condition, String newValues, String action) throws Exception{
-		resolverFactory.getHandleResolver().getItemsFromCondition(condition);
-		return prepareConditions(newValues, action);
-	}
-	
 	public void modifyItems(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		List<Condition> conditions = this.prepareItemConditions(condition, newValues, action);
-		updateItems(conditions, updateAll, action);
-	}
-	
-	private List<Condition> prepareCollectionConditions(String condition, String newValues, String action) throws Exception{
-		resolverFactory.getHandleResolver().getCollectionsFromCondition(condition);
-		return prepareConditions(newValues, action);
+		resolverFactory.getHandleResolver().getItemsFromCondition(condition);
+		List<Condition> conditions = prepareConditions(newValues, action);
+		this.prepareItemsPreview(conditions, updateAll, action);
+		//updateItems(conditions, updateAll, action);
 	}
 	
 	public void modifyCollections(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		List<Condition> conditions = prepareCollectionConditions(condition, newValues, action);
-		updateCollections(conditions, updateAll, action);
-	}
-	
-	private List<Condition> prepareCommunityConditions(String condition, String newValues, String action) throws Exception{
-		resolverFactory.getHandleResolver().getCommunitiesFromCondition(condition);
-		return prepareConditions(newValues, action);
+		resolverFactory.getHandleResolver().getCollectionsFromCondition(condition);
+		List<Condition> conditions = prepareConditions(newValues, action);
+		this.prepareCollectionsPreview(conditions, updateAll, action);
+		//updateCollections(conditions, updateAll, action);
 	}
 	
 	public void modifyCommunities(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		List<Condition> conditions = prepareCommunityConditions(condition, newValues, action);
-		updateCommunities(conditions, updateAll, action);
+		resolverFactory.getHandleResolver().getCommunitiesFromCondition(condition);
+		List<Condition> conditions = prepareConditions(newValues, action);
+		this.prepareCommunitiesPreview(conditions, updateAll, action);
+		//updateCommunities(conditions, updateAll, action);
 	}
 	
-	private void updateItems(List<Condition> conditions, boolean updateAll, String action) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	public void executeUpdate() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException, AuthorizeException{
+		PreviewManager.executeUpdate(this);
+	}
+	
+	public void updateItems(List<Condition> conditions, boolean updateAll, String action, List<Item> items) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		UpdateItem updateItem = new UpdateItem();
-		for(Item item : ResultContainer.getItems()){
+		for(Item item : items){
 			updateDSO(conditions, updateAll, action, item, updateItem);
-			//updateItem.updateItem( item, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
 		}
 	}
 	
-	private void updateCollections(List<Condition> conditions, boolean updateAll, String action) throws SQLException, AuthorizeException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
+	public void updateCollections(List<Condition> conditions, boolean updateAll, String action, List<Collection> collections) throws SQLException, AuthorizeException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
 		UpdateCollection updateCollection = new UpdateCollection(); 
-		for(Collection coll : ResultContainer.getCollections()){
+		for(Collection coll : collections){
 			updateDSO(conditions, updateAll, action, coll, updateCollection);
-			//updateCollection.updateCollection(coll, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
 		}
 	}
 	
-	private void updateCommunities(List<Condition> conditions, boolean updateAll, String action) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	public void updateCommunities(List<Condition> conditions, boolean updateAll, String action, List<Community> communities) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		UpdateCommunity updateCommunity = new UpdateCommunity();
-		for(Community comm : ResultContainer.getCommunities()){
+		for(Community comm : communities){
 			updateDSO(conditions, updateAll, action, comm, updateCommunity);
-			//updateCommunity.updateCommunity(comm, con.getMetadataField(), con.getMetadataValue(), con.getRegex(), updateAll);
 		}
 	}
 	
@@ -85,5 +77,26 @@ public class UpdateResolver extends Resolver {
 		else{
 			return resolverFactory.getConditionAddModifyResolver().prepareUpdate(newValues);
 		}
+	}
+	
+	private void prepareGenericPreview(List<Condition> conditions, boolean updateAll, String action){
+		PreviewManager.setAction(action);
+		PreviewManager.setUpdateAll(updateAll);
+		PreviewManager.setConditions(conditions);
+	}
+	
+	private void prepareItemsPreview(List<Condition> conditions, boolean updateAll, String action){
+		this.prepareGenericPreview(conditions, updateAll, action);
+		PreviewManager.setItems(ResultContainer.getItems());
+	}
+	
+	private void prepareCollectionsPreview(List<Condition> conditions, boolean updateAll, String action){
+		this.prepareGenericPreview(conditions, updateAll, action);
+		PreviewManager.setCollections(ResultContainer.getCollections());
+	}
+	
+	private void prepareCommunitiesPreview(List<Condition> conditions, boolean updateAll, String action){
+		this.prepareGenericPreview(conditions, updateAll, action);
+		PreviewManager.setCommunities(ResultContainer.getCommunities());
 	}
 }
