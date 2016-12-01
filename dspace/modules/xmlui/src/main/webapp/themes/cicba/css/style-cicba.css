@@ -10,6 +10,14 @@ namespace xml "http: //www.w3.org /XML/1998/namespace"
 /* Azul #4365a2 */
 /* Azul rgba(67,101,162, 1); */
 
+.dsl-table th, .dsl-table td{
+	background-color: #ffffff;
+    border: 1px solid #9cacba ;
+}
+.dsl-table-header-row th {
+    background-color: #b6c8d9;
+    border: 1px solid #9cacba;
+}
 
 ol {
 	padding-left: 40px;

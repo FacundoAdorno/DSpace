@@ -66,7 +66,6 @@ public class TransformationAction extends Action{
 		cleanPreview();
 		ResolverFactory rf= new ResolverFactory();
 		rf.getUpdateResolver().modifyItems(condition, newValues, updateAll, action);
-		setResult();
 	}
 	
 	private static void transformCollection(String condition, String newValues, boolean updateAll, String action) throws Exception{
@@ -74,7 +73,6 @@ public class TransformationAction extends Action{
 		cleanPreview();
 		ResolverFactory rf= new ResolverFactory();
 		rf.getUpdateResolver().modifyCollections(condition, newValues, false, action);
-		setResult();
 	}
 	
 	private static void transformCommunity(String condition, String newValues, boolean updateAll, String action) throws Exception{
@@ -82,7 +80,6 @@ public class TransformationAction extends Action{
 		cleanPreview();
 		ResolverFactory rf= new ResolverFactory();
 		rf.getUpdateResolver().modifyCommunities(condition, newValues, false, action);
-		setResult();
 	}
 	
 	private static void cleanPreview(){

@@ -27,15 +27,13 @@ public class PreviewManager{
 	}
 	
 	
-	public static List<DSpaceObjectPreview> showPreview(SelectionPage sp) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	public static List<DSpaceObjectPreview> showPreview() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		if(!items.isEmpty()){
 			showItemPeview();
 		}else if(!collections.isEmpty()){
 			showCollectionPeview();
 		}else if(!communities.isEmpty()){
 			showCommunityPeview();
-		}else{
-			
 		}
 		return previews;
 	}

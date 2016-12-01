@@ -14,7 +14,7 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 
-public class Update {
+public abstract class Update {
 	
 	protected Context c = TransactionManager.getContext();
 
@@ -27,6 +27,8 @@ public class Update {
 				continue;
 			}
 			Pattern pat = Pattern.compile(regex);
+			//replace, if exist, reference to other metadata
+			newValue = replaceReferences(newValue, dso);
 			//escapeo el string
 			String quoteReplacement = Matcher.quoteReplacement(mv.getValue());
 			Matcher mat = pat.matcher(quoteReplacement);
@@ -58,6 +60,7 @@ public class Update {
 		List<DSpaceObjectPreview> previews = new ArrayList<DSpaceObjectPreview>();
 		for(DSpaceObject dso:  DSOs){
 			for(Condition condition: conditions){
+				condition.setMetadataValue(replaceReferences(condition.getMetadataValue(), dso));
 				previews.add(new DSpaceObjectPreview(dso.getHandle(), condition.getMetadataField(), "-", condition.getMetadataValue()));
 			}
 		}
@@ -97,9 +100,7 @@ public class Update {
 		}
 	}
 	
-	protected List<MetadataValue> getMetadataValueList(DSpaceObject dso, MetadataField metadataField){
-		return new ArrayList<MetadataValue>();
-	}
+	protected abstract List<MetadataValue> getMetadataValueList(DSpaceObject dso, MetadataField metadataField);
 
 	protected void doUpdate( DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{}
 
@@ -116,6 +117,28 @@ public class Update {
 	public void delete(DSpaceObject item, List<Condition> conditions, boolean updateAll)
 			throws SQLException, AuthorizeException {
 		// TODO Auto-generated method stub
+	}
+	
+	private String replaceReferences(String fullString, DSpaceObject dso) {
+		int indexOfStartReference = fullString.indexOf("$");
+		String replace = "";
+		if(indexOfStartReference != -1){
+			int indexOfEndReference = fullString.indexOf(" ", indexOfStartReference);
+			if(indexOfEndReference == -1){
+				indexOfEndReference = fullString.length();
+			}
+			replace = fullString.substring(indexOfStartReference+1, indexOfEndReference); 
+		}
+		List<MetadataValue> metadataValuesList = new ArrayList<MetadataValue>(); 
+		try{
+			MetadataField metadataField = new ResolverFactory().getMetadataResolver().getMetadataFieldFromString(replace);
+			metadataValuesList = getMetadataValueList(dso, metadataField);
+		}
+		catch(Exception e){}
+		if(!metadataValuesList.isEmpty()){
+			fullString = fullString.replace("$"+replace, metadataValuesList.get(0).getValue());
+		}
+		return fullString; 
 	}
 	
 }

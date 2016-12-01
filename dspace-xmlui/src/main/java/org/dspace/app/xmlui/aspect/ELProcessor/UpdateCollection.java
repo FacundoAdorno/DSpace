@@ -29,7 +29,7 @@ public class UpdateCollection extends Update{
 	@Override
 	public void modify(DSpaceObject coll, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{		
 		for(Condition condition: conditions){
-			List<MetadataValue> mvList = collectionService.getMetadata((Collection)coll, condition.getMetadataField().getMetadataSchema().getName(), condition.getMetadataField().getElement(), condition.getMetadataField().getQualifier(), Item.ANY);
+			List<MetadataValue> mvList = getMetadataValueList(coll, condition.getMetadataField());
 			//super.update(mvList, condition.getMetadataField(), condition.getMetadataValue(), condition.getRegex(), updateAll, coll);
 		}
 	}
@@ -51,6 +51,11 @@ public class UpdateCollection extends Update{
 		for(Condition condition: conditions){
 			doDelete((Collection)coll, condition.getMetadataField());
 		}
+	}
+	
+	@Override
+	protected List<MetadataValue> getMetadataValueList(DSpaceObject dso, MetadataField metadataField){
+		return collectionService.getMetadata((Collection)dso, metadataField.getMetadataSchema().getName(), metadataField.getElement(), metadataField.getQualifier(), Item.ANY);
 	}
 	
 	private void doDelete(Collection coll, MetadataField metadataField) throws SQLException{

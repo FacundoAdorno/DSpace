@@ -85,49 +85,58 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         String name = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.name");
         contact.addPara(T_para1.parameterize(name));
         
-        String[] options=(configurationService.getProperty("el.processor.options", null).split(","));
+        //String[] options=(configurationService.getProperty("el.processor.options", null).split(","));
         
-        List list = contact.addList("options");
+        List seleccion = contact.addList("Seleccion");
         
-        for(String option:options){
-        	String description = configurationService.getProperty("el.processor.description."+option);
-        	Item oneItem= list.addItem();
-        	oneItem.addText("description").setValue(description);
-        	oneItem.addText("identifier").setValue(option);
-        }
-        
-        Division resultado = contact.addDivision("Resultado");
-        List losResultados = resultado.addList("resultatos");
+//        for(String option:options){
+//        	String description = configurationService.getProperty("el.processor.description."+option);
+//        	Item oneItem= list.addItem();
+//        	oneItem.addText("description").setValue(description);
+//        	oneItem.addText("identifier").setValue(option);
+//        }
+        boolean result = false;
         if(!getCommunitiesResult().isEmpty()){
-        	List communities = losResultados.addList("communities");
+        	result = true;
+        	List communities = seleccion.addList("communities");
         	for(Community comm: getCommunitiesResult()){            	
             	addDSOResult(communities, comm);
             }
         }
         if(!getCollectionsResult().isEmpty()){
-        	List collections = losResultados.addList("collections");
+        	result = true;
+        	List collections = seleccion.addList("collections");
         	for(Collection coll: getCollectionsResult()){
             	addDSOResult(collections, coll);
             }
         }
         if(!getItemsResult().isEmpty()){
-        	List items = losResultados.addList("items");
+        	result = true;
+        	List items = seleccion.addList("items");
         	for(org.dspace.content.Item item: getItemsResult()){
             	addDSOResult(items, item);
             }
         }
         
         try{
-        	java.util.List<DSpaceObjectPreview> previews = PreviewManager.showPreview(this);
+        	java.util.List<DSpaceObjectPreview> previews = PreviewManager.showPreview();
+        	List previewList = contact.addList("preview");
         	for(DSpaceObjectPreview preview: previews){
-            	System.out.println("preview");
+        		result = true;
+        		Item anItem = previewList.addItem();
+        		anItem.addText("handle").setValue(preview.getHandle());
+        		anItem.addText("metadata").setValue(preview.getMetadataName());
+        		anItem.addText("Current Value").setValue(preview.getOldValue());
+        		anItem.addText("New Value").setValue(preview.getNewValue());
             }
         }
         catch(Exception e){
         	//mensaje de error ?
         }
         
-        
+        if(!result){
+        	contact.addDivision("No result");
+        }
         SelectionPage.cleanVariables();
     }
     

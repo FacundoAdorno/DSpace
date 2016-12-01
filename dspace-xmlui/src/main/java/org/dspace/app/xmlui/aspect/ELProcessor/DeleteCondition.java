@@ -1,6 +1,6 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
-public class AddDeleteCondition extends GenericCondition{
+public class DeleteCondition extends GenericCondition{
 	
 	public static void createCondition(String stringCondition, ConditionResolver conditionManager, MetadataResolver mr) throws Exception{
 		String[] arrayCondition = new String[2];
