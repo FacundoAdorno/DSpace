@@ -47,6 +47,8 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     private static java.util.List<org.dspace.content.Item> itemsResult;
     private static java.util.List<org.dspace.content.Collection> collectionsResult;
     private static java.util.List<org.dspace.content.Community> communitiesResult;
+    private static final String mensaje = "No hay resultados para la consulta!";
+    private static boolean showMensaje = false;
 	
     private static final ConfigurationService configurationService =DSpaceServicesFactory.getInstance().getConfigurationService();
     
@@ -95,23 +97,19 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
 //        	oneItem.addText("description").setValue(description);
 //        	oneItem.addText("identifier").setValue(option);
 //        }
-        boolean result = false;
         if(!getCommunitiesResult().isEmpty()){
-        	result = true;
         	List communities = seleccion.addList("communities");
         	for(Community comm: getCommunitiesResult()){            	
             	addDSOResult(communities, comm);
             }
         }
         if(!getCollectionsResult().isEmpty()){
-        	result = true;
         	List collections = seleccion.addList("collections");
         	for(Collection coll: getCollectionsResult()){
             	addDSOResult(collections, coll);
             }
         }
         if(!getItemsResult().isEmpty()){
-        	result = true;
         	List items = seleccion.addList("items");
         	for(org.dspace.content.Item item: getItemsResult()){
             	addDSOResult(items, item);
@@ -122,7 +120,6 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         	java.util.List<DSpaceObjectPreview> previews = PreviewManager.showPreview();
         	List previewList = contact.addList("preview");
         	for(DSpaceObjectPreview preview: previews){
-        		result = true;
         		Item anItem = previewList.addItem();
         		anItem.addText("handle").setValue(preview.getHandle());
         		anItem.addText("metadata").setValue(preview.getMetadataName());
@@ -134,10 +131,11 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         	//mensaje de error ?
         }
         
-        if(!result){
+        if(showMensaje){
         	Division noResult = contact.addDivision("No result");
-        	noResult.addPara("No hubo resultados para su consulta!");
-        }
+        	noResult.addPara(mensaje);
+        }    	
+    	
         SelectionPage.cleanVariables();
     }
     
@@ -152,6 +150,7 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     	SelectionPage.setCollectionsResult(new java.util.ArrayList<org.dspace.content.Collection>());
     	SelectionPage.setCommunitiesResult(new java.util.ArrayList<org.dspace.content.Community>());
     	SelectionPage.setItemsResult(new java.util.ArrayList<org.dspace.content.Item>());
+    	showMensaje = false;
     }
 
 	public static java.util.List<org.dspace.content.Item> getItemsResult() {
@@ -185,6 +184,10 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
 
 	public static void setCommunitiesResult(java.util.List<org.dspace.content.Community> communitiesResult) {
 		SelectionPage.communitiesResult = communitiesResult;
+	}
+
+	public static void showMensaje() {
+		showMensaje = true;
 	}
 
 }

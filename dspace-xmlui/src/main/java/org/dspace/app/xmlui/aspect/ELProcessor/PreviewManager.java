@@ -81,19 +81,31 @@ public class PreviewManager{
 		return items;
 	}
 	public static void setItems(List<Item> items) {
-		PreviewManager.items = items;
+		if(items.isEmpty()){
+			SelectionPage.showMensaje();
+		}else{
+			PreviewManager.items = items;
+		}
 	}
 	public static List<Collection> getCollections() {
 		return collections;
 	}
 	public static void setCollections(List<Collection> collections) {
-		PreviewManager.collections = collections;
+		if(collections.isEmpty()){
+			SelectionPage.showMensaje();
+		}else{
+			PreviewManager.collections = collections;
+		}
 	}
 	public static List<Community> getCommunities() {
 		return communities;
 	}
 	public static void setCommunities(List<Community> communitiesList) {
-		communities = communitiesList;
+		if(communitiesList.isEmpty()){
+			SelectionPage.showMensaje();
+		}else{
+			communities = communitiesList;
+		}
 	}
 	public static String getAction() {
 		return action;

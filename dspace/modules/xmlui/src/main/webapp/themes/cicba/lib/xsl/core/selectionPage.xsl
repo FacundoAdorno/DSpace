@@ -8,7 +8,7 @@
 
 
 	<xsl:template match="dri:div[@id='aspect.ELProcessor.SelectionPage.div.contact']">
-		<form id="home-search-form" method="POST" action="executePreConfigQuery" class="form-inline" role="form">
+		<form id="home-search-form" method="GET" action="executePreConfigQuery" class="form-inline" role="form">
 <!-- 			<select name="propertyName" id="propertyName"> -->
 <!-- 				<xsl:for-each select="dri:list[@id='aspect.ELProcessor.SelectionPage.list.options']/dri:item">				 -->
 <!-- 						<option> -->

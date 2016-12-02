@@ -41,7 +41,11 @@ public class ResultContainer{
 	}
 	
 	public static void addItems(List<Item> items){
-		ResultContainer.items.addAll(items);
+		if(items.isEmpty()){
+			SelectionPage.showMensaje();
+		}else{
+			ResultContainer.items.addAll(items);
+		}
 	}
 	
 	public static void addItem(Item item){
@@ -49,7 +53,11 @@ public class ResultContainer{
 	}
 	
 	public static void addCollections(List<Collection> collections){
-		ResultContainer.collections.addAll(collections);
+		if(collections.isEmpty()){
+			SelectionPage.showMensaje();
+		}else{
+			ResultContainer.collections.addAll(collections);
+		}
 	}
 	
 	public static void addCollection(Collection coll) {
@@ -57,7 +65,11 @@ public class ResultContainer{
 	}
 	
 	public static void addCommunities(List<Community> communities){
-		ResultContainer.communities.addAll(communities);
+		if(communities.isEmpty()){
+			SelectionPage.showMensaje();
+		}else{
+			ResultContainer.communities.addAll(communities);
+		}
 	}	
 	
 	public static void addCommunity(Community comm) {

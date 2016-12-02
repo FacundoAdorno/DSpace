@@ -3,7 +3,6 @@ package org.dspace.app.xmlui.aspect.ELProcessor;
 public class Action {
 	
 	protected static void setResult(){
-		cleanSelection();
 		ResultContainer.setSelectionPage();
 		cleanResult();
 	}
