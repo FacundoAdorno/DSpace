@@ -75,5 +75,9 @@
 				<button type="submit" name="lr" class="btn btn-link">Confirmar</button>
 			</form>
 		</xsl:if>
+		
+		<h2><xsl:value-of select="./dri:div[@n='No result']"></xsl:value-of></h2>
+		
 	</xsl:template>
+	
 </xsl:stylesheet>

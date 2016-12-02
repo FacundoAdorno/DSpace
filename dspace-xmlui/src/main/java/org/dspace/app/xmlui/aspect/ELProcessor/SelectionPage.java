@@ -135,7 +135,8 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         }
         
         if(!result){
-        	contact.addDivision("No result");
+        	Division noResult = contact.addDivision("No result");
+        	noResult.addPara("No hubo resultados para su consulta!");
         }
         SelectionPage.cleanVariables();
     }
