@@ -8,12 +8,9 @@ Hay 2 tipos de consultas disponibles:
 *Seleccion
 *Transformacion
 
-Para ver los resultados de la seleccion se debe mirar el dri, para ver los resultados de la transformacion se puede acceder al item,
-coleccion o comunidad modificado y checkear que se hayan realizado los cambios.
-
 Seleccion:
 Para usar esta funcionalidad no es necesario estar logueado. A traves de una consulta de seleccion se puede seleccionar
-Items, colecciones y comunidades. Se pueden aplicar filtros ya sea por handle o por igualdad, mayor, menor o like de metadatos. Varios
+Items, colecciones y comunidades. Se pueden aplicar filtros ya sea por handle, por igualdad, mayor, menor o like de metadatos. Varios
 filtros pueden ser aplicados simultaneamente.
 
 El formato de la consulta es el siguiente:
