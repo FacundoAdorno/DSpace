@@ -43,11 +43,8 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     
     private static final Message T_para1 =
         message("xmlui.ArtifactBrowser.Contact.para1");
-
-    private static java.util.List<org.dspace.content.Item> itemsResult;
-    private static java.util.List<org.dspace.content.Collection> collectionsResult;
-    private static java.util.List<org.dspace.content.Community> communitiesResult;
-    private static final String mensaje = "No hay resultados para la consulta!";
+    
+    private static String mensaje = "";
     private static boolean showMensaje = false;
 	
     private static final ConfigurationService configurationService =DSpaceServicesFactory.getInstance().getConfigurationService();
@@ -97,27 +94,12 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
 //        	oneItem.addText("description").setValue(description);
 //        	oneItem.addText("identifier").setValue(option);
 //        }
-        if(!getCommunitiesResult().isEmpty()){
-        	List communities = seleccion.addList("communities");
-        	for(Community comm: getCommunitiesResult()){            	
-            	addDSOResult(communities, comm);
-            }
-        }
-        if(!getCollectionsResult().isEmpty()){
-        	List collections = seleccion.addList("collections");
-        	for(Collection coll: getCollectionsResult()){
-            	addDSOResult(collections, coll);
-            }
-        }
-        if(!getItemsResult().isEmpty()){
-        	List items = seleccion.addList("items");
-        	for(org.dspace.content.Item item: getItemsResult()){
-            	addDSOResult(items, item);
-            }
-        }
         
+        Division noResult = contact.addDivision("Message");
+    	noResult.addPara(mensaje);
+    	
         try{
-        	java.util.List<DSpaceObjectPreview> previews = PreviewManager.showPreview();
+        	java.util.List<DSpaceObjectPreview> previews = ResultContainer.getResultsToShow();
         	List previewList = contact.addList("preview");
         	for(DSpaceObjectPreview preview: previews){
         		Item anItem = previewList.addItem();
@@ -130,13 +112,7 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         catch(Exception e){
         	//mensaje de error ?
         }
-        
-        if(showMensaje){
-        	Division noResult = contact.addDivision("No result");
-        	noResult.addPara(mensaje);
-        }    	
-    	
-        SelectionPage.cleanVariables();
+    
     }
     
     
@@ -146,48 +122,9 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     	anItem.addText("name").setValue(dso.getName());
     }
     
-    public static void cleanVariables(){
-    	SelectionPage.setCollectionsResult(new java.util.ArrayList<org.dspace.content.Collection>());
-    	SelectionPage.setCommunitiesResult(new java.util.ArrayList<org.dspace.content.Community>());
-    	SelectionPage.setItemsResult(new java.util.ArrayList<org.dspace.content.Item>());
-    	showMensaje = false;
+    public static void setMensaje(String mensaje){
+    	SelectionPage.mensaje = mensaje;
     }
 
-	public static java.util.List<org.dspace.content.Item> getItemsResult() {
-		if(SelectionPage.itemsResult == null){
-			return new java.util.ArrayList<org.dspace.content.Item>();
-		}
-		return SelectionPage.itemsResult;
-	}
-
-	public static void setItemsResult(java.util.List<org.dspace.content.Item> itemsResult) {
-		SelectionPage.itemsResult = itemsResult;
-	}
-
-	public static java.util.List<org.dspace.content.Collection> getCollectionsResult() {
-		if(SelectionPage.collectionsResult == null){
-			return new java.util.ArrayList<org.dspace.content.Collection>();
-		}
-		return SelectionPage.collectionsResult;
-	}
-
-	public static void setCollectionsResult(java.util.List<org.dspace.content.Collection> collectionsResult) {
-		SelectionPage.collectionsResult = collectionsResult;
-	}
-
-	public static java.util.List<org.dspace.content.Community> getCommunitiesResult() {
-		if(SelectionPage.communitiesResult == null){
-			return new java.util.ArrayList<org.dspace.content.Community>();
-		}
-		return SelectionPage.communitiesResult;
-	}
-
-	public static void setCommunitiesResult(java.util.List<org.dspace.content.Community> communitiesResult) {
-		SelectionPage.communitiesResult = communitiesResult;
-	}
-
-	public static void showMensaje() {
-		showMensaje = true;
-	}
 
 }

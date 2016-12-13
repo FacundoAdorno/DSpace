@@ -20,6 +20,14 @@ public class DSpaceObjectPreview {
 		this.newValue = newValue;
 	}
 	
+	public DSpaceObjectPreview(String handle, String metadataName, String oldValue, String newValue) {
+		super();
+		this.handle = handle;
+		this.metadataName = metadataName;
+		this.oldValue = oldValue;
+		this.newValue = newValue;
+	}
+	
 	public String getHandle() {
 		return handle;
 	}

@@ -24,7 +24,7 @@ public class UpdateItem extends Update{
 	public void doUpdate(DSpaceObject item, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{	
 		doDelete((Item)item, metadataField);
 		for(String newValue : newValues){
-			doAdd((Item)item, metadataField, newValue, "");
+			doAdd((Item)item, metadataField, "es", newValue);
 		}	
 		itemService.update(c, (Item)item);
 	}

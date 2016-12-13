@@ -22,35 +22,9 @@
 			<input name="query" id="query"></input>
 			<button type="submit" name="lr" class="btn btn-link">Ejecutar</button>
 		</form>
-		<xsl:choose>
-			<xsl:when test="./dri:list[@n='Seleccion']/dri:list[@n='communities']">
-				Comunidades:
-			</xsl:when>
-			<xsl:when test="./dri:list[@n='Seleccion']/dri:list[@n='collections']">
-				Colecciones:
-			</xsl:when>
-			<xsl:when test="./dri:list[@n='Seleccion']/dri:list[@n='items']">
-				Items:
-			</xsl:when>
-		</xsl:choose>
 		<br></br>
-		<xsl:if test="./dri:list[@n='Seleccion']/dri:list/dri:item">
-			<table class="dsl-table">
-				<tbody>
-					<tr class="dsl-table-header-row">
-						<th>Handle</th>
-						<th>Title</th>
-					</tr>
-				
-				<xsl:for-each select="./dri:list[@n='Seleccion']/dri:list/dri:item">
-					<tr class="ds-table-row">
-						<td class="ds-table-cell odd"> <xsl:value-of select="./dri:field[@n='handle']"></xsl:value-of></td>
-						<td class="ds-table-cell odd"> <xsl:value-of select="./dri:field[@n='name']"></xsl:value-of></td>
-					</tr>
-				</xsl:for-each>
-				</tbody>
-			</table>
-		</xsl:if>
+		<h2><xsl:value-of select="./dri:div[@n='Message']"></xsl:value-of></h2>
+		<br></br>
 		<xsl:if test="./dri:list[@n='preview']/dri:item">
 			<table class="dsl-table">
 				<tbody>
@@ -71,12 +45,12 @@
 				</xsl:for-each>
 				</tbody>
 			</table>
+			<xsl:if test="../../dri:div[@n='Message']">
+			</xsl:if>
 			<form id="home-search-form" method="POST" action="executeTransformation" class="form-inline" role="form">
 				<button type="submit" name="lr" class="btn btn-link">Confirmar</button>
 			</form>
 		</xsl:if>
-		
-		<h2><xsl:value-of select="./dri:div[@n='No result']"></xsl:value-of></h2>
 		
 	</xsl:template>
 	

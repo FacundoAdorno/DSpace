@@ -39,7 +39,13 @@ public class MainProcessor {
 	
 	public void executeTransformation(Context context) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException, AuthorizeException{
 		TransactionManager.setContext(context);
-		new ResolverFactory().getUpdateResolver().executeUpdate();
+		try{
+			TransformationAction.executeUpdate();
+		}
+		catch(Exception e){
+			TransactionManager.roolback();
+			throw e;
+		}
 	}
 	
 	private String prepareQuery(String query){

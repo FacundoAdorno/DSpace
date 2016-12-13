@@ -22,7 +22,7 @@ public class UpdateCommunity extends Update{
 	public void doUpdate( DSpaceObject comm, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
 		doDelete((Community)comm, metadataField);
 		for(String newValue: newValues){
-			doAdd((Community)comm, metadataField, newValue, "");
+			doAdd((Community)comm, metadataField, "es", newValue);
 		}
 		communityService.update(c, (Community)comm);
 	}

@@ -7,9 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
@@ -44,7 +42,7 @@ public abstract class Update {
 			}			
 			mat.appendTail(sb);
 			newValues.add(sb.toString());
-			if(sb.toString() != mv.getValue()){
+			if(!sb.toString().equals(mv.getValue())){
 				anyChange = true;
 			}
 		}
@@ -64,7 +62,7 @@ public abstract class Update {
 				previews.add(new DSpaceObjectPreview(dso.getHandle(), condition.getMetadataField(), "-", condition.getMetadataValue()));
 			}
 		}
-		PreviewManager.addPreview(previews);
+		ResultContainer.addResultsToShow(previews);
 	}
 	
 	public void deletePreview(List<DSpaceObject> DSOs, List<Condition> conditions, String updateAll){
@@ -77,7 +75,7 @@ public abstract class Update {
 				}				
 			}
 		}
-		PreviewManager.addPreview(previews);
+		ResultContainer.addResultsToShow(previews);
 	}
 	
 	public void modifyPreview(List<DSpaceObject> DSOs, List<Condition> conditions, boolean updateAll) throws SQLException, AuthorizeException{
@@ -95,7 +93,7 @@ public abstract class Update {
 			String currentNewValue = newValues.get(i);
 			MetadataValue currentMV = mvList.get(i);
 			if(!currentNewValue.equals(currentMV.getValue())){
-				PreviewManager.addPreview(new DSpaceObjectPreview(dso.getHandle(), metadataField, currentMV.getValue(), currentNewValue));
+				ResultContainer.addResultToShow(new DSpaceObjectPreview(dso.getHandle(), metadataField, currentMV.getValue(), currentNewValue));
 			}
 		}
 	}

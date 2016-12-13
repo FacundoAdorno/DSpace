@@ -4,17 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.content.MetadataField;
-import org.dspace.content.MetadataValue;
-import org.dspace.core.Context;
 
 public class UpdateResolver extends Resolver {
 	
@@ -39,28 +31,24 @@ public class UpdateResolver extends Resolver {
 		//updateCommunities(conditions, updateAll, action);
 	}
 	
-	public void executeUpdate() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException, AuthorizeException{
-		PreviewManager.executeUpdate(this);
-	}
-	
-	public void updateItems(List<Condition> conditions, boolean updateAll, String action, List<Item> items) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	public void updateItems(List<Condition> conditions, boolean updateAll, String action, List<DSpaceObject> items) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		UpdateItem updateItem = new UpdateItem();
-		for(Item item : items){
-			updateDSO(conditions, updateAll, action, item, updateItem);
+		for(DSpaceObject dso : items){
+			updateDSO(conditions, updateAll, action, dso, updateItem);
 		}
 	}
 	
-	public void updateCollections(List<Condition> conditions, boolean updateAll, String action, List<Collection> collections) throws SQLException, AuthorizeException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
+	public void updateCollections(List<Condition> conditions, boolean updateAll, String action, List<DSpaceObject> collections) throws SQLException, AuthorizeException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
 		UpdateCollection updateCollection = new UpdateCollection(); 
-		for(Collection coll : collections){
-			updateDSO(conditions, updateAll, action, coll, updateCollection);
+		for(DSpaceObject dso : collections){
+			updateDSO(conditions, updateAll, action, dso, updateCollection);
 		}
 	}
 	
-	public void updateCommunities(List<Condition> conditions, boolean updateAll, String action, List<Community> communities) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	public void updateCommunities(List<Condition> conditions, boolean updateAll, String action, List<DSpaceObject> communities) throws SQLException, AuthorizeException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		UpdateCommunity updateCommunity = new UpdateCommunity();
-		for(Community comm : communities){
-			updateDSO(conditions, updateAll, action, comm, updateCommunity);
+		for(DSpaceObject dso : communities){
+			updateDSO(conditions, updateAll, action, dso, updateCommunity);
 		}
 	}
 	
@@ -80,23 +68,23 @@ public class UpdateResolver extends Resolver {
 	}
 	
 	private void prepareGenericPreview(List<Condition> conditions, boolean updateAll, String action){
-		PreviewManager.setAction(action);
-		PreviewManager.setUpdateAll(updateAll);
-		PreviewManager.setConditions(conditions);
+		TransformationAction.setAction(action);
+		TransformationAction.setUpdateAll(updateAll);
+		TransformationAction.setConditions(conditions);
 	}
 	
-	private void prepareItemsPreview(List<Condition> conditions, boolean updateAll, String action){
+	private void prepareItemsPreview(List<Condition> conditions, boolean updateAll, String action) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		this.prepareGenericPreview(conditions, updateAll, action);
-		PreviewManager.setItems(ResultContainer.getItems());
+		PreviewManager.showItemPeview(ResultContainer.getDSOs());
 	}
 	
-	private void prepareCollectionsPreview(List<Condition> conditions, boolean updateAll, String action){
+	private void prepareCollectionsPreview(List<Condition> conditions, boolean updateAll, String action) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		this.prepareGenericPreview(conditions, updateAll, action);
-		PreviewManager.setCollections(ResultContainer.getCollections());
+		PreviewManager.showCollectionPeview(ResultContainer.getDSOs());
 	}
 	
-	private void prepareCommunitiesPreview(List<Condition> conditions, boolean updateAll, String action){
+	private void prepareCommunitiesPreview(List<Condition> conditions, boolean updateAll, String action) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		this.prepareGenericPreview(conditions, updateAll, action);
-		PreviewManager.setCommunities(ResultContainer.getCommunities());
+		PreviewManager.showCommunityPeview(ResultContainer.getDSOs());
 	}
 }

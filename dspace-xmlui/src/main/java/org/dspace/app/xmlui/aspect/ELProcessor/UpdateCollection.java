@@ -21,7 +21,7 @@ public class UpdateCollection extends Update{
 	public void doUpdate( DSpaceObject coll, MetadataField metadataField, List<String> newValues) throws SQLException, AuthorizeException{
 		doDelete((Collection)coll, metadataField);
 		for(String newValue: newValues){			
-			doAdd((Collection)coll, metadataField, newValue, "");
+			doAdd((Collection)coll, metadataField, "es", newValue);
 		}
 		collectionService.update(c, (Collection)coll);
 	}

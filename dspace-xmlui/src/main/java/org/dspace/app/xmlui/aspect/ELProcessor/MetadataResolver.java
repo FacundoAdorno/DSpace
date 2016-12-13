@@ -1,6 +1,5 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.MetadataFieldService;
-import org.dspace.core.Context;
 
 public class MetadataResolver extends Resolver{
 	

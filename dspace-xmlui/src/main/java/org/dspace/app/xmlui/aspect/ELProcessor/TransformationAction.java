@@ -1,14 +1,21 @@
 package org.dspace.app.xmlui.aspect.ELProcessor;
 
-import java.util.ArrayList;
+import static org.dspace.app.xmlui.aspect.ELProcessor.Action.cleanResult;
+
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.List;
 
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 
 public class TransformationAction extends Action{
-
-	protected static List<DSpaceObject> result= new ArrayList();
-	protected static DSpaceObject dso = null;
+	
+	private static List<DSpaceObject> DSOs;
+	private static String whichDSO;
+	private static String action;
+	private static List<Condition> conditions;
+	private static boolean updateAll;
 	
 	//Item
 	public static void modifyFirstItems(String condition, String newValues) throws Exception{
@@ -62,28 +69,64 @@ public class TransformationAction extends Action{
 	}
 	
 	private static void transformItem(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		cleanResults();
-		cleanPreview();
+		cleanResult();
 		ResolverFactory rf= new ResolverFactory();
 		rf.getUpdateResolver().modifyItems(condition, newValues, updateAll, action);
 	}
 	
 	private static void transformCollection(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		cleanResults();
-		cleanPreview();
+		cleanResult();
 		ResolverFactory rf= new ResolverFactory();
 		rf.getUpdateResolver().modifyCollections(condition, newValues, false, action);
 	}
 	
 	private static void transformCommunity(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		cleanResults();
-		cleanPreview();
+		cleanResult();
 		ResolverFactory rf= new ResolverFactory();
 		rf.getUpdateResolver().modifyCommunities(condition, newValues, false, action);
 	}
 	
-	private static void cleanPreview(){
-		PreviewManager.cleanPreviews();
+	public static void executeUpdate() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException, AuthorizeException{
+		UpdateResolver ur = new ResolverFactory().getUpdateResolver();
+		if(whichDSO.equals("item")){
+			ur.updateItems(conditions, updateAll, action, DSOs);
+		}else if(whichDSO.equals("collection")){
+			ur.updateCollections(conditions, updateAll, action, DSOs);
+		}else if(whichDSO.equals("community")){
+			ur.updateCommunities(conditions, updateAll, action, DSOs);
+		}
+		SelectionPage.setMensaje("La modificacion se realizo con exito!");
+	}
+	
+	public static String getAction() {
+		return action;
+	}
+	public static void setAction(String action) {
+		TransformationAction.action = action;
+	}
+	public static List<Condition> getConditions() {
+		return conditions;
+	}
+	public static void setConditions(List<Condition> conditions) {
+		TransformationAction.conditions = conditions;
+	}
+	public static boolean getUpdateAll() {
+		return updateAll;
+	}
+	public static void setUpdateAll(boolean updateAll) {
+		TransformationAction.updateAll = updateAll;
+	}
+	public static List<DSpaceObject> getDSOs() {
+		return DSOs;
+	}
+	public static void setDSOs(List<DSpaceObject> dSOs) {
+		DSOs = dSOs;
+	}
+	public static String getWhichDSO() {
+		return whichDSO;
+	}
+	public static void setWhichDSO(String whichDSO) {
+		TransformationAction.whichDSO = whichDSO;
 	}
 	
 }

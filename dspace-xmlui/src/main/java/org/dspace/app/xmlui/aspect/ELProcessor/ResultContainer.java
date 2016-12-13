@@ -10,80 +10,80 @@ import org.dspace.content.Community;
 
 public class ResultContainer{
 	
-	private static String mensaje = "";
-	private static List<Item> items = new ArrayList<Item>();
-	private static List<Collection> collections = new ArrayList<Collection>();
-	private static List<Community> communities = new ArrayList<Community>();
+	private static boolean wasSet = false;
+	private String message;
+	private static List<DSpaceObject> DSOs = new ArrayList<DSpaceObject>();
+	private static List<DSpaceObjectPreview> resultToShow = new ArrayList<DSpaceObjectPreview>();
 	
-	public static List<Item> getItems(){
-		return items;
+	public static List<DSpaceObjectPreview> getResultsToShow(){
+		if(resultToShow.isEmpty() && wasSet){
+			SelectionPage.setMensaje("No hay resultados para la consulta!");
+		}
+		return resultToShow;
 	}
-	
-	public static List<Collection> getCollections(){
-		return collections;
-	}
-	
-	public static List<Community> getCommunities(){
-		return communities;
-	}
-	
 	
 	public static void cleanResults(){
-		items = new ArrayList<Item>();
-		collections = new ArrayList<Collection>();
-		communities = new ArrayList<Community>();
+		DSOs = new ArrayList<DSpaceObject>();
+		cleanPreviewResult();
+		wasSet = false;
 	}
 	
-	public static void setSelectionPage(){
-		SelectionPage.setItemsResult(items);
-		SelectionPage.setCollectionsResult(collections);
-		SelectionPage.setCommunitiesResult(communities);
+	public static void cleanPreviewResult(){
+		resultToShow = new ArrayList<DSpaceObjectPreview>();
+	}
+	
+	public static void addResultsToShow(List<DSpaceObjectPreview> results){
+		resultToShow = results;
+	}
+	
+	public static void addResultToShow(DSpaceObjectPreview result){
+		resultToShow.add(result);
 	}
 	
 	public static void addItems(List<Item> items){
-		if(items.isEmpty()){
-			SelectionPage.showMensaje();
-		}else{
-			ResultContainer.items.addAll(items);
+		wasSet = true;
+		for(Item item: items){
+			addItem(item);
 		}
 	}
 	
 	public static void addItem(Item item){
-		items.add(item);
+		wasSet = true;
+		SelectionPage.setMensaje("Items");
+		resultToShow.add(new DSpaceObjectPreview(item.getHandle(), "dc.title", item.getName(), "-"));
+		DSOs.add(item);
 	}
 	
 	public static void addCollections(List<Collection> collections){
-		if(collections.isEmpty()){
-			SelectionPage.showMensaje();
-		}else{
-			ResultContainer.collections.addAll(collections);
-		}
+		wasSet = true;
+		for(Collection coll: collections){
+			addCollection(coll);
+		}		
 	}
 	
 	public static void addCollection(Collection coll) {
-		collections.add(coll);
+		wasSet = true;
+		SelectionPage.setMensaje("Collections");
+		resultToShow.add(new DSpaceObjectPreview(coll.getHandle(), "dc.title", coll.getName(), "-"));
+		DSOs.add(coll);
 	}
 	
 	public static void addCommunities(List<Community> communities){
-		if(communities.isEmpty()){
-			SelectionPage.showMensaje();
-		}else{
-			ResultContainer.communities.addAll(communities);
-		}
+		wasSet = true;
+		for(Community comm: communities){
+			addCommunity(comm);
+		}		
 	}	
 	
 	public static void addCommunity(Community comm) {
-		communities.add(comm);
-	}
-
-	public static String getMensaje() {
-		return mensaje;
-	}
-
-	public static void setMensaje(String mensaje) {
-		ResultContainer.mensaje = mensaje;
+		wasSet = true;
+		SelectionPage.setMensaje("Communities");
+		resultToShow.add(new DSpaceObjectPreview(comm.getHandle(), "dc.title", comm.getName(), "-"));
+		DSOs.add(comm);
 	}
 	
-	
+	public static List<DSpaceObject> getDSOs(){
+		return DSOs;
+	}	
 	
 }
