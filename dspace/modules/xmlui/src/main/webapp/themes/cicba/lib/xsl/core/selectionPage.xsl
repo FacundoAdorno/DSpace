@@ -45,11 +45,11 @@
 				</xsl:for-each>
 				</tbody>
 			</table>
-			<xsl:if test="../../dri:div[@n='Message']">
-			</xsl:if>
-			<form id="home-search-form" method="POST" action="executeTransformation" class="form-inline" role="form">
+			<xsl:if test="./dri:div[@n='Message']='Item preview' or ./dri:div[@n='Message']='Collection preview' or ./dri:div[@n='Message']='Community preview'">
+				<form id="home-search-form" method="POST" action="executeTransformation" class="form-inline" role="form">
 				<button type="submit" name="lr" class="btn btn-link">Confirmar</button>
 			</form>
+			</xsl:if>			
 		</xsl:if>
 		
 	</xsl:template>
