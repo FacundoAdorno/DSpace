@@ -69,13 +69,13 @@ transformarAll:item(handle=11746/3184 - dc.title;preuba;prueba)
 *Ej agregar el metadato dc.title al item seleccionado por su handle: agregar:item(handle=11746/3184 - dc.title;nuevo titulo)
 *Ej eliminar el metadato dc.title al item seleccionado por su handle: eliminar:item(handle=11746/3184 - dc.title)
 
-Finalmente el modulo de transformacion permite poner el valor de otro metadato, permitiendo por ejemplo reemplazar el valor de un metadato
-por otro.
+Finalmente el modulo de transformacion permite asignar como nuevo valor el valor de otro metadato.
 
 Ejemplo:
 
-*Seleccionar un item por handle y luego busca en el metadato 'dcterms.abstract' la primera ocurrencia del contenido del metadato
-'dc.title', si la encuentra la reemplaza por 'nuevo contenido': transformarFirst:item(handle=11746/3184 - dcterms.abstract;$dc.title;nuevo contenido)
+*Seleccionar un item por handle y luego busca en el metadato 'dcterms.abstract' la primera ocurrencia del string 'contenido' y
+si la encuentra la reemplaza por el contenido del metadato 'dc.title': 
+transformarFirst:item(handle=11746/3184 - dcterms.abstract;contenido;$dc.title)
 
 Al igual que en la seleccion se puede transformar varios metadatos en simultaneo
 transformarFirst:item(handle=11746/3184 - dc.title;prueba , dc.abstract;vlor;valor)
