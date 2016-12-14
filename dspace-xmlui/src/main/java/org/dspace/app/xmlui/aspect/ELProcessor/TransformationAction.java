@@ -95,7 +95,7 @@ public class TransformationAction extends Action{
 		}else if(whichDSO.equals("community")){
 			ur.updateCommunities(conditions, updateAll, action, DSOs);
 		}
-		SelectionPage.setMensaje("La modificacion se realizo con exito!");
+		SelectionPage.showSuccessfulTransformation();
 	}
 	
 	public static String getAction() {

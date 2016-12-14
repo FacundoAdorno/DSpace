@@ -13,7 +13,7 @@ public class PreviewManager{
 		TransformationAction.setWhichDSO("item");
 		ResultContainer.cleanPreviewResult();
 		showGenericPreview(new UpdateItem(), items);
-		SelectionPage.setMensaje("Item preview");
+		SelectionPage.showItemPreviewMessage();
 	}
 	
 	public static void showCollectionPeview(List<DSpaceObject> collections) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
@@ -21,7 +21,7 @@ public class PreviewManager{
 		TransformationAction.setWhichDSO("collection");
 		ResultContainer.cleanPreviewResult();
 		showGenericPreview(new UpdateCollection(), collections);
-		SelectionPage.setMensaje("Collection preview");
+		SelectionPage.showCollectionPreviewMessage();
 	}
 
 	public static void showCommunityPeview(List<DSpaceObject> communities) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
@@ -29,7 +29,7 @@ public class PreviewManager{
 		TransformationAction.setWhichDSO("community");
 		ResultContainer.cleanPreviewResult();
 		showGenericPreview(new UpdateCommunity(), communities);
-		SelectionPage.setMensaje("Community preview");
+		SelectionPage.showCommunityPreviewMessage();
 	}
 	
 	private static void showGenericPreview(Update update, List<DSpaceObject> DSOs) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{

@@ -17,7 +17,7 @@ public class ResultContainer{
 	
 	public static List<DSpaceObjectPreview> getResultsToShow(){
 		if(resultToShow.isEmpty() && wasSet){
-			SelectionPage.setMensaje("No hay resultados para la consulta!");
+			SelectionPage.showNoResult();
 		}
 		return resultToShow;
 	}
@@ -49,7 +49,7 @@ public class ResultContainer{
 	
 	public static void addItem(Item item){
 		wasSet = true;
-		SelectionPage.setMensaje("Items");
+		SelectionPage.showItemSelectionMessage();
 		resultToShow.add(new DSpaceObjectPreview(item.getHandle(), "dc.title", item.getName(), "-"));
 		DSOs.add(item);
 	}
@@ -63,7 +63,7 @@ public class ResultContainer{
 	
 	public static void addCollection(Collection coll) {
 		wasSet = true;
-		SelectionPage.setMensaje("Collections");
+		SelectionPage.showCollectionSelectionMessage();
 		resultToShow.add(new DSpaceObjectPreview(coll.getHandle(), "dc.title", coll.getName(), "-"));
 		DSOs.add(coll);
 	}
@@ -77,7 +77,7 @@ public class ResultContainer{
 	
 	public static void addCommunity(Community comm) {
 		wasSet = true;
-		SelectionPage.setMensaje("Communities");
+		SelectionPage.showCommunitySelectionMessage();
 		resultToShow.add(new DSpaceObjectPreview(comm.getHandle(), "dc.title", comm.getName(), "-"));
 		DSOs.add(comm);
 	}

@@ -43,11 +43,19 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     
     private static final Message T_para1 =
         message("xmlui.ArtifactBrowser.Contact.para1");
-    
-    private static String mensaje = "";
-    private static boolean showMensaje = false;
 	
     private static final ConfigurationService configurationService =DSpaceServicesFactory.getInstance().getConfigurationService();
+    private static final String itemSelection = "Item Selection";
+    private static final String collectionSelection = "Collection Selection";
+    private static final String communitySelection = "Community Selection";
+    private static final String itemPreview = "Preview Selection";
+    private static final String collectionPreview = "Preview Selection";
+    private static final String communityPreview = "Preview Selection";
+    private static final String noMessage = "";
+    private static final String noResult = "No hay resultados para la consulta";
+    private static final String successfulTransformation = "La transformacion se realizo con exito!";
+    
+    private static String message = noMessage;
     
     /**
      * Generate the unique caching key.
@@ -84,19 +92,8 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         String name = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.name");
         contact.addPara(T_para1.parameterize(name));
         
-        //String[] options=(configurationService.getProperty("el.processor.options", null).split(","));
-        
-        List seleccion = contact.addList("Seleccion");
-        
-//        for(String option:options){
-//        	String description = configurationService.getProperty("el.processor.description."+option);
-//        	Item oneItem= list.addItem();
-//        	oneItem.addText("description").setValue(description);
-//        	oneItem.addText("identifier").setValue(option);
-//        }
-        
         Division noResult = contact.addDivision("Message");
-    	noResult.addPara(mensaje);
+    	noResult.addPara(message);
     	
         try{
         	java.util.List<DSpaceObjectPreview> previews = ResultContainer.getResultsToShow();
@@ -122,8 +119,40 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     	anItem.addText("name").setValue(dso.getName());
     }
     
-    public static void setMensaje(String mensaje){
-    	SelectionPage.mensaje = mensaje;
+    public static void showNoMessage(){
+    	message = noMessage;
+    }
+    
+    public static void showItemSelectionMessage(){
+    	message = itemSelection;
+    }
+    
+    public static void showCollectionSelectionMessage(){
+    	message = collectionSelection;
+    }
+    
+    public static void showCommunitySelectionMessage(){
+    	message = communitySelection;
+    }
+    
+    public static void showItemPreviewMessage(){
+    	message = itemPreview;
+    }
+    
+    public static void showCollectionPreviewMessage(){
+    	message = collectionPreview;
+    }
+    
+    public static void showCommunityPreviewMessage(){
+    	message = communityPreview;
+    }
+    
+    public static void showSuccessfulTransformation(){
+    	message = successfulTransformation;
+    }
+    
+    public static void showNoResult(){
+    	message = noResult;
     }
 
 
