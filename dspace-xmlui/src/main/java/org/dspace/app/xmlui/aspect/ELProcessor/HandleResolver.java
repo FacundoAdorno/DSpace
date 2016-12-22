@@ -41,7 +41,7 @@ public class HandleResolver extends Resolver{
 		
 		if(dso instanceof Item){
 			//quieren un item y me pasaron un handle de item, devuelvo el item
-			ResultContainer.addItem((Item) dso);
+			ResultContainer.addResult(dso);
 			return;
 		}else if (dso instanceof Collection){
 			uuids.add(((Collection) dso).getID());			
@@ -64,11 +64,11 @@ public class HandleResolver extends Resolver{
 			throw new Exception("The handle is from an Item");
 		}else if(dso instanceof Collection){
 			//quieren una coleccion y me pasaron el handle de una, devuelvo la coleccion
-			ResultContainer.addCollection((Collection) dso);
+			ResultContainer.addResult((Collection) dso);
 			return;
 		}else if(dso instanceof Community){
 			getCollectionsFromCommunity((Community)dso);
-			ResultContainer.addCollections((List<Collection>)(List) result);
+			ResultContainer.addResults(result);
 		}
 		
 		resolverFactory.getConditionSelectResolver().getCollectionsFromCondition(condition);
@@ -84,7 +84,7 @@ public class HandleResolver extends Resolver{
 		}else if(dso instanceof Collection){
 			throw new Exception("The handle is from a Collection");
 		}else if(dso instanceof Community){
-			ResultContainer.addCommunity((Community)dso);
+			ResultContainer.addResult(dso);
 		}
 		
 		resolverFactory.getConditionSelectResolver().getCommunitiesFromCondition(condition);

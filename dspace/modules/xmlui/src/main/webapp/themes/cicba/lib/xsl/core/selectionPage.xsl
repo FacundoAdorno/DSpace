@@ -9,16 +9,6 @@
 
 	<xsl:template match="dri:div[@id='aspect.ELProcessor.SelectionPage.div.contact']">
 		<form id="home-search-form" method="GET" action="executePreConfigQuery" class="form-inline" role="form">
-<!-- 			<select name="propertyName" id="propertyName"> -->
-<!-- 				<xsl:for-each select="dri:list[@id='aspect.ELProcessor.SelectionPage.list.options']/dri:item">				 -->
-<!-- 						<option> -->
-<!-- 							<xsl:attribute name="value"> -->
-<!-- 				    			<xsl:value-of select="dri:field[@n='identifier']"></xsl:value-of> -->
-<!-- 				    		</xsl:attribute> -->
-<!-- 				    		<xsl:value-of select="dri:field[@n='description']"></xsl:value-of> -->
-<!-- 						</option>							 -->
-<!-- 				</xsl:for-each> -->
-<!-- 			</select> -->
 			<input name="query" id="query"></input>
 			<button type="submit" name="lr" class="btn btn-link">Ejecutar</button>
 		</form>
@@ -45,7 +35,8 @@
 				</xsl:for-each>
 				</tbody>
 			</table>
-			<xsl:if test="./dri:div[@n='Message']='Item preview' or ./dri:div[@n='Message']='Collection preview' or ./dri:div[@n='Message']='Community preview'">
+			<xsl:variable name="message"><xsl:value-of select="./dri:div[@n='Message']"></xsl:value-of></xsl:variable>
+			<xsl:if test="$message='Item Preview' or $message='Collection Preview' or $message='Community Preview'">
 				<form id="home-search-form" method="POST" action="executeTransformation" class="form-inline" role="form">
 				<button type="submit" name="lr" class="btn btn-link">Confirmar</button>
 			</form>

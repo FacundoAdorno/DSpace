@@ -48,9 +48,9 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
     private static final String itemSelection = "Item Selection";
     private static final String collectionSelection = "Collection Selection";
     private static final String communitySelection = "Community Selection";
-    private static final String itemPreview = "Preview Selection";
-    private static final String collectionPreview = "Preview Selection";
-    private static final String communityPreview = "Preview Selection";
+    private static final String itemPreview = "Item Preview";
+    private static final String collectionPreview = "Collection Preview";
+    private static final String communityPreview = "Community Preview";
     private static final String noMessage = "";
     private static final String noResult = "No hay resultados para la consulta";
     private static final String successfulTransformation = "La transformacion se realizo con exito!";
@@ -109,14 +109,7 @@ public class SelectionPage extends AbstractDSpaceTransformer implements Cacheabl
         catch(Exception e){
         	//mensaje de error ?
         }
-    
-    }
-    
-    
-    private void addDSOResult(List items,DSpaceObject dso) throws WingException{
-    	Item anItem = items.addItem();
-    	anItem.addText("handle").setValue(dso.getHandle());
-    	anItem.addText("name").setValue(dso.getName());
+        ResultContainer.cleanPreviewResult();
     }
     
     public static void showNoMessage(){

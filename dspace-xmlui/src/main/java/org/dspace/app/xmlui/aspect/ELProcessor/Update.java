@@ -65,7 +65,7 @@ public abstract class Update {
 		ResultContainer.addResultsToShow(previews);
 	}
 	
-	public void deletePreview(List<DSpaceObject> DSOs, List<Condition> conditions, String updateAll){
+	public void deletePreview(List<DSpaceObject> DSOs, List<Condition> conditions, boolean updateAll){
 		List<DSpaceObjectPreview> previews = new ArrayList<DSpaceObjectPreview>();
 		for(DSpaceObject dso:  DSOs){
 			for(Condition condition: conditions){
