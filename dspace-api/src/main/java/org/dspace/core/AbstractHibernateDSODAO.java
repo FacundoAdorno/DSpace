@@ -101,6 +101,12 @@ public abstract class AbstractHibernateDSODAO<T extends DSpaceObject> extends Ab
         	} else if (op == OP.lower) {
             	subcriteria.add(Property.forName("mv.value").lt(query_val.get(i)));
     			sb.append(query_val.get(i));        		
+        	} else if (op == OP.exists) {
+            	subcriteria.add(Property.forName("mv.value").isNotNull());
+    			sb.append(query_val.get(i));        		
+        	} else if (op == OP.exists) {
+            	subcriteria.add(Property.forName("mv.value").isNull());
+    			sb.append(query_val.get(i));        		
         	}
         	
         	

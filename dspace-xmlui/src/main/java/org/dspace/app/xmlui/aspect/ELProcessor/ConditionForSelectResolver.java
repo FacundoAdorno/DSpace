@@ -26,10 +26,19 @@ public class ConditionForSelectResolver extends ConditionResolver{
 	
 	@Override
 	public void checkConditions(String oneCondition, MetadataResolver mr) throws Exception{
-		EqualCondition.createCondition(oneCondition, this, mr);
-		LikeCondition.createCondition(oneCondition, this, mr);
-		GraterCondition.createCondition(oneCondition, this, mr);
-		LowerCondition.createCondition(oneCondition, this, mr);
+		if(EqualCondition.createCondition(oneCondition, this, mr)){
+			return;
+		}
+		if(LikeCondition.createCondition(oneCondition, this, mr)){
+			return;
+		}
+		if(GraterCondition.createCondition(oneCondition, this, mr)){
+			return;
+		}
+		if(LowerCondition.createCondition(oneCondition, this, mr)){
+			return;
+		}
+		ExistsMetadataCondition.createCondition(oneCondition, this, mr);
 	}
 	
 	
