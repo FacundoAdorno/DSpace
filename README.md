@@ -23,9 +23,12 @@ en caso de ser mas de una se separan por coma ','. No hay restricciones en cuant
 Ejemplos:
 
 *Ej seleccion de un item por su handle: seleccionar:item(handle= 11746/3184)
-*Ej seleccion de items que pertenezcan a una collecion: seleccionar:item(handle =11746/43)
+*Ej seleccion de items que pertenezcan a una coleccion: seleccionar:item(handle =11746/43)
+*Ej seleccion de items que pertenezcan a una coleccion y que además posea el metadato dc.title: seleccionar:item(handle = 11746/31, dc.title)
 *Ej seleccion de items cuyo dc.title sea identico a un valor: seleccionar:item(dc.title=un titulo )
+*Ej seleccion de items cuyo dc.title sea distinto a un valor: seleccionar:item(dc.title^= un titulo)
 *Ej seleccion de items cuyo dc.title contenga un valor(like): seleccionar:item(dc.title~un titulo)
+*Ej seleccion de items cuyo dc.title no contenga un valor(like): seleccionar:item(dc.title^~ un titulo)
 *Ej seleccion de items cuyo dcterms.extent sea mayor a un valor: seleccionar:item(dcterms.extend > 123)
 *Ej seleccion de items cuyo dcterms.extent sea menor a un valor: seleccionar:item(dcterms.extend < 123)
 *Ej seleccion de items en base a multiples condiciones: seleccionar:item(dc.title~ titulo, dc.abstract=valor especifico)
