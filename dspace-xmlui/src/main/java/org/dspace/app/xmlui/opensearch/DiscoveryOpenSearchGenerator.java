@@ -88,7 +88,7 @@ public class DiscoveryOpenSearchGenerator extends AbstractOpenSearchGenerator
                 queryArgs.setMaxResults(rpp);
 
                 // we want Items only
-            	queryArgs.setDSpaceObjectFilter(Constants.ITEM);
+//            	queryArgs.setDSpaceObjectFilter(Constants.ITEM);
                 
                 // sort info
                 if(sort != null)
