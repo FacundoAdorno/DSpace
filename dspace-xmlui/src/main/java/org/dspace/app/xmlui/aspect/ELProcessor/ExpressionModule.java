@@ -26,7 +26,7 @@ public class ExpressionModule {
 		
 		query = this.prepareQuery(query);
 		try{
-			processor.eval(query);
+			processor.eval(query.trim());
 		}
 		catch(Exception e){
 			TransactionManager.roolback();
@@ -49,7 +49,7 @@ public class ExpressionModule {
 		//me quedo con los parametros, es decir con lo que esta entre parentesis
 		String[] splitQuery = query.split("\\(");
 		String parameter = splitQuery[1].trim();
-		parameter = parameter.split("\\)").length == 2 ? parameter.split("\\)")[0] : "";
+		parameter = parameter.length() > 1 ? parameter.split("\\)")[0] : "";
 		//el guion medio (-) me va a diferenciar entre parametros de seleccion y transformacion
 		String[] splitParameter = parameter.split("\\-");
 		if(splitParameter.length == 2){
