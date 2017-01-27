@@ -13,6 +13,9 @@ abstract class ConditionResolver extends Resolver{
 	
 	protected void separeteCondition(String condition) throws Exception{
 		this.conditions = new ArrayList<Condition>();
+		if(condition.equals("")){
+			return;
+		}
 		String[] splitConditions = condition.split("\\,");
 		MetadataResolver mr = resolverFactory.getMetadataResolver();
 		for(String oneCondition : splitConditions){

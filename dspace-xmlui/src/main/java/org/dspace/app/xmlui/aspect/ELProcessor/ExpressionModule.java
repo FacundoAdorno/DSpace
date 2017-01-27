@@ -49,7 +49,7 @@ public class ExpressionModule {
 		//me quedo con los parametros, es decir con lo que esta entre parentesis
 		String[] splitQuery = query.split("\\(");
 		String parameter = splitQuery[1].trim();
-		parameter = parameter.split("\\)")[0];
+		parameter = parameter.split("\\)").length == 2 ? parameter.split("\\)")[0] : "";
 		//el guion medio (-) me va a diferenciar entre parametros de seleccion y transformacion
 		String[] splitParameter = parameter.split("\\-");
 		if(splitParameter.length == 2){
