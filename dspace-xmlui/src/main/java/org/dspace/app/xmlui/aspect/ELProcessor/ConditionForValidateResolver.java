@@ -3,7 +3,7 @@ package org.dspace.app.xmlui.aspect.ELProcessor;
 import java.util.List;
 import java.util.UUID;
 
-public class ConditionForSelectResolver extends ConditionResolver{
+public class ConditionForValidateResolver extends ConditionResolver{
 
 	
 	public void getItemsFromCondition(String condition, List<UUID> collectionsUUIDs) throws Exception{

@@ -4,17 +4,17 @@ public class SelectionAction extends Action{
 	
 	public static void selectItems(String value) throws Exception{
 		cleanResult();		
-		new ResolverFactory().getHandleResolver().getItemsFromCondition(value);
+		new ResolverFactory().getSelectResolver().getItemsFromCondition(value);
 	}	
 	
 	public static void selectCollections(String value) throws Exception{
 		cleanResult();
-		new ResolverFactory().getHandleResolver().getCollectionsFromCondition(value);
+		new ResolverFactory().getSelectResolver().getCollectionsFromCondition(value);
 	}
 	
 	public static void selectCommunities(String value) throws Exception{
 		cleanResult();
-		new ResolverFactory().getHandleResolver().getCommunitiesFromCondition(value);
+		new ResolverFactory().getSelectResolver().getCommunitiesFromCondition(value);
 	}	
 	
 }

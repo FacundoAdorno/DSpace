@@ -10,7 +10,7 @@ import org.dspace.app.xmlui.utils.ContextUtil;
 
 public class ExecuteTransformation extends AbstractAction{
 
-	private static MainProcessor mainProcessor;	
+	private static ExpressionModule mainProcessor;	
 	
 	@Override
 	public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
@@ -21,9 +21,9 @@ public class ExecuteTransformation extends AbstractAction{
 		return null;
 	}
 	
-	public  MainProcessor instanciateMainProcessor() {
+	public  ExpressionModule instanciateMainProcessor() {
 		if(mainProcessor==null){
-			mainProcessor=new MainProcessor();
+			mainProcessor=new ExpressionModule();
 		}
 		return mainProcessor;
 	}

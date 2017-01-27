@@ -15,16 +15,11 @@ import org.dspace.handle.service.HandleService;
 
 public class InstanciadorEL {
 	
-	private ELProcessor processor;
-	private final ItemService itemService = ContentServiceFactory.getInstance().getItemService();
-	private final CollectionService collectionService = ContentServiceFactory.getInstance().getCollectionService();
-	private final CommunityService communityService = ContentServiceFactory.getInstance().getCommunityService();
-	
+	private static ELProcessor processor;	
 
-	public ELProcessor instanciar(Context context) throws SQLException {
+	private static ELProcessor instantiate(Context context) throws SQLException {
 		processor=new ELProcessor();
 		
-		processor.getELManager().defineBean("Items", IteratorUtils.toList(itemService.findAll(context)));
 		try{
 			//Item
 			processor.defineFunction("seleccionar", "item", "org.dspace.app.xmlui.aspect.ELProcessor.SelectionAction", "selectItems");
@@ -48,5 +43,13 @@ public class InstanciadorEL {
 			e.printStackTrace();
 		}
 		return processor;
-	}	
+	}
+	
+	public static ELProcessor getProcessor(Context context) throws SQLException{
+		if(processor == null){
+			instantiate(context);
+		}
+		return processor;
+	}
+	
 }

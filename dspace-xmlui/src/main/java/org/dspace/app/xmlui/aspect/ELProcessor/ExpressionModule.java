@@ -14,19 +14,16 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.core.Context;
 
-public class MainProcessor {
-	
-	private static InstanciadorEL instanciador;
-	private static ELProcessor processor;
+public class ExpressionModule {
 	
 	public void process(String query, Context context) throws SQLException {
 		TransactionManager.setContext(context);
-		if(query==null){
+		if(query==null || query.equals("")){
 			return;
 		}
-		if(processor==null){
-			processor=getInstanciador().instanciar(context);
-		}
+		
+		ELProcessor processor=InstanciadorEL.getProcessor(context);
+		
 		query = this.prepareQuery(query);
 		try{
 			processor.eval(query);
@@ -60,19 +57,6 @@ public class MainProcessor {
 			parameter = splitParameter[0].trim() +"','"+ splitParameter[1].trim();
 		}
 		return splitQuery[0] +"('"+ parameter.trim() +"')";
-	}
-
-	public static InstanciadorEL getInstanciador() {
-		if(instanciador==null){
-			instanciador = new InstanciadorEL();
-		}
-		return instanciador;
-	}
-
-	public static void setInstanciador(InstanciadorEL instanciador) {
-		MainProcessor.instanciador = instanciador;
-	}
-
-	
+	}	
 	
 }

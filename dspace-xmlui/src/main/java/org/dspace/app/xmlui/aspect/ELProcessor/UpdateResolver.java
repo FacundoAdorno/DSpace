@@ -11,21 +11,21 @@ import org.dspace.content.DSpaceObject;
 public class UpdateResolver extends Resolver {
 	
 	public void modifyItems(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		resolverFactory.getHandleResolver().getItemsFromCondition(condition);
+		resolverFactory.getSelectResolver().getItemsFromCondition(condition);
 		List<Condition> conditions = prepareConditions(newValues, action);
 		this.prepareItemsPreview(conditions, updateAll, action);
 		//updateItems(conditions, updateAll, action);
 	}
 	
 	public void modifyCollections(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		resolverFactory.getHandleResolver().getCollectionsFromCondition(condition);
+		resolverFactory.getSelectResolver().getCollectionsFromCondition(condition);
 		List<Condition> conditions = prepareConditions(newValues, action);
 		this.prepareCollectionsPreview(conditions, updateAll, action);
 		//updateCollections(conditions, updateAll, action);
 	}
 	
 	public void modifyCommunities(String condition, String newValues, boolean updateAll, String action) throws Exception{
-		resolverFactory.getHandleResolver().getCommunitiesFromCondition(condition);
+		resolverFactory.getSelectResolver().getCommunitiesFromCondition(condition);
 		List<Condition> conditions = prepareConditions(newValues, action);
 		this.prepareCommunitiesPreview(conditions, updateAll, action);
 		//updateCommunities(conditions, updateAll, action);
