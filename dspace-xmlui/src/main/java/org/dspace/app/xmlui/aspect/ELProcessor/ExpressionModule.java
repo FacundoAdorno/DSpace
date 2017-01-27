@@ -26,7 +26,7 @@ public class ExpressionModule {
 		
 		query = this.prepareQuery(query);
 		try{
-			processor.eval(query.trim());
+			processor.eval(query.replaceAll("(^\\h*)|(\\h*$)",""));
 		}
 		catch(Exception e){
 			TransactionManager.roolback();
@@ -56,7 +56,7 @@ public class ExpressionModule {
 			//hay parametros de transformacion
 			parameter = splitParameter[0].trim() +"','"+ splitParameter[1].trim();
 		}
-		return splitQuery[0] +"('"+ parameter.trim() +"')";
+		return splitQuery[0].trim() +"('"+ parameter.trim() +"')";
 	}	
 	
 }

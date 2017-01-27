@@ -9,7 +9,7 @@
 
 	<xsl:template match="dri:div[@id='aspect.ELProcessor.SelectionPage.div.contact']">
 		<form id="home-search-form" method="GET" action="executePreConfigQuery" class="form-inline" role="form">
-			<textarea name="query" id="query"></textarea>
+			<textarea name="query" id="query">&#160;</textarea>
 			<button type="submit" name="lr" class="btn btn-link">Ejecutar</button>
 		</form>
 		<br></br>
