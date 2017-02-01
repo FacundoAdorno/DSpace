@@ -86,10 +86,14 @@ public class DiscoveryOpenSearchGenerator extends AbstractOpenSearchGenerator
                 // indexing starts at 1.
                 queryArgs.setStart(start - 1);
                 queryArgs.setMaxResults(rpp);
-
-                // we want Items only
-//            	queryArgs.setDSpaceObjectFilter(Constants.ITEM);
                 
+                if (type != null){
+                	this.setFilterQueryForTypes(queryArgs);
+                }else{
+                    // we want Items only
+                	queryArgs.setDSpaceObjectFilter(Constants.ITEM);                	
+                }
+
                 // sort info
                 if(sort != null)
                 {
@@ -127,7 +131,34 @@ public class DiscoveryOpenSearchGenerator extends AbstractOpenSearchGenerator
 		}
     }
     
-    /**
+    private void setFilterQueryForTypes(DiscoverQuery queryArgs) {
+    	String filterQuery = "search.resourcetype:";
+    	if (!Arrays.asList(type).contains("all")){
+    		filterQuery += this.typeToInt(type[0]);
+    		for (int i = 1; i < type.length; i++ ){
+    			filterQuery += " OR " + this.typeToInt(type[i]);
+        	}
+        	queryArgs.addFilterQueries(filterQuery);    		
+    	}
+	}
+    
+	private int typeToInt(String string) {
+		switch (string) {
+		case "item":
+			return 2;
+		case "collection":
+			return 3;
+		case "community":
+			return 4;
+		case "all":
+			return -1;
+		default:
+			return 2;
+		}		
+	}
+
+
+	/**
      * Recycle
      */
     

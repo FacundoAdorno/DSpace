@@ -59,6 +59,9 @@ public abstract class AbstractOpenSearchGenerator extends AbstractGenerator
     /** the search query string */
     protected String query = null;
 
+    /** the search query string */
+    protected String[] type = null;
+    
     /** optional search scope (= handle of container) or null */
     protected DSpaceObject scope = null;
 
@@ -238,6 +241,12 @@ public abstract class AbstractOpenSearchGenerator extends AbstractGenerator
         {
             this.rpp = DEFAULT_RPP;
         }
+        
+        // Type param
+        if (request.getParameter("type") != null)
+        {
+            this.type = URLDecoder.decode(request.getParameter("type"), "UTF-8").split(",");
+        }
     }
 
     /**
@@ -255,6 +264,7 @@ public abstract class AbstractOpenSearchGenerator extends AbstractGenerator
         this.sortOrder = null;
         this.resultsDoc = null;
         this.validity = null;
+        this.type = null;
         super.recycle();
     }
 }
