@@ -245,7 +245,7 @@ public abstract class AbstractOpenSearchGenerator extends AbstractGenerator
         // Type param
         if (request.getParameter("type") != null)
         {
-            this.type = URLDecoder.decode(request.getParameter("type"), "UTF-8").split(",");
+            this.type = URLDecoder.decode(request.getParameter("type").toUpperCase(), "UTF-8").split(",");
         }
     }
 
