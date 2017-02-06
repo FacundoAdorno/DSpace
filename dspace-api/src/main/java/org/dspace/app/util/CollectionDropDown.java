@@ -67,9 +67,6 @@ public class CollectionDropDown {
             name.insert(0, com.getName() + separator);
             //add one more level of community
             List<Community> parentCommunities=com.getParentCommunities();
-            for(Community c : parentCommunities){
-            	name.insert(0, c.getName() + separator);            	            	
-            }
         }
 
         name.append(col.getName());
