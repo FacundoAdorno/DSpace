@@ -841,6 +841,10 @@
 			<displayed-value>Ciencias Sociales y Humanas</displayed-value>
 			<stored-value>Ciencias Sociales y Humanas</stored-value>
 		</pair>
+		<pair>
+			<displayed-value>Ingeniería, Arquitectura y Tecnología</displayed-value>
+			<stored-value>Ingeniería, Arquitectura y Tecnología</stored-value>
+		</pair>	
 	</value-pairs>
 	
 	<value-pairs value-pairs-name="cic_embargo" dc-term="dcterms_rights_embargoPeriod">
