@@ -10,7 +10,7 @@ NFS_STORE = "127.0.0.1"
 ##################################################################################
 ##  SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS ##
 ##################################################################################
-1 12 3,24 * *   root    tar -czf $DSPACE_BACKUP_DIR/etc/etc.backup.$($DATESTR).tgz /etc/
+1 12 3,24 * *   root    tar --directory / -czf $DSPACE_BACKUP_DIR/etc/etc.backup.$($DATESTR).tgz etc/
 #0 6 * * * rsync -avz /var/dspace cic-digital@$NFS_STORE:cic-digital/
 
 ##################################################################################
@@ -31,15 +31,15 @@ NFS_STORE = "127.0.0.1"
 ##################################################################################
 
 #backups de configuraciones (todos los 1ro de mes a las 4:38hs)
-38 4 2 * *      root    tar -czf $DSPACE_BACKUP_DIR/config/config.backup.$($DATESTR).tgz $DSPACE_INSTALL_DIR/config/
+38 4 2 * *      root    tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/config/config.backup.$($DATESTR).tgz config/
 
 #backups de drupal para autoridades de CIC-DIGITAL (de lunes a viernes a las 4:50AM)
-50 4 * * 1,2,3,4,5      root    tar -czf $DSPACE_BACKUP_DIR/auth/auth.htdocs.mes-`date +%m`.tgz /var/www/auth/
+50 4 * * 1,2,3,4,5      root    tar --directory /var/www -czf $DSPACE_BACKUP_DIR/auth/auth.htdocs.mes-`date +%m`.tgz auth/
 
 ##################################################################################
 ##  SOLR
 ##################################################################################
 
 #backups del core de estadisticas de solr (todos los miercoles y domino a las 19:00hs)
-0 19 * * 0      root    tar -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.domingo.tgz $DSPACE_INSTALL_DIR/solr/statistics/
-0 19 * * 3      root    tar -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.miercoles.tgz $DSPACE_INSTALL_DIR/solr/statistics/
+0 19 * * 0      root    tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.domingo.tgz solr/statistics/
+0 19 * * 3      root    tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.miercoles.tgz solr/statistics/
