@@ -1,9 +1,26 @@
+# /etc/cron.d/dspace: crontab fragment for dspace
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').# 
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+# 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+# For more information see the manual pages of crontab(5) and cron(8)
+# 
+# m h  dom mon dow   command
+
 #-----------------
 # GLOBAL VARIABLES
 #-----------------
-# Full path of your local DSpace Installation (e.g. /home/dspace or /dspace or similar)
-DSPACE=/var/dspace/install
- 
 # Shell to use
 SHELL=/bin/sh
  
@@ -12,6 +29,11 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
  
 # Set JAVA_OPTS with defaults for DSpace Cron Jobs.
 JAVA_OPTS="-Xmx1024M -Dfile.encoding=UTF-8"
+
+#MAILTO=dspace-admin@sedici.unlp.edu.ar
+
+# Full path of your local DSpace Installation (e.g. /home/dspace or /dspace or similar)
+DSPACE=/var/dspace/install
  
 #--------------
 # HOURLY TASKS (Recommended to be run multiple times per day, if possible)
@@ -20,7 +42,7 @@ JAVA_OPTS="-Xmx1024M -Dfile.encoding=UTF-8"
  
 # Regenerate DSpace Sitemaps every 8 hours (12AM, 8AM, 4PM).
 # SiteMaps ensure that your content is more findable in Google, Google Scholar, and other major search engines.
-0 0,8,16 * * * $DSPACE/bin/dspace generate-sitemaps > /dev/null
+0 0,8,16 * * *	dspace	$DSPACE/bin/dspace generate-sitemaps > /dev/null
  
 #----------------
 # DAILY TASKS
@@ -28,49 +50,50 @@ JAVA_OPTS="-Xmx1024M -Dfile.encoding=UTF-8"
  
 # Clean and Update the Discovery indexes at midnight every day
 # (This ensures that any deleted documents are cleaned from the Discovery search/browse index)
-0 0 * * * $DSPACE/bin/dspace index-discovery > /dev/null
+0 0 * * *	dspace	$DSPACE/bin/dspace index-discovery > /dev/null
  
 # Re-Optimize the Discovery indexes at 12:30 every day
 # (This ensures that the Discovery Solr Index is re-optimized for better performance)
-30 0 * * * $DSPACE/bin/dspace index-discovery -o > /dev/null
+30 0 * * *	dspace	$DSPACE/bin/dspace index-discovery -o > /dev/null
  
 # Mark Web Spiders from DSpace Statistics Solr Index at 01:00 every day
 # (This removes any known web spiders from your usage statistics)
-0 1 * * * $DSPACE/bin/dspace stats-util -m 
+0 1 * * *	dspace	$DSPACE/bin/dspace stats-util -m 
 
 # Cleanup & Re-Optimize DSpace Statistics Solr Index at 01:30 every day
 # (This ensures that the Statistics Solr Index is re-optimized for better performance)
-30 1 * * * $DSPACE/bin/dspace stats-util -f && $DSPACE/bin/dspace stats-util -o
+30 1 * * *	dspace	$DSPACE/bin/dspace stats-util -f && $DSPACE/bin/dspace stats-util -o > /dev/null
  
 # Send out subscription e-mails at 02:00 every day
 # (This sends an email to any users who have "subscribed" to a Collection, notifying them of newly added content.)
-0 2 * * * $DSPACE/bin/dspace sub-daily
+0 2 * * *	dspace	$DSPACE/bin/dspace sub-daily
  
 # Run the media filter at 23:01 every monday and friday.
 # (This task ensures that thumbnails are generated for newly add images,
 # and also ensures full text search is available for newly added PDF/Word/PPT/HTML documents)
-1 23 * * mon-fri  $DSPACE/bin/dspace filter-media -m100 -q 
+#1 23 * * 1-6	dspace	$DSPACE/bin/dspace filter-media -m100 -q 
 
 # Run any Curation Tasks queued from the Admin UI at 04:00 every day
 # (Ensures that any curation task that an administrator "queued" from the Admin UI is executed
 # asynchronously behind the scenes)
-#0 4 * * * $DSPACE/bin/dspace curate -q admin_ui
+#0 4 * * *	dspace	$DSPACE/bin/dspace curate -q admin_ui
  
 #----------------
 # WEEKLY TASKS
 #----------------
-# Run the checksum checker at 04:00 every Sunday
+# Run the checksum checker at 04:00 every Saturday
 # By default it runs through every file (-l) and also prunes old results (-p)
 # (This re-verifies the checksums of all files stored in DSpace. If any files have been changed/corrupted, checksums will differ.)
-0 4 * * * $DSPACE/bin/dspace checker -p -d 1h 
+0 4 * * 6	dspace	$DSPACE/bin/dspace checker -l
+#-p -d 1h 
   
 # Mail the results of the checksum checker (see above) to the configured "mail.admin" at 05:00 every Sunday.
 # (This ensures the system administrator is notified whether any checksums were found to be different.)
-0 5 * * 0 $DSPACE/bin/dspace checker-emailer
+0 5 * * 0	dspace	$DSPACE/bin/dspace checker-emailer
 #-m -d
 
 #Backup en AIP 
-5 23 * * sun date && $DSPACE/bin/dspace packager -d -a -t AIP -e alira@sedici.unlp.edu.ar -u -i 10915/0 /var/dspace/backups/aip/aip-site.zip && date
+#5 23 * * sun	dspace	date && $DSPACE/bin/dspace packager -d -a -t AIP -e alira@sedici.unlp.edu.ar -u -i 123456789/0 /var/dspace/backups/aip/aip-site.zip && date
  
 #----------------
 # MONTHLY TASKS
@@ -78,10 +101,10 @@ JAVA_OPTS="-Xmx1024M -Dfile.encoding=UTF-8"
 # Permanently delete any bitstreams flagged as "deleted" in DSpace, on the first of every month at 01:00
 # (This ensures that any files which were deleted from DSpace are actually removed from your local filesystem.
 #  By default they are just marked as deleted, but are not removed from the filesystem.)
-#NO SE USA 0 1 1 * * $DSPACE/bin/dspace cleanup > /dev/null
+#0 1 1 * *	dspace	$DSPACE/bin/dspace cleanup > /dev/null
 
 #Actualizacion de la bbdd geolite el día 2 de cada mes 
-0 5 2 * *  wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz -q -O - | gunzip > $DSPACE/config/GeoLiteCity.dat 
+0 5 2 * *	dspace	wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz -q -O - | gunzip > $DSPACE/config/GeoLiteCity.dat 
  
 #----------------
 # YEARLY TASKS (Recommended to be run once per year)
@@ -89,19 +112,18 @@ JAVA_OPTS="-Xmx1024M -Dfile.encoding=UTF-8"
 # At 2:00AM every January 1, "shard" the DSpace Statistics Solr index.
 # This ensures each year has its own Solr index, which improves performance.
 # NOTE: This is scheduled here for 2:00AM so that it happens *after* the daily cleaning & re-optimization of this index.
-# No se usa por ahora 0 2 1 1 * $DSPACE/bin/dspace stats-util -s
+# 0 2 1 1 *	dspace	$DSPACE/bin/dspace stats-util -s
 
 
-###########################################
-##########OAI Jobs
-###########################################
-
-#OAI (https://wiki.duraspace.org/display/DSDOC5x/OAI+2.0+Server) 
+#----------------
+# OAI JOBS (https://wiki.duraspace.org/display/DSDOC5x/OAI+2.0+Server)
+#----------------
 
 # Update the OAI-PMH index with the newest content (and re-optimize that index) at midnight every day
 # (This ensures new content is available via OAI-PMH and ensures the OAI-PMH index is optimized for better performance)
-0 6 * * * $DSPACE/bin/dspace oai import -o > /dev/null
+0 6 * * * 	dspace	$DSPACE/bin/dspace oai import -o > /dev/null
 
 # Update the OAI-PMH index with the newest content 4 times per hour
-1 9,12,15,19 * * * $DSPACE/bin/dspace oai import > /dev/null
+1 9,12,15,19 * * * 	dspace	$DSPACE/bin/dspace oai import > /dev/null
+
 

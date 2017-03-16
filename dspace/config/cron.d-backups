@@ -1,45 +1,64 @@
 # /etc/cron.d/backups-cic: crontab fragment for backups
 
+# Shell to use
+SHELL=/bin/sh
+
+# Add all major 'bin' directories to path
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
 DSPACE_BACKUP_DIR=/var/dspace/backups
 DSPACE_SOURCE_DIR=/var/dspace/source
 DSPACE_INSTALL_DIR=/var/dspace/install
 
-DATESTR="date +%Y-%m-%d_%H%M"
+SOLR_SERVER=127.0.0.1/solr
 
-NFS_STORE = "127.0.0.1"
+OFFSITE_NFS_DIR=
+
+DATESTR=date +%Y-%m-%d_%H%M
+DATEMTH=date +%m
+
 ##################################################################################
 ##  SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS SYS ##
 ##################################################################################
 1 12 3,24 * *   root    tar --directory / -czf $DSPACE_BACKUP_DIR/etc/etc.backup.$($DATESTR).tgz etc/
-#0 6 * * * rsync -avz /var/dspace cic-digital@$NFS_STORE:cic-digital/
+0 6 * * *	root	{ rsync -avz --exclude install/solr/*/data /var/dspace $OFFSITE_NFS_DIR ; echo "Completa el rsync a las $($DATESTR)" ; } > /var/log/rsync-a-jursoc.log
+
 
 ##################################################################################
 ## DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE ##
 ##################################################################################
 
 #backups de la base de datos postgres de CIC-DIGITAL dspace_cic@data-pg.sedici.unlp.edu.ar (todos los días de la semana a las 20:00hs)
-0 20 * * 1,2,3,4,5      root    sh $DSPACE_BACKUP_DIR/do_pgdump.sh -q
+0 20 * * 1,2,3,4,5	root	sh $DSPACE_BACKUP_DIR/do_pgdump.sh -q
+
+#rotación de backups de postgres (todos los dias a las 05:00hs). Se eliminan aquellos mas antiguos a 30 dias de creación
+0 5 * * 1,2,3,4,5	root	find $DSPACE_BACKUP_DIR/postgres -maxdepth 1 -name "dspace_cic*.gz" -or -name "dspace_cic*.tgz" -mtime +30 -exec rm {} \; > /dev/null
 
 #backup de la base de datos mysql local con las autoridades de CIC-DIGITAL (de lunes a viernes a las 1230)
-30 12 * * 1,2,3,4,5     root    mysqldump --add-drop-table --routines --events --add-drop-table --all-databases --force | gzip -c > $DSPACE_BACKUP_DIR/all-databases.sql.tgz
+30 12 * * 1,2,3,4,5	root	mysqldump --add-drop-table --routines --events --add-drop-table --all-databases --force | gzip -c > $DSPACE_BACKUP_DIR/mysql/all-databases.sql.gz
 
 #Backup en AIP una vez por semana
-5 23 * * sun    dspace  date && $DSPACE_INSTALL_DIR/bin/dspace packager -d -a -t AIP -e alira@sedici.unlp.edu.ar -u -i 11746/0 $DSPACE_BACKUP_DIR/backups/aip/aip-site.zip && date
-
+5 23 * * sun	dspace	date && $DSPACE_INSTALL_DIR/bin/dspace packager -d -a -t AIP -e alira@sedici.unlp.edu.ar -u -i 11746/0 $DSPACE_BACKUP_DIR/aip/aip-site.zip && date
 ##################################################################################
 ##  AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH AUTH ##
 ##################################################################################
 
 #backups de configuraciones (todos los 1ro de mes a las 4:38hs)
-38 4 2 * *      root    tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/config/config.backup.$($DATESTR).tgz config/
+38 4 2 * *	root	tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/config/config.backup.$($DATESTR).tgz config/
 
 #backups de drupal para autoridades de CIC-DIGITAL (de lunes a viernes a las 4:50AM)
-50 4 * * 1,2,3,4,5      root    tar --directory /var/www -czf $DSPACE_BACKUP_DIR/auth/auth.htdocs.mes-`date +%m`.tgz auth/
+50 4 * * 1,2,3,4,5	root	tar --directory /var/www -czf $DSPACE_BACKUP_DIR/auth/auth.htdocs.mes-$($DATEMTH).tgz auth/
 
 ##################################################################################
 ##  SOLR
 ##################################################################################
 
-#backups del core de estadisticas de solr (todos los miercoles y domino a las 19:00hs)
-0 19 * * 0      root    tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.domingo.tgz solr/statistics/
-0 19 * * 3      root    tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.miercoles.tgz solr/statistics/
+#backups del core de estadisticas de solr COMPLETO (todos los miercoles y domingo a las 19:00hs)
+0 19 * * 0	root	tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.domingo.tgz solr/statistics/
+0 19 * * 3	root	tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/solr/statistics.backup.miercoles.tgz solr/statistics/
+
+
+#backups de cores de solr. Todos los días a las 5AM. 
+0 5 * * *	root	{ echo "Realizo backup del core statistics a las $($DATESTR)"; wget -q -O - "http://$SOLR_SERVER/statistics/replication?command=backup&location=$DSPACE_BACKUP_DIR/solr/statistics/&numberToKeep=3"; }>> $DSPACE_INSTALL_DIR/log/solr-backups.log  
+5 5 * * *	root	{ echo "Realizo backup del core oai a las $($DATESTR)"; wget -q -O - "http://$SOLR_SERVER/oai/replication?command=backup&location=$DSPACE_BACKUP_DIR/solr/oai/&numberToKeep=3"; }>> $DSPACE_INSTALL_DIR/log/solr-backups.log  
+10 5 * * *	root	{ echo "Realizo backup del core search a las $($DATESTR)"; wget -q -O - "http://$SOLR_SERVER/search/replication?command=backup&location=$DSPACE_BACKUP_DIR/solr/search/&numberToKeep=3"; }>> $DSPACE_INSTALL_DIR/log/solr-backups.log
