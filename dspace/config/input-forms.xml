@@ -845,6 +845,15 @@
 			<displayed-value>Ingeniería, Arquitectura y Tecnología</displayed-value>
 			<stored-value>Ingeniería, Arquitectura y Tecnología</stored-value>
 		</pair>	
+		<pair>
+			<displayed-value>Ciencias Biológicas, Ambiente y Salud</displayed-value>
+			<stored-value>Ciencias Biológicas, Ambiente y Salud</stored-value>
+		</pair>	
+		<pair>
+			<displayed-value>TICs, Electrónica e Informática</displayed-value>
+			<stored-value>TICs, Electrónica e Informática</stored-value>
+		</pair>	
+
 	</value-pairs>
 	
 	<value-pairs value-pairs-name="cic_embargo" dc-term="dcterms_rights_embargoPeriod">
