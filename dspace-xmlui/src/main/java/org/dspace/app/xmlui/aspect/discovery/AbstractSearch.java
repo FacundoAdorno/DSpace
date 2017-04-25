@@ -49,8 +49,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
@@ -927,7 +925,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
 
 
     protected void buildSearchControls(Division div)
-            throws WingException, SQLException, UnsupportedEncodingException {
+            throws WingException, SQLException {
 
 
         DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
