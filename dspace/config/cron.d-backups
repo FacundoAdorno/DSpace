@@ -28,11 +28,11 @@ DATEMTH=date +%m
 ## DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE DSPACE ##
 ##################################################################################
 
-#backups de la base de datos postgres de CIC-DIGITAL dspace_cic@data-pg.sedici.unlp.edu.ar (todos los días de la semana a las 20:00hs)
-0 20 * * 1,2,3,4,5	dspace	sh $DSPACE_BACKUP_DIR/do_pgdump.sh -q
+#backups de la base de datos postgres de CIC-DIGITAL dspace_cic@data-pg.sedici.unlp.edu.ar (todos los días de la semana a las 20:00hs y todos los primero de mes)
+0 20 1 * 1,2,3,4,5      dspace  sh $DSPACE_BACKUP_DIR/do_pgdump.sh -q
 
-#rotación de backups de postgres (todos los dias a las 05:00hs). Se eliminan aquellos mas antiguos a 30 dias de creación
-0 5 * * 1,2,3,4,5	dspace	find $DSPACE_BACKUP_DIR/postgres -maxdepth 1 -name "dspace_cic*.*gz" -mtime +30 -exec rm {} \; > /dev/null
+#rotación de backups de postgres (todos los dias a las 05:00hs). Se eliminan aquellos mas antiguos a 30 dias de creación pero se conservan los de primero de cada mes 
+0 5 * * 1,2,3,4,5       dspace  find $DSPACE_BACKUP_DIR/postgres -maxdepth 1 -name "dspace_cic*.*gz" -mtime +30 -not -name "dspace_cic-20??-??-01*.gz" -exec rm {} \; > /dev/null
 
 #backup de la base de datos mysql local con las autoridades de CIC-DIGITAL (de lunes a viernes a las 1230)
 30 12 * * 1,2,3,4,5	root	mysqldump --add-drop-table --routines --events --add-drop-table --all-databases --force | gzip -c > $DSPACE_BACKUP_DIR/mysql/all-databases.sql.gz
