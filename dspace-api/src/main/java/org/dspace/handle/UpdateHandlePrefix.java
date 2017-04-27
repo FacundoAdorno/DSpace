@@ -61,10 +61,6 @@ public class UpdateHandlePrefix
             // Get info about changes
             System.out.println("\nGetting information about handles from database...");
             Context context = new Context();
-
-            // TODO borrar!!!!!!!!!!!!!!!
-            // Disable authorization since this only runs from the local commandline.
-            context.turnOffAuthorisationSystem();
             
             long count = handleService.countHandlesByPrefix(context, oldH);
 
@@ -108,19 +104,22 @@ public class UpdateHandlePrefix
                         	allHdlPrefixes.add(hdlPrefixConfigValue);
                         }
 
-                        System.out.print("Updating metadatavalues table... ");
+                        System.out.println("Updating metadatavalues table... ");
                         MetadataValueService metadataValueService = ContentServiceFactory.getInstance().getMetadataValueService();
                         int updMeta = 0;
                         for(String handlePrefix : allHdlPrefixes){
                             List<MetadataValue> metadataValues = metadataValueService.findByValueLike(context, handlePrefix);
                             updMeta = updMeta + metadataValues.size();
+                            System.out.println(
+                                    "- Using '" + handlePrefix + "' handle canonical prefix: " + metadataValues.size() + " record" + ((updMeta > 1) ? "s" : "") + " updated"
+                                  );
                             for (MetadataValue metadataValue : metadataValues) {
-                            	metadataValue.setValue(metadataValue.getValue().replace(handlePrefix + "handle/"+ oldH, handlePrefix + "handle/" + newH));
+                            	metadataValue.setValue(metadataValue.getValue().replace(handlePrefix + oldH, handlePrefix +  newH));
                                 metadataValueService.update(context, metadataValue, true);
                             }
                         }
                         System.out.println(
-                          updMeta + " metadata value" + ((updMeta > 1) ? "s" : "") + " updated"
+                          updMeta + " metadata value" + ((updMeta > 1) ? "s" : "") + " updated in total."
                         );
                         
                         // Commit the changes
@@ -177,8 +176,6 @@ public class UpdateHandlePrefix
             {
                 System.out.println("Nothing to do! All handles are up-to-date.\n");
             }
-            //Turn On Auth-System
-            context.restoreAuthSystemState();
         }
     }
 }
