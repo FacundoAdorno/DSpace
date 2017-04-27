@@ -10,6 +10,7 @@ package org.dspace.handle;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.content.MetadataValue;
@@ -17,8 +18,10 @@ import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.MetadataValueService;
 import org.dspace.core.Context;
 import org.dspace.discovery.IndexClient;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
+import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
  * A script to update the handle values in the database. This is typically used
@@ -59,6 +62,10 @@ public class UpdateHandlePrefix
             System.out.println("\nGetting information about handles from database...");
             Context context = new Context();
 
+            // TODO borrar!!!!!!!!!!!!!!!
+            // Disable authorization since this only runs from the local commandline.
+            context.turnOffAuthorisationSystem();
+            
             long count = handleService.countHandlesByPrefix(context, oldH);
 
             if (count > 0)
@@ -92,13 +99,25 @@ public class UpdateHandlePrefix
                           updHdl + " item" + ((updHdl > 1) ? "s" : "") + " updated"
                         );
 
+                        String defaultHdlPrefix = "http://hdl.handle.net/";
+                        String hdlPrefixConfigValue = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("handle.canonical.prefix");
+                        List<String> allHdlPrefixes = new ArrayList<String>();
+                        
+                        allHdlPrefixes.add(defaultHdlPrefix);
+                        if(hdlPrefixConfigValue != null && !hdlPrefixConfigValue.equals(defaultHdlPrefix)){
+                        	allHdlPrefixes.add(hdlPrefixConfigValue);
+                        }
+
                         System.out.print("Updating metadatavalues table... ");
                         MetadataValueService metadataValueService = ContentServiceFactory.getInstance().getMetadataValueService();
-                        List<MetadataValue> metadataValues = metadataValueService.findByValueLike(context, "http://hdl.handle.net/");
-                        int updMeta = metadataValues.size();
-                        for (MetadataValue metadataValue : metadataValues) {
-                        	metadataValue.setValue(metadataValue.getValue().replace("http://hdl.handle.net/" + oldH, "http://hdl.handle.net/" + newH));
-                            metadataValueService.update(context, metadataValue, true);
+                        int updMeta = 0;
+                        for(String handlePrefix : allHdlPrefixes){
+                            List<MetadataValue> metadataValues = metadataValueService.findByValueLike(context, handlePrefix);
+                            updMeta = updMeta + metadataValues.size();
+                            for (MetadataValue metadataValue : metadataValues) {
+                            	metadataValue.setValue(metadataValue.getValue().replace(handlePrefix + "handle/"+ oldH, handlePrefix + "handle/" + newH));
+                                metadataValueService.update(context, metadataValue, true);
+                            }
                         }
                         System.out.println(
                           updMeta + " metadata value" + ((updMeta > 1) ? "s" : "") + " updated"
@@ -158,6 +177,8 @@ public class UpdateHandlePrefix
             {
                 System.out.println("Nothing to do! All handles are up-to-date.\n");
             }
+            //Turn On Auth-System
+            context.restoreAuthSystemState();
         }
     }
 }
