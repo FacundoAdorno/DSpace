@@ -44,10 +44,10 @@ DATEMTH=date +%m
 ##################################################################################
 
 #backups de configuraciones (todos los 1ro de mes a las 4:38hs)
-38 4 2 * *	root	tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/config/config.backup.$($DATESTR).tar config/
+38 4 2 * *	root	tar --directory $DSPACE_INSTALL_DIR -czf $DSPACE_BACKUP_DIR/config/config.backup.$($DATESTR).tgz config/
 
 #backups de drupal para autoridades de CIC-DIGITAL (de lunes a viernes a las 4:50AM)
-50 4 * * 1,2,3,4,5	root	drush -r /var/www/auth archive-dump --destination=$DSPACE_BACKUP_DIR/auth.htdocs.mes-$($DATEMTH).tar
+50 4 * * 1,2,3,4,5	root	drush -r /var/www/auth archive-dump --destination=$DSPACE_BACKUP_DIR/auth.htdocs.mes-$($DATEMTH).tar.gz
 
 ##################################################################################
 ##  SOLR
