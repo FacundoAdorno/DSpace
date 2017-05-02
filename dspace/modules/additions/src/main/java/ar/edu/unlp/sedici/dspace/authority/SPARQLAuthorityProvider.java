@@ -140,7 +140,7 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 		SPARQLAuthorityProvider s = new SPARQLAuthorityProvider() {
 			
 			protected String getSparqlEndpoint() {
-				return ConfigurationManager.getProperty("sparql-authorities", "sparql-authorities.endpoint.url");
+				return ConfigurationManager.getProperty("sparql-authorities", "endpoint.url");
 			}
 
 			@Override

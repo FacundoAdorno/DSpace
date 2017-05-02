@@ -9,7 +9,7 @@ public abstract class CICBAAuthority extends SPARQLAuthorityProvider {
 	protected static final String NS_CIC = "http://www.cic.gba.gov.ar/ns#";
 
 	protected String getSparqlEndpoint() {
-		String endpoint = ConfigurationManager.getProperty("sparql-authorities", "sparql-authorities.endpoint.url");
+		String endpoint = ConfigurationManager.getProperty("sparql-authorities", "endpoint.url");
 		if (endpoint != null) {
 			return endpoint;
 		} else {
