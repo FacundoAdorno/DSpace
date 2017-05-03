@@ -654,7 +654,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
         Request request = ObjectModelHelper.getRequest(objectModel);
         queryParams.put("order",request.getParameter("order"));
         String facetField = request.getParameter(SearchFilterParam.FACET_FIELD);
-        Division controls = div.addInteractiveDivision("browse-controls", "search-filter?field="+facetField,
+        Division controls = div.addInteractiveDivision("browse-controls", "search-filter?" + request.getQueryString(),
                 Division.METHOD_POST, "browse controls");
 
         // Add all the query parameters as hidden fields on the form
