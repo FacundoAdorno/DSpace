@@ -14,6 +14,7 @@ import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Request;
 import org.apache.cocoon.environment.SourceResolver;
 import org.apache.cocoon.util.HashUtil;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.excalibur.source.SourceValidity;
 import org.apache.log4j.Logger;
@@ -355,7 +356,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
 
                     // We put our total results to -1 so this doesn't get shown in the results (will be hidden by the xsl)
                     // The reason why we do this is because solr 1.4 can't retrieve the total number of facets found
-                    results.setSimplePagination((int) queryResults.getTotalSearchResults(), offSet + 1,
+                    results.setSimplePagination(getTotalFacetCount(facetField), offSet + 1,
                                                     shownItemsMax, getPreviousPageURL(browseParams, request), nextPageUrl);
 
                     Table singleTable = results.addTable("browse-by-" + facetField + "-results", (int) (queryResults.getDspaceObjects().size() + 1), 1);
@@ -673,6 +674,32 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
             rppSelect.addOption((i == getPageSize()), i, Integer.toString(i));
         }
         controlsForm.addButton("update").setValue("update");
+    }
+    
+    private int getTotalFacetCount(String facetField){
+    	DiscoverFacetField dff = null;
+    	int totalFacetCount=0;
+    	for(DiscoverFacetField field:  queryArgs.getFacetFields()){
+    		if(facetField.equals(field.getField())){
+    			dff = field;
+    			break;
+    		}
+    	} 
+    	
+    	if(dff != null){
+    		queryArgs.getFacetFields().remove(dff);
+    		DiscoverFacetField tmpDff = new DiscoverFacetField(facetField, DiscoveryConfigurationParameters.TYPE_TEXT, -1, sortOrder,0);
+    		queryArgs.addFacetField(tmpDff);
+    		try {
+				DiscoverResult result = searchService.search(context, getScope(), queryArgs);
+				totalFacetCount = result.getFacetResult(facetField).size();
+			} catch (SearchServiceException | SQLException e) {
+				e.printStackTrace();
+			}
+    		queryArgs.getFacetFields().remove(tmpDff);
+    		queryArgs.addFacetField(dff);
+    		}
+    	 return totalFacetCount;
     }
 
 }
