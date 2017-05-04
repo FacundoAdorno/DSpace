@@ -293,7 +293,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
 
 
     @Override
-    public void addBody(Body body) throws SAXException, WingException, UIException, SQLException, IOException, AuthorizeException {
+    public void addBody(Body body) throws SAXException, WingException, UIException, SQLException, IOException, AuthorizeException, ProcessingException {
         Request request = ObjectModelHelper.getRequest(objectModel);
         DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
         updateQueryResultsAndOffset(request, dso);
@@ -675,30 +675,38 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
         controlsForm.addButton("update").setValue("update");
     }
     
-    private int getTotalFacetCount(String facetField){
+    /**
+     * Given a facetField name, return the total count of facets options.
+     *
+     * @param facetField
+     * @return count of facet options
+     * @throws SQLException
+     * @throws ProccessingException
+     * @throws SearchServiceException
+     */
+    private int getTotalFacetCount(String facetField) throws SQLException, ProcessingException{
     	DiscoverFacetField dff = null;
-    	int totalFacetCount=0;
     	for(DiscoverFacetField field:  queryArgs.getFacetFields()){
     		if(facetField.equals(field.getField())){
     			dff = field;
     			break;
     		}
-    	} 
+    	}
+    	// Remove the original facet from queryArgs, then add the temporal facet to get the total count
+    	queryArgs.getFacetFields().remove(dff);
+    	DiscoverFacetField tmpDff = new DiscoverFacetField(facetField, DiscoveryConfigurationParameters.TYPE_TEXT, -1, sortOrder,0);
+    	queryArgs.addFacetField(tmpDff);
+		DiscoverResult result;
+		try {
+			result = searchService.search(context, getScope(), queryArgs);
+		} catch (SearchServiceException e) {
+			throw new ProcessingException(e.getMessage(), e);
+		}
+		// Remove the temporal facet and add the original facet to queryArgs
+    	queryArgs.getFacetFields().remove(tmpDff);
+    	queryArgs.addFacetField(dff);
     	
-    	if(dff != null){
-    		queryArgs.getFacetFields().remove(dff);
-    		DiscoverFacetField tmpDff = new DiscoverFacetField(facetField, DiscoveryConfigurationParameters.TYPE_TEXT, -1, sortOrder,0);
-    		queryArgs.addFacetField(tmpDff);
-    		try {
-				DiscoverResult result = searchService.search(context, getScope(), queryArgs);
-				totalFacetCount = result.getFacetResult(facetField).size();
-			} catch (SearchServiceException | SQLException e) {
-				e.printStackTrace();
-			}
-    		queryArgs.getFacetFields().remove(tmpDff);
-    		queryArgs.addFacetField(dff);
-    		}
-    	 return totalFacetCount;
+    	return result.getFacetResult(facetField).size();
     }
 
 }
