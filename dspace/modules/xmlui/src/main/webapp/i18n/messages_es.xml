@@ -1475,6 +1475,7 @@
 <message key="xmlui.administrative.item.EditItemMetadataForm.name_label">Nombre</message>
 <message key="xmlui.administrative.item.EditItemMetadataForm.value_label">Valor</message>
 <message key="xmlui.administrative.item.EditItemMetadataForm.lang_label">Idioma</message>
+	<message key="xmlui.administrative.item.EditItemMetadataForm.authority_label">Autoridad</message>
 <message key="xmlui.administrative.item.EditItemMetadataForm.submit_add">Añadir nuevo metadato</message>
 <message key="xmlui.administrative.item.EditItemMetadataForm.para1">ADVERTENCIA: Estos cambios no se validan de ningún modo. Es responsabilidad suya introducir los datos en el formato correcto. Si no está seguro, por favor NO haga cambios.</message>
 <message key="xmlui.administrative.item.EditItemMetadataForm.head2">Metadatos</message>
@@ -2279,6 +2280,29 @@ Cuando se usa QDC para los elementos de DSpace se recomienda el uso de crosswalk
 <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_materia.title">Buscar Materia</message>
 <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject.help">Palabra clave</message>
 <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject.title">Buscar Palabra clave</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_author.help">Autor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_author.title">Buscar Autor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_compilator.help">Compilador</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_compilator.title">Buscar Compilador</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_editor.help">Editor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_editor.title">Buscar Editor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_contributor_director.help">Director</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_contributor_director.title">Buscar Director</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_corporate.help">Institución</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_corporate.title">Buscar Institutición</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_thesis_grantor.help">Institución otorgante</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_thesis_grantor.title">Buscar Institutición otorgante</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_lugarDesarrollo.help">Lugar de Desarrollo</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_lugarDesarrollo.title">Buscar Lugar de Desarrollo</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_isPartOf_series.help">Revista o Evento</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_isPartOf_series.title">Buscar Revista o Evento</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_language.help">Idioma</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_language.title">Buscar Idioma</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_license.help">Licencia</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_license.title">Buscar Licencia</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_area.help">Área</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_area.title">Buscar Área</message>
+
   <!-- Params are: search-value -->
 <message key="xmlui.ChoiceLookupTransformer.field.dc_publisher.nonauthority">No es valor de Autoridad: @1@</message>
 

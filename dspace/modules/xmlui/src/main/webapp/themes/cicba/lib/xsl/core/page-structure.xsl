@@ -368,16 +368,6 @@
 				  }
 				});
 			}
-			
-			function checkAuthoritiesRequired(){
-				var auth_required_prop=[</xsl:text>
-				<xsl:for-each select="xmlui:getPropertyKeys('authority.required')">
-					<xsl:value-of select="xmlui:replaceAll(.,'authority\.required\.','')"/>
-					<xsl:if test="position() != last()">
-						<xsl:text>, </xsl:text>
-					</xsl:if>
-				</xsl:for-each><xsl:text>];
-			}
 			</xsl:text>
 			</script>
 			
@@ -621,6 +611,12 @@
 					
 				});
 		  </script>
+		  
+		<xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.administrative.item.EditItemMetadataForm.div.edit-item-status']">
+			<script type="text/javascript">
+				updateMetadataForLookup();
+			</script>
+		</xsl:if>
 		
 		
 	</xsl:template>

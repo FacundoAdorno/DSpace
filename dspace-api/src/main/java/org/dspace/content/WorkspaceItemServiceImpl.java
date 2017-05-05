@@ -120,8 +120,15 @@ public class WorkspaceItemServiceImpl implements WorkspaceItemService {
             for (MetadataValue aMd : md) {
                 MetadataField metadataField = aMd.getMetadataField();
                 MetadataSchema metadataSchema = metadataField.getMetadataSchema();
-                itemService.addMetadata(context, item, metadataSchema.getName(), metadataField.getElement(), metadataField.getQualifier(), aMd.getLanguage(),
+                String metadataAuthority = aMd.getAuthority();
+                if(metadataAuthority != null && !metadataAuthority.isEmpty()){
+                	//Add metadata with authority and confidence if is possible
+                	itemService.addMetadata(context, item, metadataSchema.getName(), metadataField.getElement(), metadataField.getQualifier(), aMd.getLanguage(),
+                            aMd.getValue(),metadataAuthority, aMd.getConfidence());
+                }else{
+                	itemService.addMetadata(context, item, metadataSchema.getName(), metadataField.getElement(), metadataField.getQualifier(), aMd.getLanguage(),
                         aMd.getValue());
+                }
             }
         }
 

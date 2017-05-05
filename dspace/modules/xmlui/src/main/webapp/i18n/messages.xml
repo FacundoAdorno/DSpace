@@ -1630,6 +1630,7 @@
 	<message key="xmlui.administrative.item.EditItemMetadataForm.name_label">Name</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.value_label">Value</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.lang_label">Language</message>
+	<message key="xmlui.administrative.item.EditItemMetadataForm.authority_label">Authority</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.submit_add">Add new metadata</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.para1">PLEASE NOTE: These changes are not validated in any way. You are responsible for entering the data in the correct format. If you are not sure what the format is, please do NOT make changes.</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.head2">Metadata</message>
@@ -2480,6 +2481,28 @@
   <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_materia.title">Look up Subject</message>
   <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject.help">Keyword</message>
   <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject.title">Look up Keyword</message>
+  <message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_author.help">Autor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_author.title">Look up Autor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_compilator.help">Compilator</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_compilator.title">Look up Compilator</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_editor.help">Editor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_editor.title">Look up Editor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_contributor_director.help">Director</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_contributor_director.title">Look up Director</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_corporate.help">Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_corporate.title">Look up Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_thesis_grantor.help">Grantor Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_thesis_grantor.title">Look up Grantor Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_lugarDesarrollo.help">Development place</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_lugarDesarrollo.title">Look up Development Place</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_isPartOf_series.help">Journal or Event</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_isPartOf_series.title">Look up Journal or Event</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_language.help">Language</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_language.title">Look up Language</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_license.help">Licence</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_license.title">Look up Licence</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_area.help">Area</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_area.title">Look up Area</message>
 
   <!-- Params are: search-value -->
   <message key="xmlui.ChoiceLookupTransformer.field.dc_publisher.nonauthority">Non-authority value: @1@</message>

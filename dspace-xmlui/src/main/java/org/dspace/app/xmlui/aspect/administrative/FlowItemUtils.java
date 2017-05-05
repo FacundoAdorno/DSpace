@@ -269,11 +269,16 @@ public class FlowItemUtils
 		String fieldID = request.getParameter("field");
 		String value = request.getParameter("value");
 		String language = request.getParameter("language");
+		String authority = request.getParameter("value_authority");
+		String confidenceText = request.getParameter("value_confidence");
 		
 		MetadataField field = metadataFieldService.find(context,Integer.valueOf(fieldID));
-
-		itemService.addMetadata(context, item, field.getMetadataSchema().getName(), field.getElement(), field.getQualifier(), language, value);
 		
+		if (!(authority.isEmpty() && confidenceText.isEmpty())){
+			itemService.addMetadata(context, item, field.getMetadataSchema().getName(), field.getElement(), field.getQualifier(), language, value, authority, Choices.getConfidenceValue(confidenceText));
+		}else{
+			itemService.addMetadata(context, item, field.getMetadataSchema().getName(), field.getElement(), field.getQualifier(), language, value);
+		}
 		itemService.update(context, item);
 
 		result.setContinue(true);

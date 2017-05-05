@@ -60,6 +60,7 @@ public class EditItemMetadataForm extends AbstractDSpaceTransformer {
         private static final Message T_name_label = message("xmlui.administrative.item.EditItemMetadataForm.name_label");
         private static final Message T_value_label = message("xmlui.administrative.item.EditItemMetadataForm.value_label");
         private static final Message T_lang_label = message("xmlui.administrative.item.EditItemMetadataForm.lang_label");
+        private static final Message T_authority_label = message("xmlui.administrative.item.EditItemMetadataForm.authority_label");
         private static final Message T_submit_add = message("xmlui.administrative.item.EditItemMetadataForm.submit_add");
         private static final Message T_para1 = message("xmlui.administrative.item.EditItemMetadataForm.para1");
 
@@ -81,6 +82,9 @@ public class EditItemMetadataForm extends AbstractDSpaceTransformer {
             Item item = itemService.find(context, UUID.fromString(parameters.getParameter("itemID", null)));
             Collection owner = item.getOwningCollection();
             UUID collectionID = (owner == null) ? null : owner.getID();
+            if(collectionID == null && parameters.getParameter("templateCollectionID", null) != null){
+            	collectionID = UUID.fromString(parameters.getParameter("templateCollectionID", null));
+            }
 
             pageMeta.addMetadata("choice", "collection").addContent(String.valueOf(collectionID));
             pageMeta.addMetadata("title").addContent(T_title);
@@ -181,11 +185,17 @@ public class EditItemMetadataForm extends AbstractDSpaceTransformer {
                 Composite addComposite = addForm.addItem().addComposite("value");
                 addComposite.setLabel(T_value_label);
                 TextArea addValue = addComposite.addTextArea("value");
+                addValue.setChoices("value");
+                addValue.setChoicesPresentation(Params.PRESENTATION_LOOKUP);
                 Text addLang = addComposite.addText("language");
+                Text addAuthority = addComposite.addText("value_authority");
+                Text addConfidence = addComposite.addText("value_confidence");
 
                 addValue.setSize(4, 35);
                 addLang.setLabel(T_lang_label);
                 addLang.setSize(6);
+                addAuthority.setLabel(T_authority_label);
+                
 
                 addForm.addItem().addButton("submit_add").setValue(T_submit_add);
 
