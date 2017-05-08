@@ -35,11 +35,14 @@ public class ChangeCollectionAction extends ProcessingAction {
             DSpaceObject dso = HandleServiceFactory.getInstance().getHandleService().resolveToObject(c, collectionHandle);
             if(!(dso instanceof Collection))
             	return new ActionResult(ActionResult.TYPE.TYPE_ERROR);
-
-            ClaimedTask oldClaimedTask = XmlWorkflowServiceFactory.getInstance().getClaimedTaskService().findByWorkflowIdAndEPerson(c, wfi, c.getCurrentUser());
-            XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService().deleteClaimedTask(c, wfi, oldClaimedTask);
+            
+            //first update item
             wfi.setCollection((Collection) dso);
             XmlWorkflowServiceFactory.getInstance().getWorkflowItemService().update(c,wfi);
+            
+            //then deletes claimed task
+            ClaimedTask oldClaimedTask = XmlWorkflowServiceFactory.getInstance().getClaimedTaskService().findByWorkflowIdAndEPerson(c, wfi, c.getCurrentUser());
+            XmlWorkflowServiceFactory.getInstance().getXmlWorkflowService().deleteClaimedTask(c, wfi, oldClaimedTask);
             return new ActionResult(ActionResult.TYPE.TYPE_OUTCOME, ActionResult.OUTCOME_COMPLETE);
         } else {
             //We pressed the "cancel" button so return to our submissions page
