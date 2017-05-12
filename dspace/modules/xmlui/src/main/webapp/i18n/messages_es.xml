@@ -882,6 +882,7 @@
 	<!--  XMLWorflow messages -->
 <message key="xmlui.XMLWorkflow.default.CIC-ADMIN_review.claimaction">Revisón CIC-Digital</message>
 <message key="xmlui.XMLWorkflow.autoarchive.CIC-ADMIN_review.claimaction">Revisón CIC-Digital</message>
+<message key="xmlui.XMLWorkflow.default.CIC-ADMIN_review.rejectrole">Revisón CIC-Digital</message>
 <message key="xmlui.XMLWorkflow.default.CIC-ADMIN_review.editaction">Edición CIC-Digital</message>
 <message key="xmlui.XMLWorkflow.autoarchive.CIC-ADMIN_review.editaction">Edición CIC-Digital</message>
 <message key="xmlui.XMLWorkflow.autoarchive.CIC-ADMIN_review.changecollection">Selección de colección destino CIC-Digital</message>
