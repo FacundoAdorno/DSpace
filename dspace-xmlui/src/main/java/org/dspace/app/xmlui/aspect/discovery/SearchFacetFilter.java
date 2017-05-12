@@ -682,7 +682,6 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
      * @return count of facet options
      * @throws SQLException
      * @throws ProccessingException
-     * @throws SearchServiceException
      */
     private int getTotalFacetCount(String facetField) throws SQLException, ProcessingException{
     	DiscoverFacetField dff = null;
