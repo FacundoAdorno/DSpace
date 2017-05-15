@@ -10,6 +10,7 @@
 	version="1.0" xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"
 	xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mods="http://www.loc.gov/mods/v3"
 	xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:confman="org.dspace.core.ConfigurationManager"
+	xmlns:xmlui="xalan://ar.edu.unlp.sedici.dspace.xmlui.util.XSLTHelper"
 	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="i18n dri mets xlink xsl dim xhtml mods dc confman">
 
 	<xsl:import href="html-head.xsl" />
@@ -610,6 +611,12 @@
 					
 				});
 		  </script>
+		  
+		<xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.administrative.item.EditItemMetadataForm.div.edit-item-status']">
+			<script type="text/javascript">
+				updateMetadataForLookup();
+			</script>
+		</xsl:if>
 		
 		
 	</xsl:template>
