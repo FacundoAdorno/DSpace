@@ -49,9 +49,8 @@ public class Subject_CICBA_Authority extends CICBAAuthority {
 	@Override
 	protected Choice extractChoice(QuerySolution solution) {
 		String key = solution.getResource("term").getURI();
-		String label = solution.getLiteral("label").getString();
 		String id = solution.getLiteral("label").getString();
-		return new Choice(key, label, label + " (" + id + ")");
+		return new Choice(key, id, id + " (" + id + ")");
 	}
 
 }

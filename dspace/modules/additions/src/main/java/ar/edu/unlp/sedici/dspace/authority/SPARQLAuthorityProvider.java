@@ -13,6 +13,7 @@ import org.dspace.content.authority.Choices;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.content.Collection;
 
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -20,6 +21,9 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.QuerySolutionMap;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
@@ -28,10 +32,12 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 			.getLogger(SPARQLAuthorityProvider.class);
 
 	protected static final String NS_RDFS = "http://www.w3.org/2000/01/rdf-schema#";
+	protected static final String NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 	protected static final String NS_SKOS = "http://www.w3.org/2004/02/skos/core#";
 	protected static final String NS_FOAF = "http://xmlns.com/foaf/0.1/";
 	protected static final String NS_DC = "http://purl.org/dc/terms/";
 	protected static final String NS_SIOC = "http://rdfs.org/sioc/ns#";
+	protected static final String NS_CERIF = "http://spi-fm.uca.es/neologism/cerif/1.3#";
 
 	private QuerySolutionMap globalParameters;
 
@@ -87,7 +93,7 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 
 	protected abstract Choice extractChoice(QuerySolution solution);
 
-	private Choice[] evalSparql(
+	protected Choice[] evalSparql(
 			ParameterizedSparqlString parameterizedSparqlString, int offset,
 			int limit) {
 
@@ -109,7 +115,7 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 		QueryEngineHTTP httpQuery = new QueryEngineHTTP(this.getSparqlEndpoint(), query);
 		httpQuery.setAllowDeflate(false);
 		httpQuery.setAllowGZip(false);
-		Choice[] choices = this.extractChoices(httpQuery.execSelect());
+		Choice[] choices = extractChoicesfromQuery(httpQuery);
 		httpQuery.close();
 
 		if (log.isDebugEnabled()) {
@@ -117,6 +123,10 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 					+ "ms");
 		}
 		return choices;
+	}
+
+	protected Choice[] extractChoicesfromQuery(QueryEngineHTTP httpQuery) {
+		return extractChoices(httpQuery.execSelect());
 	}
 
 	private Syntax getSPARQLSyntax() {
