@@ -6,8 +6,6 @@ import java.util.List;
 import org.dspace.content.authority.Choice;
 import org.dspace.core.ConfigurationManager;
 
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ResIterator;

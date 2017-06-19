@@ -1,10 +1,6 @@
 package ar.gob.gba.cic.digital;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.WriterAppender;
@@ -16,17 +12,42 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
-
 import ar.edu.unlp.sedici.dspace.authority.SPARQLAuthorityProvider;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 //FIXME cambiar  los queries para que levanten autores
-public class Author_CICBA_Authority extends CICBAAuthority {
+public class Author_CICBA_Authority extends AdvancedSPARQLAuthorityProvider {
+
+	protected static final Resource person = ResourceFactory.createResource(NS_FOAF + "Person");
+	protected static final Property familyName = ResourceFactory.createProperty(NS_FOAF + "familyName");
+	protected static final Property type = ResourceFactory.createProperty(NS_RDF + "type");
+	protected static final Property givenName = ResourceFactory.createProperty(NS_FOAF + "givenName");
+	protected static final Property organization = ResourceFactory.createProperty(NS_FOAF + "Organization");
+	protected static final Property linksToOrganisationUnit = ResourceFactory.createProperty(NS_CERIF, "linksToOrganisationUnit");
+	protected static final Property title = ResourceFactory.createProperty(NS_DC + "title");	
+	protected static final Property siocId = ResourceFactory.createProperty(NS_SIOC + "id");
+	protected static final Property startDate = ResourceFactory.createProperty(NS_CERIF + "startDate");
+	protected static final Property endDate = ResourceFactory.createProperty(NS_CERIF + "endDate");
+			
+	@Override
+	protected ResIterator getRDFResources(Model model) {
+		return model.listSubjectsWithProperty(type, person);
+	}
+
+	protected Choice extractChoice(Resource subject) {
+		
+		String key = subject.getURI();
+		String label = subject.getProperty(familyName).getString() + ", " + subject.getProperty(givenName).getString() ;
+		String value = label;
+		StmtIterator links = subject.listProperties(linksToOrganisationUnit);
+		if (links.hasNext()){
+			label += getAffiliations(links);
+		}
+		
+		return new Choice(key, value, label);
+	}
 
 	@Override
 	protected ParameterizedSparqlString getSparqlSearchByIdQuery(String field,
@@ -39,7 +60,6 @@ public class Author_CICBA_Authority extends CICBAAuthority {
 		pqs.setNsPrefix("rdf", NS_RDF);
 		pqs.setNsPrefix("sioc", NS_SIOC);
 
-//		pqs.setCommandText("SELECT ?person ?name ?surname ?affiliation\n");
 		pqs.setCommandText("CONSTRUCT { ?person a foaf:Person. ?person foaf:givenName ?name . ?person foaf:mbox ?mail . ?person foaf:familyName ?surname. ?person cerif:linksToOrganisationUnit ?link . ?link cerif:startDate ?inicio. ?link cerif:endDate ?fin . ?link foaf:Organization ?org . ?org dc:title ?affiliation. ?org sioc:id ?id. }\n");
 		pqs.append("WHERE {\n");
 		pqs.append("?person a foaf:Person ; foaf:givenName ?name ; foaf:familyName ?surname; foaf:mbox ?mail .\n");
@@ -65,7 +85,6 @@ public class Author_CICBA_Authority extends CICBAAuthority {
 		pqs.setNsPrefix("rdf", NS_RDF);
 		pqs.setNsPrefix("sioc", NS_SIOC);
 
-//		pqs.setCommandText("SELECT DISTINCT ?person ?name ?surname ?mail ?link\n");
 		pqs.setCommandText("CONSTRUCT { ?person a foaf:Person. ?person foaf:givenName ?name . ?person foaf:mbox ?mail . ?person foaf:familyName ?surname. ?person cerif:linksToOrganisationUnit ?link . ?link cerif:startDate ?inicio. ?link cerif:endDate ?fin . ?link foaf:Organization ?org . ?org dc:title ?affiliation. ?org sioc:id ?id. }\n");
 		pqs.append("WHERE {\n");
 		pqs.append("?person a foaf:Person ; foaf:givenName ?name ; foaf:mbox ?mail ; foaf:familyName ?surname. \n");
@@ -74,7 +93,7 @@ public class Author_CICBA_Authority extends CICBAAuthority {
 		pqs.append("}\n");
 		if (!"".equals(text)) {
 			String[] tokens = text.split(",");
-			if (tokens.length > 1) {
+			if (tokens.length > 1 && tokens[0].trim().length() > 0 && tokens[1].trim().length() > 0) {
 				pqs.append("FILTER(REGEX(?name, ?text2, \"i\") && REGEX(?surname, ?text1, \"i\"))\n");
 				pqs.setLiteral("text1", tokens[0].trim());
 				pqs.setLiteral("text2", tokens[1].trim());
@@ -90,64 +109,29 @@ public class Author_CICBA_Authority extends CICBAAuthority {
 	}
 
 
-	@Override
-	protected Choice extractChoice(QuerySolution solution) {
-		String key = solution.getResource("person").getURI();
-		String name = solution.getLiteral("name").getString();
-		String surname = solution.getLiteral("surname").getString();
-		
-		String label = surname + ", " + name;
-		String value = label;
-		
-		if (solution.contains("affiliation")) {
-			String affiliation = solution.getLiteral("affiliation").getString();
-			value = value + " (" + affiliation + ")";
-		}
-		
-		return new Choice(key, value, label);
-	}
-	
-	private Choice extractChoice(Resource subject) {
-		
-		Model model = subject.getModel();
-		StmtIterator it = model.listStatements();
-//		while (it.hasNext()){
-//			Statement s = it.next();
-//			String fafafa = s.getSubject().toString() +", "+ s.getPredicate().toString() +", "+ s.getObject().toString() +", ";
-//			fafafa.toString();
-//		}
-		String key = subject.getURI();
-		Property familyName = model.getProperty(NS_FOAF + "familyName");
-		Property givenName = model.getProperty(NS_FOAF + "givenName");
-		String label = subject.getProperty(familyName).getString() + ", " + subject.getProperty(givenName).getString() ;
-		String value = label;
-		Property link = model.getProperty(NS_CERIF, "linksToOrganisationUnit");
-		StmtIterator links = subject.listProperties(link);
-		if (links.hasNext()){
-			label += getFiliations(links, model);
-		}
-		
-		return new Choice(key, value, label);
-	}
-
-	private String getFiliations(StmtIterator links, Model model) {
-		String filiations = " (";
+	private String getAffiliations(StmtIterator links) {
+		StringBuilder string = new StringBuilder().append(" (");
 		while (links.hasNext()){
-			Resource filiacion = model.getResource(links.next().getObject().toString());
-			RDFNode orgURI = filiacion.getProperty(model.getProperty(NS_FOAF + "Organization")).getObject();
-			Resource organization = model.getResource(orgURI.toString());
-			String id = organization.getProperty(model.getProperty(NS_SIOC + "id")).getString();
-			filiations += (!"".equals(id)) ? id : organization.getProperty(model.getProperty(NS_DC + "title")).getString();
-
-			String start = filiacion.getProperty(ResourceFactory.createProperty(NS_CERIF + "startDate")).getString();
-			String end = filiacion.getProperty(ResourceFactory.createProperty(NS_CERIF + "endDate")).getString();
+			Statement link = links.next();
+			
+			Resource affiliation = link.getObject().asResource();
+			Resource org = affiliation.getProperty(organization).getObject().asResource();			
+			String id = org.getProperty(siocId).getString();
+			if (!"".equals(id)){
+				string.append(id);
+			}
+			else{
+				string.append(org.getProperty(title).getString());
+			}
+			String start = affiliation.getProperty(startDate).getString();
+			String end = affiliation.getProperty(endDate).getString();
 			if(!"".equals(start) || !"".equals(end)){
-				filiations += getPeriodForFiliation(start, end);
+				string.append(getPeriodForFiliation(start, end));
 			}
 
-			if (links.hasNext()) filiations += ", ";
+			if (links.hasNext()) string.append(", ");
 		};
-		return filiations += ")";
+		return string.append(")").toString();
 	}
 
 	private String getPeriodForFiliation(String start, String end) {
@@ -179,18 +163,6 @@ public class Author_CICBA_Authority extends CICBAAuthority {
 		return respuesta;
 	}
 
-	protected Choice[] extractChoicesfromQuery(QueryEngineHTTP httpQuery) {
-		List<Choice> choices = new LinkedList<Choice>();
-		
-		Model model = httpQuery.execConstruct(ModelFactory.createDefaultModel());
-		Property type = model.getProperty(NS_RDF, "type");
-		Resource person = model.getResource("http://xmlns.com/foaf/0.1/Person");
-		ResIterator subjects = model.listSubjectsWithProperty(type, person);
-		while (subjects.hasNext()){
-			choices.add(this.extractChoice(subjects.next()));
-		};		
-		return choices.toArray(new Choice[0]);
-	}
 
 	public static void main(String[] args) {
 
@@ -206,24 +178,14 @@ public class Author_CICBA_Authority extends CICBAAuthority {
 
 		Choices choice = s.getBestMatch("dcterms.creator.author", "Reval", null, "");
 		Choices cs = s.getMatches("dcterms.creator.author", "Reval", null, 0, 100, "");
-		for (Choice c : cs.values) {
-			System.out.println("\n AUTHORITY = " + c.authority + "\n LABEL = " + c.label + "\n VALUE = " + c.value +"\n" );
-		}
-//		System.out.println("\n AUTHORITY = " + choice.values[0].authority + "\n LABEL = " + choice.values[0].label + "\n VALUE = " + choice.values[0].value +"\n" );
-//		String label = s.getLabel("dcterms.creator.author", "localhost/auth/node/313700", "");
-//		System.out.println(label);
-//		label.toString();
+//		for (Choice c : cs.values) {
+//			System.out.println("\n AUTHORITY = " + c.authority + "\n LABEL = " + c.label + "\n VALUE = " + c.value +"\n" );
+//		}
+		System.out.println("\n AUTHORITY = " + choice.values[0].authority + "\n LABEL = " + choice.values[0].label + "\n VALUE = " + choice.values[0].value +"\n" );
+		String label = s.getLabel("dcterms.creator.author", "localhost/auth/node/313700", "");
+		System.out.println(label);
+		label.toString();
 	}
 
-	@Override
-	public String getLabel(String field, String key, String locale) {
 
-		ParameterizedSparqlString query = this.getSparqlSearchByIdQuery(field,
-				key, locale);
-
-		Choice[] choices = evalSparql(query, 0, 0);
-		if (choices.length == 0)
-			return null;
-		else
-			return choices[0].label;
-	}}
+}

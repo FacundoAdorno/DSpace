@@ -13,7 +13,6 @@ import org.dspace.content.authority.Choices;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.content.Collection;
 
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -21,9 +20,6 @@ import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.QuerySolutionMap;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
@@ -91,7 +87,7 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 	protected abstract ParameterizedSparqlString getSparqlSearchByTextQuery(
 			String field, String text, String locale);
 
-	protected abstract Choice extractChoice(QuerySolution solution);
+	protected abstract Choice[] extractChoicesfromQuery(QueryEngineHTTP httpQuery);
 
 	protected Choice[] evalSparql(
 			ParameterizedSparqlString parameterizedSparqlString, int offset,
@@ -115,6 +111,7 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 		QueryEngineHTTP httpQuery = new QueryEngineHTTP(this.getSparqlEndpoint(), query);
 		httpQuery.setAllowDeflate(false);
 		httpQuery.setAllowGZip(false);
+		// TODO pull down de extractChocicesFromQuery a una nueva clase que haga un execSelect o un execConstruct
 		Choice[] choices = extractChoicesfromQuery(httpQuery);
 		httpQuery.close();
 
@@ -125,76 +122,12 @@ public abstract class SPARQLAuthorityProvider implements ChoiceAuthority {
 		return choices;
 	}
 
-	protected Choice[] extractChoicesfromQuery(QueryEngineHTTP httpQuery) {
-		return extractChoices(httpQuery.execSelect());
-	}
 
 	private Syntax getSPARQLSyntax() {
 		// FIXME: la sintaxis debería ser protected
 		return Syntax.syntaxSPARQL_10;
 	}
 
-	private Choice[] extractChoices(ResultSet results) {
-		List<Choice> choices = new LinkedList<Choice>();
-		while (results.hasNext()) {
-			QuerySolution solution = results.next();
-			choices.add(this.extractChoice(solution));
-		}
-		return choices.toArray(new Choice[0]);
-	}
 
-	public static void main(String[] args) {
 
-		log.addAppender(new WriterAppender(new SimpleLayout(), System.out));
-		log.setLevel(Level.TRACE);
-		SPARQLAuthorityProvider s = new SPARQLAuthorityProvider() {
-			
-			protected String getSparqlEndpoint() {
-				return ConfigurationManager.getProperty("sparql-authorities", "endpoint.url");
-			}
-
-			@Override
-			protected Choice extractChoice(QuerySolution solution) {
-				String expressionValue = solution.getResource("experiment")
-						.getURI();
-				String pValue = solution.getLiteral("description").getString();
-				// print the output to stdout
-				return new Choice("0", pValue, expressionValue + "\t" + pValue);
-			}
-
-			@Override
-			protected ParameterizedSparqlString getSparqlSearchByIdQuery(
-					String field, String key, String locale) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			protected ParameterizedSparqlString getSparqlSearchByTextQuery(
-					String field, String text, String locale) {
-				ParameterizedSparqlString pqs = new ParameterizedSparqlString();
-				// pss.setBaseUri("http://example.org/base#");
-				pqs.setNsPrefix("atlasterms",
-						"http://rdf.ebi.ac.uk/terms/atlas/");
-				pqs.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-				pqs.setNsPrefix("dcterms", "http://purl.org/dc/terms/");
-				pqs.setCommandText("SELECT DISTINCT ?experiment ?description \n");
-				pqs.append("WHERE { \n");
-				pqs.append("?experiment a atlasterms:Experiment .");
-				pqs.append("?experiment dcterms:description ?description .");
-				pqs.append("FILTER regex(?description, ?text, \"i\")");
-				pqs.append("} \n");
-				pqs.append("ORDER BY ASC(?description)");
-				pqs.setLiteral("text", text);
-				return pqs;
-
-			}
-		};
-
-		Choices cs = s.getMatches("dc.title", "some", null, 0, 10, "en");
-		for (Choice c : cs.values) {
-			System.out.println("AUTHORITY=" + c.authority + ",LABEL=" + c.label
-					+ ",VALUE=" + c.value);
-		}
-	}
 }
