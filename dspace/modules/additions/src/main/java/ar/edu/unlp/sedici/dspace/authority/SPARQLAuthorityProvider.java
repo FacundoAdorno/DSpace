@@ -1,24 +1,15 @@
 package ar.edu.unlp.sedici.dspace.authority;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
-import org.apache.log4j.WriterAppender;
 import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.Choices;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.content.Collection;
 
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.QuerySolutionMap;
-import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
