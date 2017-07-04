@@ -831,6 +831,7 @@
 <message key="xmlui.Submission.submit.CCLicenseStep.submit_choose_creative_commons">Elija licencia</message>
 <message key="xmlui.Submission.submit.CCLicenseStep.submit_to_creative_commons">Acceder a Creative Commons para elegir una licencia</message>
 <message key="xmlui.Submission.submit.CCLicenseStep.license">Tipo de Licencia</message>
+<message key="xmlui.Submission.submit.CCLicenseStep.custom_question.derivatives">¿Quiere permitir obras derivadas (resúmenes, traducciones, compilaciones, etc.)?</message>
 <message key="xmlui.Submission.submit.CCLicenseStep.select_change">Seleccione o modifique la licencia...</message>
 <message key="xmlui.Submission.submit.CCLicenseStep.no_license">Sin licencia Creative Commons</message>
 <message key="xmlui.Submission.submit.CCLicenseStep.save_changes">Pulse Siguiente para salvar sus cambios.</message>
