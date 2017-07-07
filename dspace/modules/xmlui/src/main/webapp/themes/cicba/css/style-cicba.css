@@ -928,4 +928,13 @@ span.reference_head{
 	display:inline-block;
 }
 
+
+a[href="display-filters"]{
+	display:none;
+}
+
+#aspect_discovery_SimpleSearch_div_search-filters>.ds-div-head{
+    font-size: 24px;
+}
+
 }

@@ -191,6 +191,18 @@
 		
 	    <script type="text/javascript">
 	        <xsl:text disable-output-escaping="yes">
+	        
+	        (function ($) {
+			    /**
+			     * Al usar bootstrap, la clase "hidden" que se referencia aplica un "display: none !important"
+			     * Se quita la clase "hidden" 
+			     */
+
+				$('form#aspect_discovery_SimpleSearch_div_search-filters').removeClass( "hidden" );	    
+
+			})(jQuery);
+	    
+	        
 	        (function ($) {
 			    /**
 			     * When clicking an item li in a discovery context, openit
