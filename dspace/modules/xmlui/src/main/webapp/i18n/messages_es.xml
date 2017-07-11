@@ -287,6 +287,7 @@
 <message key="xmlui.ArtifactBrowser.ItemViewer.specific_info">Información Específica</message>
 <message key="xmlui.ArtifactBrowser.ItemViewer.other_info">Mas informacion</message>
 <message key="xmlui.ArtifactBrowser.ItemViewer.file">Archivo {0}</message>
+<message key="xmlui.ArtifactBrowser.ItemViewer.embargoedFile">Archivo embargado hasta la fecha: {0}</message>
 
 <message key="xmlui.ArtifactBrowser.ItemViewer.show_more">leer mas</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.show_less">leer menos</message>

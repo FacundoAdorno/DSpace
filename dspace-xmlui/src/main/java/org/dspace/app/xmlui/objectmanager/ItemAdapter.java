@@ -13,6 +13,7 @@ import org.dspace.app.util.service.MetadataExposureService;
 import org.dspace.app.xmlui.wing.AttributeMap;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.factory.AuthorizeServiceFactory;
 import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.*;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -1160,6 +1162,30 @@ public class ItemAdapter extends AbstractAdapter
 	
 	url += "&isAllowed=" + isAllowed;
 
+    List<ResourcePolicy> resourcePolicies = bitstream.getResourcePolicies();
+    String embargo = null;
+    Date maxDate = null;
+	Date today = new Date();
+	SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    sdf.setTimeZone(TimeZone.getTimeZone("ZULU"));
+    for(ResourcePolicy policy : resourcePolicies)
+    {
+     	if (policy.getGroup() == null || !org.dspace.eperson.Group.ANONYMOUS.equals(policy.getGroup().getName()) || (policy.getEndDate() != null && policy.getEndDate().before(today))){
+     		continue;
+     	}
+       	if (policy.getStartDate() == null || policy.getStartDate().before(today)){
+       		break;
+       	}
+       	else if (maxDate == null || policy.getStartDate().after(maxDate)){
+       		maxDate = policy.getStartDate();
+    		embargo = sdf.format(policy.getStartDate());                        				
+       	}
+    };
+    
+    if (embargo != null){
+    	url += "&embargoDate=" + embargo;    	
+    }
+	
         // //////////////////////
         // Start the file location
         attributes = new AttributeMap();

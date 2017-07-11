@@ -283,6 +283,7 @@
 	<message key="xmlui.ArtifactBrowser.ItemViewer.specific_info">Specific Information</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.other_info">More</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.file">{0} file</message>
+<message key="xmlui.ArtifactBrowser.ItemViewer.embargoedFile">Embargoed file until: {0}</message>
 	
 	<message key="xmlui.ArtifactBrowser.ItemViewer.show_more">read more</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.show_less">read less</message>

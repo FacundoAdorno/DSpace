@@ -450,18 +450,6 @@
 					</xsl:choose>
 				</xsl:variable>
 				<img alt="Icon" src="{concat($theme-path, '/images/', $img_path)}" />
-				<xsl:if
-					test="contains(mets:FLocat[@LOCTYPE='URL']/@xlink:href,'isAllowed=n')">
-					<img>
-						<xsl:attribute name="src">
-		                                <xsl:value-of select="$context-path" />
-		                                <xsl:text>/static/icons/lock24.png</xsl:text>
-		                            </xsl:attribute>
-						<xsl:attribute name="alt">xmlui.dri2xhtml.METS-1.0.blocked</xsl:attribute>
-						<xsl:attribute name="attr"
-							namespace="http://apache.org/cocoon/i18n/2.1">alt</xsl:attribute>
-					</img>
-				</xsl:if>
 			</a>
 			<div class="media-body">
 				<p>
@@ -498,6 +486,29 @@
 					</span>
 				</p>
 			</div>
+			<xsl:if
+				test="contains(mets:FLocat[@LOCTYPE='URL']/@xlink:href,'embargoDate')">
+				<div class="alert alert-warning" role="alert">
+				<xsl:variable name="href" select="xmlui:getFileExtension(mets:FLocat[@LOCTYPE='URL']/@xlink:href)" />
+				<xsl:variable name="date" select="substring-after($href, 'EMBARGODATE=')" />
+				<i18n:translate>
+					<i18n:text>xmlui.ArtifactBrowser.ItemViewer.embargoedFile</i18n:text>
+					<i18n:param><xsl:value-of select="substring($date,0,11)" /></i18n:param>
+				</i18n:translate>
+				<xsl:if
+					test="contains(mets:FLocat[@LOCTYPE='URL']/@xlink:href,'isAllowed=n')">
+					<img>
+						<xsl:attribute name="src">
+		                                <xsl:value-of select="$context-path" />
+		                                <xsl:text>/static/icons/lock24.png</xsl:text>
+		                            </xsl:attribute>
+						<xsl:attribute name="alt">xmlui.dri2xhtml.METS-1.0.blocked</xsl:attribute>
+						<xsl:attribute name="attr"
+							namespace="http://apache.org/cocoon/i18n/2.1">alt</xsl:attribute>
+					</img>
+				</xsl:if>
+				</div>
+			</xsl:if>
 		</li>
 	</xsl:template>
 	

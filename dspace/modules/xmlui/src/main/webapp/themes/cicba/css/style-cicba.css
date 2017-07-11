@@ -937,4 +937,8 @@ a[href="display-filters"]{
     font-size: 24px;
 }
 
+#thumbnail-container .alert-warning{
+	margin-top: 5px;
+}
+
 }
