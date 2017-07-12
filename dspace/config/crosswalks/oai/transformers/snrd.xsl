@@ -253,6 +253,9 @@
 				<xsl:when test="$theValue ='Audio'">
 					other
 				</xsl:when>
+				<xsl:when test="$theValue ='Video'">
+					other
+				</xsl:when>
 				<xsl:when test="$theValue='Informe tecnico'">
 					report
 				</xsl:when>
@@ -358,6 +361,9 @@
 				</xsl:when>
 				<xsl:when test="$theValue='Informe técnico'">
 					informe técnico
+				</xsl:when>
+				<xsl:when test="$theValue='Video'">
+					videograbación
 				</xsl:when>
 				<!-- 
 				<xsl:when test="$value='Resolucion'">
