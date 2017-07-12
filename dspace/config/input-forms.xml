@@ -1025,6 +1025,10 @@
 		<displayed-value>Publicación periódica</displayed-value>
 		<stored-value>cic:types/publicacionSeriada/publicacionPeriodica</stored-value>
 	</pair>
+	<pair>
+		<displayed-value>Video</displayed-value>
+		<stored-value>cic:types/imagenEnMovimiento/video</stored-value>
+	</pair>
 </value-pairs>
     
  </form-value-pairs>
