@@ -200,5 +200,12 @@
 		<element>isFulltext</element>
 		<scope_note>Indica si el recurso está disponible a texto completo en uno o más de los archivos que tiene asociados en el repositorio. En general será SI, aunque pueden suceder casos particulares que no lo sean, como cuando se tiene sólo el ppt de una tesis, un resumen, etc.</scope_note>
 	</dc-type>
+	
+	<dc-type>
+		<schema>dcterms</schema>
+		<element>relation</element>
+		<qualifier>ciclo</qualifier>
+		<scope_note>Nombre del programa de radio</scope_note>
+	</dc-type>
 
 </dspace-dc-types>
