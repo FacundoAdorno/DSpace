@@ -22,7 +22,6 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.event.Event;
 import org.dspace.storage.bitstore.service.BitstreamStorageService;
-import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -59,8 +58,6 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
     protected BundleService bundleService;
     @Autowired(required = true)
     protected BitstreamStorageService bitstreamStorageService;
-    @Autowired(required = true)
-    protected XmlWorkflowItemService xmlWorkflowItemService;
 
 
     protected BitstreamServiceImpl()
@@ -263,15 +260,7 @@ public class BitstreamServiceImpl extends DSpaceObjectServiceImpl<Bitstream> imp
 
         // Remove bitstream itself
         bitstream.setDeleted(true);
-        Item item = (Item) getParentObject(context, bitstream);
-        if( xmlWorkflowItemService.findByItem(context, item) != null ){
-            // the item is on the workflow
-            context.turnOffAuthorisationSystem();
-            update(context, bitstream);
-            context.restoreAuthSystemState();
-        }else{
-            update(context, bitstream);
-        }        
+        update(context, bitstream);
 
         //Remove all bundles from the bitstream object, clearing the connection in 2 ways
         bundles.clear();
