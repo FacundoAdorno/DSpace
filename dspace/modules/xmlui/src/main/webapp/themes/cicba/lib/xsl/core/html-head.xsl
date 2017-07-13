@@ -76,6 +76,7 @@
 			</xsl:for-each>
 			
              <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css" />
+      		 <link  rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
       		 <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js">&#160;</script>
       		 
 
