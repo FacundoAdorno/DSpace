@@ -409,7 +409,7 @@
 							$('.selectedCCLicense').html("La licencia actual seleccionada es &lt;a target='_blank' href='https://creativecommons.org/licenses/by" + nc_text + nd_text + sa_text +"/4.0'&gt;Creative Commons BY"+ (nc_text + nd_text + sa_text).toUpperCase() + " 4.0&lt;/a&gt;");	
 						};
 						$("#N100AB input[name='commercial_chooser']").click(showCCLicenseSelected);
-						$("#N100CD input[name='derivatives_chooser']").click(showCCLicenseSelected);
+						$("#N100CF input[name='derivatives_chooser']").click(showCCLicenseSelected);
 						$("#aspect_submission_StepTransformer_list_statusList ol li:first").prepend('&lt;div class="selectedCCLicense"&gt;&#160;&lt;/div&gt;')
 					});
 					</xsl:text>
