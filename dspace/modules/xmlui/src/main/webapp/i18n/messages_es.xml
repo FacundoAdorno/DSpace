@@ -292,6 +292,8 @@
 <message key="xmlui.ArtifactBrowser.ItemViewer.show_more">leer mas</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.show_less">leer menos</message>
 <message key="xmlui.ArtifactBrowser.ItemViewer.downloads">Descargas</message>
+<message key="xmlui.ArtifactBrowser.ItemViewer.social-share">Compartir</message>
+
 
 <message key="xmlui.ArtifactBrowser.ItemViewer.withdrawn">Este ítem ha sido retirado y no está disponible</message>
 
