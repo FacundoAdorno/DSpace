@@ -5,7 +5,7 @@ import org.dspace.content.authority.Choice;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.QuerySolution;
 
-public class Subject_CICBA_Authority extends CICBAAuthority {
+public class Subject_CICBA_Authority extends SimpleSPARQLAuthorityProvider {
 
 	@Override
 	protected ParameterizedSparqlString getSparqlSearchByIdQuery(String field,
@@ -49,9 +49,8 @@ public class Subject_CICBA_Authority extends CICBAAuthority {
 	@Override
 	protected Choice extractChoice(QuerySolution solution) {
 		String key = solution.getResource("term").getURI();
-		String label = solution.getLiteral("label").getString();
 		String id = solution.getLiteral("label").getString();
-		return new Choice(key, label, label + " (" + id + ")");
+		return new Choice(key, id, id + " (" + id + ")");
 	}
 
 }

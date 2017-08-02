@@ -63,6 +63,15 @@
 		</xsl:value-of>
 	</xsl:variable>
 	
+	<xsl:variable name="request-protocol" select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='request' and @qualifier='scheme']"/>
+	
+	<xsl:variable name="server-name" select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='request' and @qualifier='serverName']"/>
+	
+	<xsl:variable name="server-port" select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='request' and @qualifier='serverPort']"/>
+	
+	<xsl:variable name="full-request-path"
+        select="concat($request-protocol, '://', $server-name, $home-path, $request-uri)" />
+	
 	<xsl:variable name="handle-autoarchive">
 		<xsl:value-of select="/dri:document/dri:meta/dri:repositoryMeta/dri:repository/@repositoryID"/>
 		<xsl:text>/2</xsl:text>

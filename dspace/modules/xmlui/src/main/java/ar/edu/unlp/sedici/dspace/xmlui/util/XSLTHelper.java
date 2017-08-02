@@ -1,5 +1,6 @@
 package ar.edu.unlp.sedici.dspace.xmlui.util;
 
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
@@ -7,6 +8,15 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.dspace.app.util.Util;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.xpath.NodeSet;
+import org.w3c.dom.Document;
+
+import org.dspace.services.factory.DSpaceServicesFactory;
 
 public class XSLTHelper {
 	
@@ -111,5 +121,37 @@ public class XSLTHelper {
 		
 
 	}
+	
+	/*
+	 * Retorna un conjunto de property keys desde el dspace.cfg cuyo prefijo coincida.
+	 */
+	public static NodeSet getPropertyKeys(String prefix){
+		
+		 java.util.List<String> keys = DSpaceServicesFactory.getInstance().getConfigurationService().getPropertyKeys(prefix);
+		 return collectionToNodeSet(keys);
+	
+	}
+	
+	/*
+	 * Crea un conjunto de nodos texto a partir de una colección de Objetos
+	 */
+	private static NodeSet collectionToNodeSet(List<String> list){
+		NodeSet ns = new NodeSet();
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance() ;
+            DocumentBuilder dBuilder;
+            dBuilder = dbf.newDocumentBuilder();
+            Document doc = dBuilder.newDocument();
+
+            for(int i=0; i < list.size(); i++){
+            	ns.addNode( doc.createTextNode(list.get(i).toString())) ;
+            }
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        return ns ;
+	}
+	
 }
 

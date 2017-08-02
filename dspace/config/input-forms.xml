@@ -274,8 +274,28 @@
          <dc-element>publisher</dc-element>
          <repeatable>false</repeatable>
          <label>Editorial</label>
+		 <type-bind>!Audio</type-bind>
          <input-type>onebox</input-type>
          <hint>Entidad responsable de la publicación de un item (editorial).</hint>
+       </field>
+       <field>
+         <dc-schema>dcterms</dc-schema>
+         <dc-element>publisher</dc-element>
+         <repeatable>false</repeatable>
+         <label>Producción</label>
+		 <type-bind>Audio</type-bind>
+         <input-type>onebox</input-type>
+         <hint>Nombre de la radio</hint>
+       </field>
+       <field>
+         <dc-schema>dcterms</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>ciclo</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Ciclo</label>
+		 <type-bind>Audio</type-bind>
+         <input-type>onebox</input-type>
+         <hint>Nombre del programa de radio</hint>
        </field>
  	</page>
  	<page number="2">
@@ -491,10 +511,21 @@
          <dc-qualifier>author</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Autor</label>
+		 <type-bind>!Audio</type-bind>
          <input-type>twobox</input-type> <!-- TODO: suggest, lo mismo para todos los tipos de autores -->
          <hint>Persona física creadora del contenido intelectual de la obra</hint>
        </field>
           
+     	<field>
+         <dc-schema>dcterms</dc-schema>
+         <dc-element>creator</dc-element>
+         <dc-qualifier>author</dc-qualifier>
+         <repeatable>true</repeatable>
+         <label>Interprete</label>
+		 <type-bind>Audio</type-bind>
+         <input-type>twobox</input-type> <!-- TODO: suggest, lo mismo para todos los tipos de autores -->
+         <hint>Persona física entrevistada o entrevistadora</hint>
+       </field>
      	<!-- TODO: Este debe conectarse con una base que contenga las autores registrados en CIC -->
      	<field>
          <dc-schema>dcterms</dc-schema>
@@ -545,6 +576,16 @@
          <label>Palabras clave</label>
          <input-type>twobox</input-type> <!-- TODO: lookup --> <!-- TODO: vocabulary -->
          <hint>Términos libres que describen el contenido de la obra.</hint>
+       </field>
+       <field>
+         <dc-schema>dcterms</dc-schema>
+         <dc-element>relation</dc-element>
+         <dc-qualifier>ciclo</dc-qualifier>
+         <repeatable>false</repeatable>
+         <label>Ciclo</label>
+		 <type-bind>Audio</type-bind>
+         <input-type>onebox</input-type>
+         <hint>Nombre del programa de radio</hint>
        </field>
                      
  	</page>
@@ -983,6 +1024,10 @@
 	<pair>
 		<displayed-value>Publicación periódica</displayed-value>
 		<stored-value>cic:types/publicacionSeriada/publicacionPeriodica</stored-value>
+	</pair>
+	<pair>
+		<displayed-value>Video</displayed-value>
+		<stored-value>cic:types/imagenEnMovimiento/video</stored-value>
 	</pair>
 </value-pairs>
     

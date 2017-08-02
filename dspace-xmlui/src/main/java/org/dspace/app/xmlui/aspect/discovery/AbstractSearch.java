@@ -216,7 +216,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
      * Build the resulting search DRI document.
      */
     public abstract void addBody(Body body) throws SAXException, WingException,
-            SQLException, IOException, AuthorizeException;
+            UIException, SQLException, IOException, AuthorizeException;
 
     /**
      * Build the main form that should be the only form that the user interface requires

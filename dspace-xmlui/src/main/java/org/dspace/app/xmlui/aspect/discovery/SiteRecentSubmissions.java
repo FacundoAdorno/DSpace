@@ -53,7 +53,9 @@ public class SiteRecentSubmissions extends AbstractRecentSubmissionTransformer {
         if (0 < queryResults.getDspaceObjects().size()) {
             Division home = body.addDivision("site-home", "primary repository");
             
-            home.addDivision("total-items", "total-items").addPara(String.valueOf(itemService.countTotal(context)));
+            home.addDivision("total-items", "total-items").addPara(String.valueOf(itemService.countTotal(context) - 
+            																		itemService.countNotArchivedItems(context) -
+            																		  itemService.countWithdrawnItems(context)));
             home.addDivision("total-items-message", "total-items-message").addPara(T_head_available_items);
             
             Division lastSubmittedDiv = home

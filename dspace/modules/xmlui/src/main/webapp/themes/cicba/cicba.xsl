@@ -39,6 +39,7 @@
     <xsl:import href="lib/xsl/core/statistics.xsl"/>
     <xsl:import href="lib/xsl/core/browsing.xsl"/>
     <xsl:import href="lib/xsl/core/workflow.xsl"/>
+    <xsl:import href="lib/xsl/aspect/administrative/editItemStatus.xsl"/>
     <xsl:output indent="yes"/>
     
 

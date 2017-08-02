@@ -375,6 +375,11 @@
 				        <xsl:apply-templates select="./mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim" mode="dctermsIdentifierUrl"/>		        
 			        </ul>
 			    </xsl:if>
+			    
+			    <!--  prints the social share buttons -->
+                <h3><i18n:text>xmlui.ArtifactBrowser.ItemViewer.social-share</i18n:text></h3>
+               <xsl:call-template name="social-share-buttons"/>
+		        
 		        <!-- optional: Altmeric.com badge and PlumX widget -->
 		        <xsl:if test='confman:getProperty("altmetric.enabled") and ($identifier_doi or $identifier_handle)'>
 		            <xsl:call-template name='impact-altmetric'/>
@@ -450,18 +455,6 @@
 					</xsl:choose>
 				</xsl:variable>
 				<img alt="Icon" src="{concat($theme-path, '/images/', $img_path)}" />
-				<xsl:if
-					test="contains(mets:FLocat[@LOCTYPE='URL']/@xlink:href,'isAllowed=n')">
-					<img>
-						<xsl:attribute name="src">
-		                                <xsl:value-of select="$context-path" />
-		                                <xsl:text>/static/icons/lock24.png</xsl:text>
-		                            </xsl:attribute>
-						<xsl:attribute name="alt">xmlui.dri2xhtml.METS-1.0.blocked</xsl:attribute>
-						<xsl:attribute name="attr"
-							namespace="http://apache.org/cocoon/i18n/2.1">alt</xsl:attribute>
-					</img>
-				</xsl:if>
 			</a>
 			<div class="media-body">
 				<p>
@@ -498,6 +491,29 @@
 					</span>
 				</p>
 			</div>
+			<xsl:if
+				test="contains(mets:FLocat[@LOCTYPE='URL']/@xlink:href,'embargoDate')">
+				<div class="alert alert-warning" role="alert">
+				<xsl:variable name="href" select="xmlui:getFileExtension(mets:FLocat[@LOCTYPE='URL']/@xlink:href)" />
+				<xsl:variable name="date" select="substring-after($href, 'EMBARGODATE=')" />
+				<i18n:translate>
+					<i18n:text>xmlui.ArtifactBrowser.ItemViewer.embargoedFile</i18n:text>
+					<i18n:param><xsl:value-of select="substring($date,0,11)" /></i18n:param>
+				</i18n:translate>
+				<xsl:if
+					test="contains(mets:FLocat[@LOCTYPE='URL']/@xlink:href,'isAllowed=n')">
+					<img>
+						<xsl:attribute name="src">
+		                                <xsl:value-of select="$context-path" />
+		                                <xsl:text>/static/icons/lock24.png</xsl:text>
+		                            </xsl:attribute>
+						<xsl:attribute name="alt">xmlui.dri2xhtml.METS-1.0.blocked</xsl:attribute>
+						<xsl:attribute name="attr"
+							namespace="http://apache.org/cocoon/i18n/2.1">alt</xsl:attribute>
+					</img>
+				</xsl:if>
+				</div>
+			</xsl:if>
 		</li>
 	</xsl:template>
 	
@@ -699,6 +715,40 @@
 			
 			
         
+    </xsl:template>
+    
+    <xsl:template name="social-share-buttons">
+        <xsl:variable name="title" select="xmlui:replaceAll(./mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@mdschema='dc' and @element='title'], ' ', '%20')"/>
+        <xsl:variable name="partially-encode-path" select="xmlui:replaceAll($full-request-path, ':', '%3A')"/>
+        <xsl:variable name="encoded-path" select="xmlui:replaceAll($partially-encode-path, '\/', '%2F')"/>
+        <div id="social-share-buttons-section">
+            <ul class="share-buttons">
+                <li>
+                    <a title="Share on Facebook" target="_blank">
+                        <xsl:attribute name="href"> 
+                            <xsl:value-of select="concat('https://www.facebook.com/sharer/sharer.php?u=', $encoded-path,'&amp;t=',$title)"></xsl:value-of> 
+                        </xsl:attribute>
+                        <i class="fa fa-facebook-square fa-3x" aria-hidden="true">&#160;</i>
+                    </a>
+                </li>
+                <li>
+                    <a target="_blank" title="Tweet">
+                         <xsl:attribute name="href"> 
+                            <xsl:value-of select="concat('https://twitter.com/intent/tweet?url=', $encoded-path,'&amp;text=',$title)"></xsl:value-of> 
+                        </xsl:attribute>
+                        <i class="fa fa-twitter-square fa-3x" aria-hidden="true">&#160;</i>
+                    </a>
+                </li>
+                <li>
+                    <a target="_blank" title="Share on Google+">
+                        <xsl:attribute name="href"> 
+                            <xsl:value-of select="concat('https://plus.google.com/share?url=', $encoded-path)"></xsl:value-of> 
+                        </xsl:attribute>
+                       <i class="fa fa-google-plus-square fa-3x" aria-hidden="true">&#160;</i>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </xsl:template>
     
 </xsl:stylesheet>

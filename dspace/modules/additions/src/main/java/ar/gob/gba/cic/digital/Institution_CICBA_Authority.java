@@ -5,7 +5,7 @@ import org.dspace.content.authority.Choice;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.QuerySolution;
 
-public class Institution_CICBA_Authority extends CICBAAuthority {
+public class Institution_CICBA_Authority extends SimpleSPARQLAuthorityProvider {
 
 	@Override
 	protected ParameterizedSparqlString getSparqlSearchByIdQuery(String field,

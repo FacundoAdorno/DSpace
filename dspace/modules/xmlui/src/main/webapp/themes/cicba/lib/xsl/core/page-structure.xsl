@@ -10,6 +10,7 @@
 	version="1.0" xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"
 	xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mods="http://www.loc.gov/mods/v3"
 	xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:confman="org.dspace.core.ConfigurationManager"
+	xmlns:xmlui="xalan://ar.edu.unlp.sedici.dspace.xmlui.util.XSLTHelper"
 	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="i18n dri mets xlink xsl dim xhtml mods dc confman">
 
 	<xsl:import href="html-head.xsl" />
@@ -190,6 +191,18 @@
 		
 	    <script type="text/javascript">
 	        <xsl:text disable-output-escaping="yes">
+	        
+	        (function ($) {
+			    /**
+			     * Al usar bootstrap, la clase "hidden" que se referencia aplica un "display: none !important"
+			     * Se quita la clase "hidden" 
+			     */
+
+				$('form#aspect_discovery_SimpleSearch_div_search-filters').removeClass( "hidden" );	    
+
+			})(jQuery);
+	    
+	        
 	        (function ($) {
 			    /**
 			     * When clicking an item li in a discovery context, openit
@@ -396,7 +409,7 @@
 							$('.selectedCCLicense').html("La licencia actual seleccionada es &lt;a target='_blank' href='https://creativecommons.org/licenses/by" + nc_text + nd_text + sa_text +"/4.0'&gt;Creative Commons BY"+ (nc_text + nd_text + sa_text).toUpperCase() + " 4.0&lt;/a&gt;");	
 						};
 						$("#N100AB input[name='commercial_chooser']").click(showCCLicenseSelected);
-						$("#N100CD input[name='derivatives_chooser']").click(showCCLicenseSelected);
+						$("#N100CF input[name='derivatives_chooser']").click(showCCLicenseSelected);
 						$("#aspect_submission_StepTransformer_list_statusList ol li:first").prepend('&lt;div class="selectedCCLicense"&gt;&#160;&lt;/div&gt;')
 					});
 					</xsl:text>
@@ -610,6 +623,12 @@
 					
 				});
 		  </script>
+		  
+		<xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.administrative.item.EditItemMetadataForm.div.edit-item-status']">
+			<script type="text/javascript">
+				updateMetadataForLookup();
+			</script>
+		</xsl:if>
 		
 		
 	</xsl:template>

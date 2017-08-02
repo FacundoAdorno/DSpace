@@ -164,7 +164,11 @@ public class CCLicenseStep extends AbstractSubmissionStep
 			if (cclicensefield.getId().equals("jurisdiction"))  
 			    continue;
 			    List edit = div.addList("selectlist", List.TYPE_SIMPLE, "horizontalVanilla");
-			    edit.addItem(cclicensefield.getLabel());
+			    if( cclicensefield.getId().equals("derivatives") ){
+			    	edit.addItem(message("xmlui.Submission.submit.CCLicenseStep.custom_question.derivatives"));
+			    } else {
+			    	edit.addItem(cclicensefield.getLabel());
+			    }
 			    edit.addItem().addFigure(contextPath + "/themes/Reference/images/information.png", "javascript:void(0)", cclicensefield.getDescription(), "information");
 			    List subList = div.addList("sublist", List.TYPE_SIMPLE, "horizontalVanilla");
 			    Radio radio  = subList.addItem().addRadio(cclicensefield.getId() + "_chooser");

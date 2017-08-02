@@ -283,11 +283,13 @@
 	<message key="xmlui.ArtifactBrowser.ItemViewer.specific_info">Specific Information</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.other_info">More</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.file">{0} file</message>
+<message key="xmlui.ArtifactBrowser.ItemViewer.embargoedFile">Embargoed file until: {0}</message>
 	
 	<message key="xmlui.ArtifactBrowser.ItemViewer.show_more">read more</message>
 	<message key="xmlui.ArtifactBrowser.ItemViewer.show_less">read less</message>
 
         <message key="xmlui.ArtifactBrowser.ItemViewer.withdrawn">This item has been withdrawn and is no longer available.</message>
+        <message key="xmlui.ArtifactBrowser.ItemViewer.social-share">Share</message>
 
 	<!-- org.dspace.app.xmlui.artifactbrowser.Navigation.java -->
 	<message key="xmlui.ArtifactBrowser.Navigation.head_browse">Explore</message>
@@ -940,6 +942,7 @@
         <message key="xmlui.Submission.submit.CCLicenseStep.submit_choose_creative_commons">Choose a license</message>
         <message key="xmlui.Submission.submit.CCLicenseStep.submit_to_creative_commons">Proceed to Creative Commons website to select a license</message>
         <message key="xmlui.Submission.submit.CCLicenseStep.license">License Type</message>
+        <message key="xmlui.Submission.submit.CCLicenseStep.custom_question.derivatives">Allow derivative works (abstracts, translations, compilations, etc.)?</message>
         <message key="xmlui.Submission.submit.CCLicenseStep.select_change">Select or modify your license ...</message>
         <message key="xmlui.Submission.submit.CCLicenseStep.no_license">No Creative Commons License</message>
         <message key="xmlui.Submission.submit.CCLicenseStep.save_changes">You must click Next to save your changes.</message>
@@ -1630,6 +1633,7 @@
 	<message key="xmlui.administrative.item.EditItemMetadataForm.name_label">Name</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.value_label">Value</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.lang_label">Language</message>
+	<message key="xmlui.administrative.item.EditItemMetadataForm.authority_label">Authority</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.submit_add">Add new metadata</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.para1">PLEASE NOTE: These changes are not validated in any way. You are responsible for entering the data in the correct format. If you are not sure what the format is, please do NOT make changes.</message>
 	<message key="xmlui.administrative.item.EditItemMetadataForm.head2">Metadata</message>
@@ -2480,6 +2484,28 @@
   <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_materia.title">Look up Subject</message>
   <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject.help">Keyword</message>
   <message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject.title">Look up Keyword</message>
+  <message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_author.help">Autor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_author.title">Look up Autor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_compilator.help">Compilator</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_compilator.title">Look up Compilator</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_editor.help">Editor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_editor.title">Look up Editor</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_contributor_director.help">Director</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_contributor_director.title">Look up Director</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_corporate.help">Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_creator_corporate.title">Look up Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_thesis_grantor.help">Grantor Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_thesis_grantor.title">Look up Grantor Institution</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_lugarDesarrollo.help">Development place</message>
+<message key="xmlui.ChoiceLookupTransformer.field.cic_lugarDesarrollo.title">Look up Development Place</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_isPartOf_series.help">Journal or Event</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_isPartOf_series.title">Look up Journal or Event</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_language.help">Language</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_language.title">Look up Language</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_license.help">Licence</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_license.title">Look up Licence</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_area.help">Area</message>
+<message key="xmlui.ChoiceLookupTransformer.field.dcterms_subject_area.title">Look up Area</message>
 
   <!-- Params are: search-value -->
   <message key="xmlui.ChoiceLookupTransformer.field.dc_publisher.nonauthority">Non-authority value: @1@</message>

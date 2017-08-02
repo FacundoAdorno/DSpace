@@ -843,4 +843,130 @@ div#aspect_discovery_SimpleSearch_div_search-controls-gear > span:first-child:ho
 }
 :placeholder-shown { /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
     color:    #babdb6;
-}}
+}
+#aspect_administrative_item_EditItemMetadataForm_list_addItemMetadata{
+  	background-color: #eeeeee;
+  	padding: 15px;
+}
+
+#aspect_administrative_item_EditItemMetadataForm_field_value_authority{
+  	background-color: #d2cdcd;
+  	cursor: not-allowed;
+}
+
+/*** CSS para las notas de pie o notefoots ***/
+/* Inicio contador CSS de notefoots*/
+div#policy_details{
+	counter-reset: footnotes;
+}
+
+/**
+ * Inline footnotes references
+ * 1. Increment the counter at each new reference
+ * 2. Reset link styles to make it appear like regular text
+ */
+a.footnote_reference {
+  counter-increment: footnotes; /* 1 */
+  text-decoration: none; /* 2 */
+  color: inherit; /* 2 */
+  cursor: default; /* 2 */
+  outline: none; /* 2 */
+}
+
+/**
+ * Actual numbered references
+ * 1. Display the current state of the counter (e.g. `[1]`)
+ * 2. Align text as superscript
+ * 3. Make the number smaller (since it's superscript)
+ * 4. Slightly offset the number from the text
+ * 5. Reset link styles on the number to show it's usable
+ */
+a.footnote_reference::after {
+  content: '[' counter(footnotes) ']'; /* 1 */
+  vertical-align: super; /* 2 */
+  font-size: 0.7em; /* 3 */
+  margin-left: 2px; /* 4 */
+  color: blue; /* 5 */
+  text-decoration: underline; /* 5 */
+  cursor: pointer; /* 5 */
+}
+
+/**
+ * Resetting the default focused styles on the number
+ */
+a.footnote_reference:focus::after {
+  outline: thin dotted;
+  outline-offset: 2px;
+}
+div#references_footer_section{
+	font-size: 0.85em;
+	border-top: solid #A4A4A4;
+	margin-top: 2%;
+	border-top-width: thin;
+}
+/**
+ * Coloring the background of targeted footnote  
+ */
+div#references_footer_section :target{
+	background: #E6E6FA;
+}
+span.reference_head{
+	font-weight: bold;	
+}
+
+.back-to-index{
+	font-size: 1.2em;
+	color: #f5f5f0 !important;
+}
+
+.back-to-index:hover{
+	color: #bfbfbf !important;
+	text-decoration: none;
+}
+
+#politica_de_contenidos, #politica_acceso_datos, #politica_deposito, #politica_preservacion, #politica_metadatos, #politica_digitalizacion, #politica_servicios{
+	display:inline-block;
+}
+
+
+a[href="display-filters"]{
+	display:none;
+}
+
+#aspect_discovery_SimpleSearch_div_search-filters>.ds-div-head{
+    font-size: 24px;
+}
+
+#thumbnail-container .alert-warning{
+	margin-top: 5px;
+}
+
+}
+
+/**
+* Social Share Buttons
+*/
+ul.share-buttons{
+  margin-left: 0px;
+}
+
+ul.share-buttons{
+	margin-left: 0px;
+	list-style: none;
+   padding: 0;
+}
+
+ul.share-buttons li{
+  display: inline;
+}
+
+ul.share-buttons .sr-only{
+  position: absolute;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
