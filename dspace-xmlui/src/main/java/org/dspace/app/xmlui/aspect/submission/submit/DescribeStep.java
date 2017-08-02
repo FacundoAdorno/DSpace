@@ -491,6 +491,7 @@ public class DescribeStep extends AbstractSubmissionStep
             fullName.setChoices(fieldKey);
             fullName.setChoicesPresentation(choiceAuthorityService.getPresentation(fieldKey));
             fullName.setChoicesClosed(choiceAuthorityService.isClosed(fieldKey));
+            fullName.setChoicesMinLength(choiceAuthorityService.getMinLength(fieldKey));
         }
 
         // Setup the first and last name
@@ -840,10 +841,21 @@ public class DescribeStep extends AbstractSubmissionStep
     {
         // Plain old Textarea
         TextArea textArea = form.addItem().addTextArea(fieldName, "submit-textarea");
+        org.dspace.app.xmlui.wing.element.Item item = form.addItem();
+
+        String editorToolbar=ConfigurationManager.getProperty("input-forms."+fieldName+".editorToolbar");
+        if(editorToolbar!=null)
+        {
+        	textArea.setEditorToolbar(editorToolbar);
+        }
 
         // Setup the text area
         textArea.setLabel(dcInput.getLabel());
         textArea.setHelp(cleanHints(dcInput.getHints()));
+        
+        //add the language select field
+        addLanguageOptions(textArea, dcInput);
+        
         String fieldKey = metadataAuthorityService.makeFieldKey(dcInput.getSchema(), dcInput.getElement(), dcInput.getQualifier());
         boolean isAuth = metadataAuthorityService.isAuthorityControlled(fieldKey);
         if (isAuth)
@@ -856,6 +868,7 @@ public class DescribeStep extends AbstractSubmissionStep
             textArea.setChoices(fieldKey);
             textArea.setChoicesPresentation(choiceAuthorityService.getPresentation(fieldKey));
             textArea.setChoicesClosed(choiceAuthorityService.isClosed(fieldKey));
+            textArea.setChoicesMinLength(choiceAuthorityService.getMinLength(fieldKey));
         }
         if (dcInput.isRequired())
         {
@@ -893,6 +906,10 @@ public class DescribeStep extends AbstractSubmissionStep
             {
                 Instance ti = textArea.addInstance();
                 ti.setValue(dcValue.getValue());
+                if(dcValue.getLanguage() != null)
+                {
+                	ti.setLanguageValue(dcValue.getLanguage());
+                }
                 if (isAuth)
                 {
                     if (dcValue.getAuthority() == null || dcValue.getAuthority().equals(""))
@@ -909,6 +926,10 @@ public class DescribeStep extends AbstractSubmissionStep
         else if (dcValues.size() == 1)
         {
             textArea.setValue(dcValues.get(0).getValue());
+            if(dcValues.get(0).getLanguage() != null)
+            {
+            	textArea.setLanguageValue(dcValues.get(0).getLanguage());                        	
+            }
             if (isAuth)
             {
                 if (dcValues.get(0).getAuthority() == null || dcValues.get(0).getAuthority().equals(""))
@@ -1176,6 +1197,7 @@ public class DescribeStep extends AbstractSubmissionStep
         // as a render hint.
         org.dspace.app.xmlui.wing.element.Item item = form.addItem();
         Text text = item.addText(fieldName, "submit-text");
+        addLanguageOptions(text, dcInput);
 
         if (dcInput.getVocabulary() != null)
         {
@@ -1201,6 +1223,7 @@ public class DescribeStep extends AbstractSubmissionStep
             text.setChoices(fieldKey);
             text.setChoicesPresentation(choiceAuthorityService.getPresentation(fieldKey));
             text.setChoicesClosed(choiceAuthorityService.isClosed(fieldKey));
+            text.setChoicesMinLength(choiceAuthorityService.getMinLength(fieldKey));
         }
 
         if (dcInput.isRequired())
@@ -1239,6 +1262,10 @@ public class DescribeStep extends AbstractSubmissionStep
             {
                 Instance ti = text.addInstance();
                 ti.setValue(dcValue.getValue());
+                if(dcValue.getLanguage() != null)
+                {
+                	ti.setLanguageValue(dcValue.getLanguage());
+                }
                 if (isAuth)
                 {
                     if (dcValue.getAuthority() == null || dcValue.getAuthority().equals(""))
@@ -1255,6 +1282,10 @@ public class DescribeStep extends AbstractSubmissionStep
         else if (dcValues.size() == 1)
         {
             text.setValue(dcValues.get(0).getValue());
+            if(dcValues.get(0).getLanguage() != null)
+            {
+            	text.setLanguageValue(dcValues.get(0).getLanguage());                        	
+            }
             if (isAuth)
             {
                 if (dcValues.get(0).getAuthority() == null || dcValues.get(0).getAuthority().equals(""))
@@ -1322,4 +1353,13 @@ public class DescribeStep extends AbstractSubmissionStep
 
         this.inputsReader = null;
     }
+
+    public void addLanguageOptions(Field field, DCInput dcInput) throws WingException
+    {
+    	if(dcInput.getLanguage())
+    	{
+    		field.setLanguagesList(dcInput.getValueLanguageList());        		
+    	}
+    }
+
 }
