@@ -159,7 +159,7 @@
          <dc-qualifier>director</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Director</label>
-		 <type-bind>Tesis,Informe cientifico</type-bind>
+		 <type-bind>Tesis,Informe cientifico,Publicación periódica</type-bind>
          <input-type>twobox</input-type>
          <hint>Persona que dirige la realización de la tesis o quien dirige a un investigador, personal de apoyo o becario.</hint>
        </field>
@@ -533,7 +533,7 @@
          <dc-qualifier>director</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Director</label>
-		 <type-bind>Tesis,Informe cientifico</type-bind>
+		 <type-bind>Tesis,Informe cientifico,Publicación periódica</type-bind>
          <input-type>twobox</input-type>
          <hint>Persona que dirige la realización de la tesis o quien dirige a un investigador, personal de apoyo o becario.</hint>
        </field>
