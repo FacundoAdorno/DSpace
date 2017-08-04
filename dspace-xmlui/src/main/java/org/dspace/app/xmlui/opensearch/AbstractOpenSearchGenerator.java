@@ -117,6 +117,7 @@ public abstract class AbstractOpenSearchGenerator extends AbstractGenerator
         key.append(start);
         key.append(rpp);
         key.append(sortOrder);
+        key.append(type);
 
         return HashUtil.hash(key.toString());
     }
