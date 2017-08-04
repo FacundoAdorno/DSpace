@@ -12,7 +12,7 @@
 			<xsl:apply-templates select="dri:div[@id='aspect.submission.Submissions.div.unfinished-submisions' and @n='unfinished-submisions']" />
 			<xsl:apply-templates select="dri:div[@id='aspect.submission.Submissions.div.start-submision' and @n='start-submision']" />
 			<xsl:apply-templates select="dri:div[@id='aspect.xmlworkflow.Submissions.div.workflow-tasks' and @n='workflow-tasks']" />
-			<xsl:apply-templates select="dri:div[@id='aspect.xmlworkflow.Submissions.div.submissions-inprogress' and @n='submissions-inprogress']"/>
+			<xsl:apply-templates select="dri:div[@id='aspect.xmlworkflow.Submissions.div.submissions-inprogress' and @n='submissions-inprogress']" />
 			<xsl:apply-templates select="dri:div[@id='aspect.submission.Submissions.div.completed-submissions' and @n='completed-submissions']"/>
 		</form>
 	</xsl:template>	

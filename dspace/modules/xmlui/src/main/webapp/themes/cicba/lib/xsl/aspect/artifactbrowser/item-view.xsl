@@ -381,10 +381,10 @@
                <xsl:call-template name="social-share-buttons"/>
 		        
 		        <!-- optional: Altmeric.com badge and PlumX widget -->
-		        <xsl:if test='confman:getProperty("altmetrics", "altmetric.enabled") and ($identifier_doi or $identifier_handle)'>
+		        <xsl:if test='confman:getProperty("altmetric.enabled") and ($identifier_doi or $identifier_handle)'>
 		            <xsl:call-template name='impact-altmetric'/>
 		        </xsl:if>
-		        <xsl:if test='confman:getProperty("altmetrics", "plumx.enabled") and $identifier_doi'>
+		        <xsl:if test='confman:getProperty("plumx.enabled") and $identifier_doi'>
 		            <xsl:call-template name='impact-plumx'/>
 		        </xsl:if>
 	    	</div>
