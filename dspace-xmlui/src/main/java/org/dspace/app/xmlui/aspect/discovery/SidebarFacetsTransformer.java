@@ -291,8 +291,8 @@ public class SidebarFacetsTransformer extends AbstractDSpaceTransformer implemen
         if(StringUtils.isNotBlank(request.getParameter("sort_by"))){
             parameters.add("sort_by=" + request.getParameter("sort_by"));
         }
-        if(StringUtils.isNotBlank(request.getParameter("order"))){
-            parameters.add("order=" + request.getParameter("order"));
+        if(StringUtils.isNotBlank(request.getParameter(BrowseFacet.ORDER))){
+            parameters.add(BrowseFacet.ORDER+"=" + request.getParameter(BrowseFacet.ORDER));
         }
         if(StringUtils.isNotBlank(request.getParameter("rpp"))){
             parameters.add("rpp=" + request.getParameter("rpp"));
@@ -319,7 +319,7 @@ public class SidebarFacetsTransformer extends AbstractDSpaceTransformer implemen
         facet.addItem().addXref(
                 contextPath +
                         (dso == null ? "" : "/handle/" + dso.getHandle()) +
-                        "/search-filter?" + parameters + BrowseFacet.FACET_FIELD + "=" + field.getIndexFieldName()+"&order="+field.getSortOrderFilterPage(),
+                        "/search-filter?" + parameters + BrowseFacet.FACET_FIELD + "=" + field.getIndexFieldName()+"&"+BrowseFacet.ORDER+"="+field.getSortOrderFilterPage(),
                 T_VIEW_MORE
 
         );

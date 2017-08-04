@@ -252,7 +252,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
     }
 
     private SORT getSortOrder(Request request) {
-        String sortOrderString = request.getParameter("order");
+        String sortOrderString = request.getParameter(BrowseFacet.ORDER);
         // First check for an already configured sortOrder (provided a new one is not being set)
         if(sortOrder!=null && StringUtils.isBlank(sortOrderString)){
             return sortOrder;
@@ -261,7 +261,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
         if(StringUtils.isBlank(sortOrderString) || SORT.valueOf(sortOrderString.toUpperCase())==null){
             sortOrder= SORT.VALUE;
         }else{
-            sortOrder= SORT.valueOf(request.getParameter("order").toUpperCase());
+            sortOrder= SORT.valueOf(request.getParameter(BrowseFacet.ORDER).toUpperCase());
         }
         return sortOrder;
     }
@@ -403,7 +403,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
         }
 
         Division jump = div.addInteractiveDivision("filter-navigation", action,
-                Division.METHOD_POST, "secondary navigation");
+                Division.METHOD_GET, "secondary navigation");
 
         Map<String, String> params = new HashMap<>();
         params.putAll(browseParams.getCommonBrowseParams());
@@ -490,7 +490,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
         urlParameters.putAll(browseParams.getCommonBrowseParams());
         urlParameters.putAll(browseParams.getControlParameters());
         urlParameters.put(SearchFilterParam.OFFSET, String.valueOf(offSet + getPageSize()));
-        urlParameters.put(SearchFilterParam.ORDER, getSortOrder(request).name());
+        urlParameters.put(BrowseFacet.ORDER, getSortOrder(request).name());
 
         // Add the filter queries
         String newURL = generateURL("search-filter", urlParameters);
@@ -516,7 +516,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
         Map<String, String> urlParameters = new HashMap<>();
         urlParameters.putAll(browseParams.getCommonBrowseParams());
         urlParameters.putAll(browseParams.getControlParameters());
-        urlParameters.put(SearchFilterParam.ORDER, getSortOrder(request).name());
+        urlParameters.put(BrowseFacet.ORDER, getSortOrder(request).name());
         String offSet = String.valueOf((currentOffset - getPageSize()<0)? 0:currentOffset - getPageSize());
         urlParameters.put(SearchFilterParam.OFFSET, offSet);
 
@@ -564,7 +564,7 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
         /** The browse control params **/
         public static final String OFFSET = "offset";
         public static final String STARTS_WITH = "starts_with";
-        public static final String ORDER = "order";
+        public static final String ORDER = "facet_order";
 
 
         private SearchFilterParam(Request request){
@@ -651,10 +651,10 @@ public class SearchFacetFilter extends AbstractDSpaceTransformer implements Cach
 
         queryParams.putAll(params.getCommonBrowseParams());
         Request request = ObjectModelHelper.getRequest(objectModel);
-        queryParams.put("order",request.getParameter("order"));
+        queryParams.put(BrowseFacet.ORDER,request.getParameter(BrowseFacet.ORDER));
         String facetField = request.getParameter(SearchFilterParam.FACET_FIELD);
         Division controls = div.addInteractiveDivision("browse-controls", "search-filter?" + request.getQueryString(),
-                Division.METHOD_POST, "browse controls");
+                Division.METHOD_GET, "browse controls");
 
         // Add all the query parameters as hidden fields on the form
         for (Map.Entry<String, String> param : queryParams.entrySet())

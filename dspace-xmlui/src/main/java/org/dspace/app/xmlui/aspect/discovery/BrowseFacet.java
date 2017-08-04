@@ -70,6 +70,7 @@ public class BrowseFacet extends AbstractDSpaceTransformer implements CacheableP
 
     public static final String OFFSET = "offset";
     public static final String FACET_FIELD = "field";
+    public static final String ORDER = "facet_order";
 
     private SearchService searchService = null;
 
