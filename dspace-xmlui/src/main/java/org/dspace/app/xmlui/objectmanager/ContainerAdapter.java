@@ -10,6 +10,7 @@ package org.dspace.app.xmlui.objectmanager;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.app.xmlui.wing.AttributeMap;
@@ -292,6 +293,19 @@ public class ContainerAdapter extends AbstractAdapter
                 String rights = collectionService.getMetadata(collection, "copyright_text");
                 String rights_license = collectionService.getMetadata(collection, "license");
                 String title = collectionService.getMetadata(collection, "name");
+                if (collectionService.getParentObject(dspaceContext, collection) != null){
+                    DSpaceObject dsoParent = collectionService.getParentObject(dspaceContext, collection);
+                    String parents = "";
+                    if (dsoParent.getType() == Constants.COMMUNITY){
+                        Community parent = (Community) dsoParent;
+                        parents = parent.getName(); 
+                        List<Community> communities = parent.getParentCommunities();
+                        for (Community community : communities) {
+							parents = community.getName() + " > " + parents;							
+						}
+                    }                	
+                    createField("dc","other",null,null,parents);
+                }
                 
                 createField("dc","description",null,null,description);
                 createField("dc","description","abstract",null,description_abstract);
