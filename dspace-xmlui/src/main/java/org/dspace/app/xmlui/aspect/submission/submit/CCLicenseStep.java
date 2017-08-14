@@ -38,6 +38,8 @@ import org.dspace.license.factory.LicenseServiceFactory;
 import org.dspace.license.service.CreativeCommonsService;
 import org.xml.sax.SAXException;
 
+import com.google.common.collect.Iterables;
+
 /**
  * This is an optional page of the item submission processes. The Creative 
  * Commons license may be added to an item in addition to the standard distribution 
@@ -128,19 +130,26 @@ public class CCLicenseStep extends AbstractSubmissionStep
 	    Select selectList = list.addItem().addSelect("licenseclass_chooser");
 	    selectList.setLabel(T_license);
 	    selectList.setEvtBehavior("submitOnChange");
-	    Iterator<CCLicense> iterator = cclookup.getLicenses(ccLocale).iterator();
-	    // build select List - first choice always 'choose a license', last always 'No license'
-	    selectList.addOption(T_select_change.getKey(), T_select_change);
-	    if(T_select_change.getKey().equals(selectedLicense)) {
-	    	selectList.setOptionSelected(T_select_change.getKey());
-	    }
-	    while (iterator.hasNext()) {
-	        CCLicense cclicense = iterator.next();
+	    if (cclookup.getLicenses(ccLocale).size() == 1){
+	        CCLicense cclicense = Iterables.get(cclookup.getLicenses(ccLocale), 0);
 	        selectList.addOption(cclicense.getLicenseId(), cclicense.getLicenseName());
-            if (selectedLicense != null && selectedLicense.equals(cclicense.getLicenseId()))
-        	{
-            	selectList.setOptionSelected(cclicense.getLicenseId());
-        	}
+        	selectList.setOptionSelected(cclicense.getLicenseId());
+        	selectedLicense = cclicense.getLicenseId();
+	    }else{
+		    Iterator<CCLicense> iterator = cclookup.getLicenses(ccLocale).iterator();
+		    // build select List - first choice always 'choose a license', last always 'No license'
+		    selectList.addOption(T_select_change.getKey(), T_select_change);
+		    if(T_select_change.getKey().equals(selectedLicense)) {
+		    	selectList.setOptionSelected(T_select_change.getKey());
+		    }
+		    while (iterator.hasNext()) {
+		        CCLicense cclicense = iterator.next();
+		        selectList.addOption(cclicense.getLicenseId(), cclicense.getLicenseName());
+	            if (selectedLicense != null && selectedLicense.equals(cclicense.getLicenseId()))
+	        	{
+	            	selectList.setOptionSelected(cclicense.getLicenseId());
+	        	}
+		    }
 	    }
 	    
 	    if (ConfigurationManager.getBooleanProperty("cc.license.allow_no_license", false))
