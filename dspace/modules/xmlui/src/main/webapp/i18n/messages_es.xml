@@ -24,7 +24,8 @@
     <!--  V3.0 messages  by Emilio Lorenzo (elorenzo@arvo.es) at Arvo Consultores (http://www.arvo.es/dspace) -->
 
 	<!-- General keys -->
-<message key="xmlui.general.dspace_home">Inicio</message>
+<message key="xmlui.general.dspace_home">CIC Digital - Repositorio Institucional de la Comisión de Investigaciones Científicas de la Provincia de Buenos Aires.</message>
+<message key="xmlui.general.home">Inicio</message>
 <message key="xmlui.general.search">Búsquedas</message>
 <message key="xmlui.general.go">Ir</message>
 <message key="xmlui.general.go_home">Ir a página principal de inicio</message>

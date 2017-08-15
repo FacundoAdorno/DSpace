@@ -24,7 +24,8 @@
 		-->
 
 	<!-- General keys -->
-	<message key="xmlui.general.dspace_home">Home</message>
+	<message key="xmlui.general.dspace_home">CIC Digital - Repositorio Institucional de la Comisión de Investigaciones Científicas de la Provincia de Buenos Aires.</message>
+	<message key="xmlui.general.home">Home</message>
 	<message key="xmlui.general.search">Search</message>
 	<message key="xmlui.general.go">Go</message>
 	<message key="xmlui.general.go_home">Go to DSpace home</message>

@@ -109,7 +109,7 @@
 								<xsl:call-template name="build-anchor">
 									<xsl:with-param name="a.href">/</xsl:with-param>
 									<xsl:with-param name="a.value">
-										<i18n:text>xmlui.general.dspace_home</i18n:text>
+										<i18n:text>xmlui.general.home</i18n:text>
 									</xsl:with-param>
 								</xsl:call-template>
 							</li>
