@@ -178,10 +178,16 @@ public class Submissions extends AbstractDSpaceTransformer
         // User's WorkflowItems
     	List<WorkspaceItem> unfinishedItems = workspaceItemService.findByEPerson(context, context.getCurrentUser());
     	List<WorkspaceItem> supervisedItems = supervisedItemService.findbyEPerson(context, context.getCurrentUser());
+        List<Collection> collections = collectionService.findAuthorizedOptimized(context, Constants.ADD);
+        String submissionPath;
+    	if (collections.size() == 1){
+        	submissionPath = contextPath+"/"+ collections.get(0).getHandle() +"/submit";
+    	}else{
+    		submissionPath = contextPath+"/submit";
+    	}
 
     	if (unfinishedItems.size() <= 0 && supervisedItems.size() <= 0)
     	{
-            List<Collection> collections = collectionService.findAuthorizedOptimized(context, Constants.ADD);
 
             if (collections.size() > 0)
             {
@@ -189,7 +195,7 @@ public class Submissions extends AbstractDSpaceTransformer
                 start.setHead(T_s_head1);
                 Para p = start.addPara();
                 p.addContent(T_s_info1a);
-                p.addXref(contextPath+"/submit",T_s_info1b);
+                p.addXref(submissionPath,T_s_info1b);
                 Para secondP = start.addPara();
                 secondP.addContent(T_s_info1c);
                 return;
@@ -200,8 +206,8 @@ public class Submissions extends AbstractDSpaceTransformer
     	unfinished.setHead(T_s_head2);
     	Para p = unfinished.addPara();
     	p.addContent(T_s_info2a);
-    	p.addHighlight("bold").addXref(contextPath+"/submit",T_s_info2b);
-    	p.addContent(T_s_info2c);
+       	p.addHighlight("bold").addXref(submissionPath,T_s_info2b);
+    	p.addContent(T_s_info2c);    		
 
     	// Calculate the number of rows.
     	// Each list pluss the top header and bottom row for the button.
