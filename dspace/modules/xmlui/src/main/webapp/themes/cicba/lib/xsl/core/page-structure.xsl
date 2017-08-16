@@ -566,7 +566,7 @@
 			  },
 			  labelOffset: 100,
 			  labelDirection: 'explode',
-			  chartPadding: {top: 40, right: 5, bottom: 40, left: 5}
+			  chartPadding: 40
 			};
 			
 			var responsiveOptions = [
