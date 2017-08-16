@@ -1,6 +1,7 @@
 package org.dspace.content.authority;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +25,7 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class CICRequestItemMetadataAuthority extends RequestItemMetadataStrategy{
@@ -86,14 +88,14 @@ public class CICRequestItemMetadataAuthority extends RequestItemMetadataStrategy
 			query.setLimit(Query.NOLIMIT);
 		else
 			query.setLimit(limit);
-		String endpoint = ConfigurationManager.getProperty("sparql-authorities", "sparql-authorities.endpoint.url");
+		String endpoint = ConfigurationManager.getProperty("sparql-authorities", "endpoint.url");
 		QueryEngineHTTP httpQuery = new QueryEngineHTTP(endpoint, query);
 		httpQuery.setAllowDeflate(false);
 		httpQuery.setAllowGZip(false);
-		ResultSet results=httpQuery.execSelect();
-		if (results.hasNext()) {
-			QuerySolution solution = results.next();
-			String[] author=cicAuth.extractNameAndEmail(solution);
+		Model results=httpQuery.execConstruct();
+		ArrayList<String[]> authors = cicAuth.extractNameAndEmailFromAuthors(results);
+		if (authors.size() > 0) {
+			String[] author=authors.get(0);
 			this.email = author[0];
 			this.fullname = author[1];
 		}

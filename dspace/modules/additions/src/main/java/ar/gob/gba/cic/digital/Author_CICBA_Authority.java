@@ -1,6 +1,8 @@
 package ar.gob.gba.cic.digital;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.WriterAppender;
@@ -24,6 +26,7 @@ public class Author_CICBA_Authority extends AdvancedSPARQLAuthorityProvider {
 	protected static final Property familyName = ResourceFactory.createProperty(NS_FOAF + "familyName");
 	protected static final Property type = ResourceFactory.createProperty(NS_RDF + "type");
 	protected static final Property givenName = ResourceFactory.createProperty(NS_FOAF + "givenName");
+	protected static final Property mbox = ResourceFactory.createProperty(NS_FOAF + "mbox");
 	protected static final Property organization = ResourceFactory.createProperty(NS_FOAF + "Organization");
 	protected static final Property linksToOrganisationUnit = ResourceFactory.createProperty(NS_CERIF, "linksToOrganisationUnit");
 	protected static final Property title = ResourceFactory.createProperty(NS_DC + "title");	
@@ -156,11 +159,17 @@ public class Author_CICBA_Authority extends AdvancedSPARQLAuthorityProvider {
 	 * @param solution
 	 * @return return and array with the email in the 0 position and the name in the 1 position
 	 */
-	public String[] extractNameAndEmail(QuerySolution solution){
-		String[] respuesta = new String[2];
-		respuesta[0] = solution.getLiteral("mail").getString();
-		respuesta[1] = solution.getLiteral("name").getString();
-		return respuesta;
+	public ArrayList<String[]> extractNameAndEmailFromAuthors(Model model){
+		ResIterator persons = getRDFResources(model);
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		while(persons.hasNext()) {
+			Resource currentPerson = persons.next();
+			String[] respuesta = new String[2];
+			respuesta[0] = currentPerson.getProperty(mbox).getString();
+			respuesta[1] = currentPerson.getProperty(givenName).getString() + ", " + currentPerson.getProperty(familyName).getString();
+			result.add(respuesta);
+		}
+		return result;
 	}
 
 
