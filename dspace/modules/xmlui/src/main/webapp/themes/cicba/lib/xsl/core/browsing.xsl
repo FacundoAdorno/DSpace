@@ -85,7 +85,15 @@
 	     	<xsl:attribute name="href">
 	     		<xsl:value-of select="dri:row[position()=$pos]/dri:cell/dri:xref/@target"/>
 	     	</xsl:attribute>
-	     	<xsl:value-of select="dri:row[position()=$pos]/dri:cell/dri:xref"/>
+	     	<xsl:choose>
+		     	<xsl:when test="contains(dri:row[position()=$pos]/dri:cell/dri:xref,'(')">
+		     		<xsl:value-of select="substring-before(dri:row[position()=$pos]/dri:cell/dri:xref,'(')"/>
+		     	</xsl:when>
+		     	<xsl:otherwise>
+			     	<xsl:value-of select="dri:row[position()=$pos]/dri:cell/dri:xref/text()"/>
+		     	</xsl:otherwise>
+		     </xsl:choose>
+	     	
 	     </a>
 	     <xsl:value-of select="dri:row[position()=$pos]/dri:cell/text()"/>
 	     <br></br>
