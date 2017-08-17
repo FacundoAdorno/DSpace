@@ -524,13 +524,6 @@ public class StatisticsDataVisits extends StatisticsData
                         {
                             name = vals.get(0).getValue();
                         }
-                        if(dsoLength != -1 && name.length() > dsoLength){
-                            //Cut it off at the first space
-                            int firstSpace = name.indexOf(' ', dsoLength);
-                            if(firstSpace != -1){
-                                name = name.substring(0, firstSpace) + " ...";
-                            }
-                        }
 
                         return name;
 
@@ -552,13 +545,6 @@ public class StatisticsDataVisits extends StatisticsData
                         }
                         name = comm.getName();
 
-                        if(dsoLength != -1 && name.length() > dsoLength){
-                            //Cut it off at the first space
-                            int firstSpace = name.indexOf(' ', dsoLength);
-                            if(firstSpace != -1){
-                                name = name.substring(0, firstSpace) + " ...";
-                            }
-                        }
                         return name;
                 }
             }
