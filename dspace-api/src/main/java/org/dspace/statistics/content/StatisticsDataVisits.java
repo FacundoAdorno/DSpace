@@ -542,13 +542,6 @@ public class StatisticsDataVisits extends StatisticsData
                         }
                         name = coll.getName();
 
-                        if(dsoLength != -1 && name.length() > dsoLength){
-                            //Cut it off at the first space
-                            int firstSpace = name.indexOf(' ', dsoLength);
-                            if(firstSpace != -1){
-                                name = name.substring(0, firstSpace) + " ...";
-                            }
-                        }
                         return name;
 
                     case Constants.COMMUNITY:
