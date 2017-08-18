@@ -1068,6 +1068,7 @@
 <message key="xmlui.administrative.Navigation.statistics">Estadísticas</message>
 <message key="xmlui.administrative.Navigation.administrative_import_metadata">Importar Metadatos</message>
 <message key="xmlui.administrative.Navigation.administrative_curation">Tareas de Curación</message>
+<message key="xmlui.administrative.Navigation.context_search_export_metadata">Exportar a CSV</message>
 
     <!-- my account items -->
 <message key="xmlui.administrative.Navigation.account_export">Mis exportaciones</message>
