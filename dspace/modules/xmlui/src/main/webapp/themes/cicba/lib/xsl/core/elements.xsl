@@ -48,4 +48,16 @@
             <xsl:apply-templates />
         </a>
 	</xsl:template>
+	
+	<xsl:template match="dri:div[@id='aspect.artifactbrowser.CommunityViewer.div.community-home']/dri:head">
+        <xsl:call-template name="renderHead">
+            <xsl:with-param name="class">ds-div-head h2 comm-title</xsl:with-param>
+        </xsl:call-template>
+    </xsl:template>
+    
+    <xsl:template match="dri:div[@id='aspect.artifactbrowser.CollectionViewer.div.collection-home']/dri:head">
+        <xsl:call-template name="renderHead">
+            <xsl:with-param name="class">ds-div-head h2 coll-title</xsl:with-param>
+        </xsl:call-template>
+    </xsl:template>
 </xsl:stylesheet>
