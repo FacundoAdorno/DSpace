@@ -17,12 +17,8 @@
 					<xsl:with-param name="a.href">
 						<xsl:text>http://sedici.unlp.edu.ar</xsl:text>
 					</xsl:with-param>
-					<xsl:with-param name="img.src">
-						images/logo_sedici_footer.png
-					</xsl:with-param>
-					<xsl:with-param name="img.alt">
-						SEDICI
-					</xsl:with-param>
+					<xsl:with-param name="img.src">images/logo_sedici_footer.png</xsl:with-param>
+					<xsl:with-param name="img.alt">SEDICI</xsl:with-param>
 				</xsl:call-template>
 			</div>
 			<div class="col-md-6">
@@ -49,12 +45,8 @@
 					<xsl:with-param name="a.href">
 						<xsl:text>http://www.cic.gba.gob.ar</xsl:text>
 					</xsl:with-param>
-					<xsl:with-param name="img.src">
-						images/logo_cic_footer.png
-					</xsl:with-param>
-					<xsl:with-param name="img.alt">
-						CIC
-					</xsl:with-param>
+					<xsl:with-param name="img.src">images/logo_cic_footer.png</xsl:with-param>
+					<xsl:with-param name="img.alt">CIC</xsl:with-param>
 				</xsl:call-template>
 			</div>
 		
