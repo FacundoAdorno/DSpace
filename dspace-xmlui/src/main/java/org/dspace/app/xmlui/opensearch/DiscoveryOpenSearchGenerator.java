@@ -133,12 +133,14 @@ public class DiscoveryOpenSearchGenerator extends AbstractOpenSearchGenerator
     
     private void setFilterQueryForTypes(DiscoverQuery queryArgs) {
     	String filterQuery = "search.resourcetype:";
-    	if (!Arrays.asList(type).contains("all")){
+    	if (!Arrays.asList(type).contains("ALL")){
     		filterQuery += Constants.getTypeID(type[0]);
     		for (int i = 1; i < type.length; i++ ){
     			filterQuery += " OR " + Constants.getTypeID(type[i]);
         	}
         	queryArgs.addFilterQueries(filterQuery);    		
+    	}else{
+    		filterQuery += " OR 2 OR 3 OR 4";
     	}
 	}
 
