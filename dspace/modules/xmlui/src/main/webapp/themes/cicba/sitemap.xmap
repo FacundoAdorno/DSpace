@@ -82,7 +82,6 @@
                 <map:parameter name="stylesheet.handheld" value="../Mirage/lib/css/handheld.css"/>
                 <map:parameter name="stylesheet.print" value="../Mirage/lib/css/print.css"/>
                 <map:parameter name="stylesheet.all" value="../Mirage/lib/css/media.css"/>
-                <map:parameter name="javascript#1" value="../Mirage/lib/js/modernizr-1.7.min.js"/>
                 <map:parameter name="javascript#2" value="js/jquery-1.11.1.min.js"/>
                 <map:parameter name="javascript#3" value="js/jquery-ui-1.11.2.min.js"/>
                 <map:parameter name="javascript#4" value="js/bootstrap.min.js"/>
