@@ -63,7 +63,7 @@
 						<xsl:choose>
 							<xsl:when test="@authority!=''">
 								<xsl:call-template name="build-anchor">
-									<xsl:with-param name="a.href" select="concat('http://digital.cic.gba.gob.ar/browse?authority=', encoder:encode(@authority), '&amp;', 'type=', $local_browse_type)"/>
+									<xsl:with-param name="a.href" select="concat('http://digital.cic.gba.gob.ar/browse?authority=', xmlui:escapeURI(@authority), '&amp;', 'type=', $local_browse_type)"/>
 									<xsl:with-param name="a.value" select="text()"/>
 								</xsl:call-template>
 							</xsl:when>
@@ -80,8 +80,7 @@
 					</xsl:when>
 					<!-- Si llega a este punto no tiene atributo authority
 						verifico el caso especial del metadato isPartOf issue,
-						sin authority no tiene que ser un link
-					 -->
+						sin authority no tiene que ser un link -->
 					<xsl:when test="@qualifier='issue' and @element='isPartOf'">
 						<xsl:value-of select="text()" />
 					</xsl:when>
@@ -602,10 +601,21 @@
 						<xsl:with-param name="field" select="'cic.thesis.grantor'" />
 						<xsl:with-param name="container" select="'li'" />
 					</xsl:call-template>
+					<!--  Variable temporal que chequea si dcterms.isPartOf.item tiene autoridad o no -->
+					<xsl:variable name="dcterms_isPartOf_item_has_auth">
+					   <xsl:choose>
+					       <xsl:when test="./dim:field[@mdschema='dcterms' and @element='isPartOf' and @qualifier='item' and @authority!='' and @authority!='0']">
+					           <xsl:value-of select="'true'"/>
+					       </xsl:when>
+					       <xsl:otherwise>
+					           <xsl:value-of select="'false'"/>
+					       </xsl:otherwise>
+					   </xsl:choose>
+					</xsl:variable>
 					<xsl:call-template name="render-metadata">
 						<xsl:with-param name="field" select="'dcterms.isPartOf.item'" />
 						<xsl:with-param name="container" select="'li'" />
-						<xsl:with-param name="is_linked_authority" select="'true'"/>
+						<xsl:with-param name="is_linked_authority" select="$dcterms_isPartOf_item_has_auth='true'"/>
 						<xsl:with-param name="isList" select="'true'" />
 					</xsl:call-template>	
 					<xsl:call-template name="render-metadata">

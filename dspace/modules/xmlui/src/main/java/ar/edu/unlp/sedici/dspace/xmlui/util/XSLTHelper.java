@@ -1,5 +1,7 @@
 package ar.edu.unlp.sedici.dspace.xmlui.util;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,20 +46,30 @@ public class XSLTHelper {
 		}
 	}
 	
-	public static String escapeURL(String url) throws NullPointerException{
-		if (url == null){
+	/**
+	 * Returns an encoded URL using all allowed ASCII chars, encoding all non allowed
+	 * @param uriString		The uri string to encode
+	 * @return encoded uri
+	 * @throws NullPointerException if no value is passed
+	 */
+	public static String escapeURI(String uriString) throws NullPointerException{
+		if (uriString == null){
 			try{
 				throw new NullPointerException();
 			}catch (Exception e) {
 				log.error("escapeURL: Se recibe null como url", e);
 			}
-		}else{
-			try{
-				return Util.encodeBitstreamName(url);
-			}catch (Exception e){
-				log.error("Cannot escape the url specified: " + url);
-			}
 		}
+		try {
+			//is better use the URI.toASCIIString() than the URLEncoder.encode(). Read https://stackoverflow.com/a/4571518 about this.
+			URI uri = new URI(uriString);
+			//If URL can be encoded, then returns succesfully
+			return uri.toASCIIString();
+		} catch (URISyntaxException e) {
+			 log.error(
+	                    "Error while encoding uri '"+uriString+"'", e);
+		}
+		//else, log exception in the log file and returns empty...
 		return "";
 	}
 	
