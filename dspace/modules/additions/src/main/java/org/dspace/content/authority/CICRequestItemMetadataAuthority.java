@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.dspace.app.requestitem.RequestItemAuthor;
-import org.dspace.app.requestitem.RequestItemMetadataStrategy;
+import org.dspace.app.requestitem.RequestItemSubmitterStrategy;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -15,22 +15,24 @@ import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.core.I18nUtil;
 import org.dspace.core.service.PluginService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
-public class CICRequestItemMetadataAuthority extends RequestItemMetadataStrategy{
+public class CICRequestItemMetadataAuthority extends RequestItemSubmitterStrategy{
 	
+	protected String emailMetadata;
+    protected String fullNameMetadata;
+
     @Autowired(required = true)
+    protected ItemService itemService;
+	@Autowired(required = true)
     protected MetadataAuthorityService metadataAuthorityService;
     @Autowired(required = true)
     protected ChoiceAuthorityService choiceAuthorityService;
@@ -46,28 +48,30 @@ public class CICRequestItemMetadataAuthority extends RequestItemMetadataStrategy
 		if (emailMetadata != null)
 		{
 			List<MetadataValue> vals = itemService.getMetadataByMetadataString(item, emailMetadata);
-			if (vals.size() > 0)
-			{
-				email = vals.iterator().next().getValue();
-				String[] metadata = emailMetadata.split("\\.");
-				String fieldKey=null;
-				if(metadata.length == 2){
-					fieldKey = metadataAuthorityService.makeFieldKey(metadata[0],metadata[1],null);
-				}else if (metadata.length == 3){
-					fieldKey = metadataAuthorityService.makeFieldKey(metadata[0],metadata[1],metadata[2]);
-				}
-				if(choiceAuthorityService.isChoicesConfigured(fieldKey)){
-					this.getNameAndEmail(fieldKey, email,item.getOwningCollection(), 0, 0, null);					
-				}
-				if(email != null && fullname != null){
-					RequestItemAuthor author = new RequestItemAuthor(
-							fullname, email);
-					return author;
-				}else{
-					return super.getRequestItemAuthor(context, item);
+			for (MetadataValue metadataValue : vals) {
+				if (StringUtils.isNotBlank((metadataValue.getAuthority())))
+				{
+					String value = metadataValue.getValue();
+					String[] metadata = emailMetadata.split("\\.");
+					String fieldKey=null;
+					if(metadata.length == 2){
+						fieldKey = metadataAuthorityService.makeFieldKey(metadata[0],metadata[1],null);
+					}else if (metadata.length == 3){
+						fieldKey = metadataAuthorityService.makeFieldKey(metadata[0],metadata[1],metadata[2]);
+					}
+					if(choiceAuthorityService.isChoicesConfigured(fieldKey)){
+						this.getNameAndEmail(fieldKey, value,item.getOwningCollection(), 0, 0, null);					
+					}
+					//Check if we have an email and an author. If the author authority have them, then send an email, if not keep looking...
+					if(StringUtils.isNotBlank(email) && StringUtils.isNotBlank(fullname)){
+						RequestItemAuthor author = new RequestItemAuthor(
+								fullname, email);
+						return author;
+					}
 				}
 			}
 		}
+		//If cannot send an email to any of the item authors, then send an email to the item submitter as defined in superclass...
 		return super.getRequestItemAuthor(context, item);
 	}
 	
@@ -96,8 +100,10 @@ public class CICRequestItemMetadataAuthority extends RequestItemMetadataStrategy
 		ArrayList<String[]> authors = cicAuth.extractNameAndEmailFromAuthors(results);
 		if (authors.size() > 0) {
 			String[] author=authors.get(0);
-			this.email = author[0];
-			this.fullname = author[1];
+			if(StringUtils.isNotBlank(author[0]) && StringUtils.isNotBlank(author[1])) {
+				this.email = author[0];
+				this.fullname = author[1];
+			}
 		}
 	}
 

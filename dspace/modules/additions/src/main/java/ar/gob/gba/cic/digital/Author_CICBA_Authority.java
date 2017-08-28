@@ -156,7 +156,8 @@ public class Author_CICBA_Authority extends AdvancedSPARQLAuthorityProvider {
 	
 	
 	/**
-	 * @param solution
+	 * Get the name and email from a Jena Model containing (NS_FOAF + "Person") elements.
+	 * @param model
 	 * @return return and array with the email in the 0 position and the name in the 1 position
 	 */
 	public ArrayList<String[]> extractNameAndEmailFromAuthors(Model model){
