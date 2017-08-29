@@ -15,10 +15,12 @@
     xmlns:common="http://exslt.org/common"
     xmlns:dyn="http://exslt.org/dynamic"
     xmlns:str="http://exslt.org/strings"
+    xmlns:func="http://exslt.org/functions"
+    xmlns:cic="http://digital.cic.gba.gob.ar"
     xmlns:regexp="http://exslt.org/regular-expressions"
     xmlns:xmlui="xalan://ar.edu.unlp.sedici.dspace.xmlui.util.XSLTHelper"
-    extension-element-prefixes="str regexp xmlui math sets common dyn"
-	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="i18n dri mets xlink xsl dim xhtml mods dc regexp str xmlui math sets common  dyn helper confman java xalan"
+    extension-element-prefixes="str regexp xmlui math sets common dyn func"
+	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="i18n dri mets xlink xsl dim xhtml mods dc regexp str xmlui math sets common  dyn func helper confman java xalan"
 	>
 
 <!-- 	<xsl:template match="//dri:div[@n='item-view']"> -->
@@ -61,7 +63,7 @@
 				<xsl:choose>
 					<xsl:when test="$local_browse_type">
 						<xsl:choose>
-							<xsl:when test="@authority!=''">
+							<xsl:when test="not(cic:is-empty-authority(@authority))">
 								<xsl:call-template name="build-anchor">
 									<xsl:with-param name="a.href" select="concat('http://digital.cic.gba.gob.ar/browse?authority=', xmlui:escapeURI(@authority), '&amp;', 'type=', $local_browse_type)"/>
 									<xsl:with-param name="a.value" select="text()"/>
@@ -72,23 +74,25 @@
 							</xsl:otherwise>
 						</xsl:choose>
 					</xsl:when>
-					<xsl:when test="@authority!=''">
+					<xsl:when test="not(cic:is-empty-authority(@authority))">
 						<xsl:call-template name="build-anchor">
 							<xsl:with-param name="a.href" select="@authority"/>
 							<xsl:with-param name="a.value" select="text()"/>
 						</xsl:call-template>
 					</xsl:when>
-					<!-- Si llega a este punto no tiene atributo authority
-						verifico el caso especial del metadato isPartOf issue,
-						sin authority no tiene que ser un link -->
-					<xsl:when test="@qualifier='issue' and @element='isPartOf'">
-						<xsl:value-of select="text()" />
-					</xsl:when>
 					<xsl:otherwise>
-						<xsl:call-template name="build-anchor">
-							<xsl:with-param name="a.href" select="text()"/>
-							<xsl:with-param name="a.value" select="text()"/>
-						</xsl:call-template>
+					   <xsl:choose>
+					       <!--  ¿Es una url simple que viene en el text_value (no en el @authority)? Por ahora, solo chequeamos si es http y https....  -->
+					       <xsl:when test="starts-with(text(), 'http://') or starts-with(text(), 'https://')">
+					           <xsl:call-template name="build-anchor">
+		                            <xsl:with-param name="a.href" select="text()"/>
+		                            <xsl:with-param name="a.value" select="text()"/>
+		                        </xsl:call-template>
+					       </xsl:when>
+					       <xsl:otherwise>
+					           <xsl:copy-of select="text()"/>
+					       </xsl:otherwise>
+					   </xsl:choose>
 					</xsl:otherwise>								
 					</xsl:choose>
 			</xsl:when>
@@ -601,21 +605,10 @@
 						<xsl:with-param name="field" select="'cic.thesis.grantor'" />
 						<xsl:with-param name="container" select="'li'" />
 					</xsl:call-template>
-					<!--  Variable temporal que chequea si dcterms.isPartOf.item tiene autoridad o no -->
-					<xsl:variable name="dcterms_isPartOf_item_has_auth">
-					   <xsl:choose>
-					       <xsl:when test="./dim:field[@mdschema='dcterms' and @element='isPartOf' and @qualifier='item' and @authority!='' and @authority!='0']">
-					           <xsl:value-of select="'true'"/>
-					       </xsl:when>
-					       <xsl:otherwise>
-					           <xsl:value-of select="'false'"/>
-					       </xsl:otherwise>
-					   </xsl:choose>
-					</xsl:variable>
 					<xsl:call-template name="render-metadata">
 						<xsl:with-param name="field" select="'dcterms.isPartOf.item'" />
 						<xsl:with-param name="container" select="'li'" />
-						<xsl:with-param name="is_linked_authority" select="$dcterms_isPartOf_item_has_auth='true'"/>
+						<xsl:with-param name="is_linked_authority" select="'true'"/>
 						<xsl:with-param name="isList" select="'true'" />
 					</xsl:call-template>	
 					<xsl:call-template name="render-metadata">
@@ -708,6 +701,7 @@
 						<xsl:call-template name="render-metadata">
 							<xsl:with-param name="field" select="'dcterms.identifier.other'" />
 							<xsl:with-param name="container" select="'li'" />
+							<xsl:with-param name="is_linked_authority" select="'true'" />
 						</xsl:call-template>
 						<xsl:call-template name="render-metadata">
 							<xsl:with-param name="field" select="'dc.identifier.uri'" />
@@ -760,5 +754,18 @@
             </ul>
         </div>
     </xsl:template>
+    
+    <!-- custom cic xsl functions -->
+    <func:function name="cic:is-empty-authority">
+        <xsl:param name="authorityValue"/>
+          <xsl:choose>
+              <xsl:when test="$authorityValue!='' and $authorityValue!='0'">
+                 <func:result select="false()"/>
+             </xsl:when>
+             <xsl:otherwise>
+                 <func:result select="true()"/>
+             </xsl:otherwise>
+         </xsl:choose>
+    </func:function>
     
 </xsl:stylesheet>
