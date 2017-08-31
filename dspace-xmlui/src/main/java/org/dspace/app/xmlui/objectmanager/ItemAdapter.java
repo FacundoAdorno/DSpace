@@ -27,6 +27,7 @@ import org.dspace.content.service.ItemService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.eperson.Group;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.output.SAXOutputter;
@@ -1163,6 +1164,7 @@ public class ItemAdapter extends AbstractAdapter
 
 	url += "&isAllowed=" + isAllowed;
 
+    String visible = isAllowed;
     List<ResourcePolicy> resourcePolicies = bitstream.getResourcePolicies();
     String embargo = null;
     Date maxDate = null;
@@ -1171,7 +1173,10 @@ public class ItemAdapter extends AbstractAdapter
     sdf.setTimeZone(TimeZone.getTimeZone("ZULU"));
     for(ResourcePolicy policy : resourcePolicies)
     {
-     	if (policy.getGroup() == null || !org.dspace.eperson.Group.ANONYMOUS.equals(policy.getGroup().getName()) || (policy.getEndDate() != null && policy.getEndDate().before(today))){
+    	if (policy.getGroup() != null &&  Group.ANONYMOUS.equals(policy.getGroup().getName())){
+    		visible = "y";
+    	}
+     	if (policy.getGroup() == null || !Group.ANONYMOUS.equals(policy.getGroup().getName()) || (policy.getEndDate() != null && policy.getEndDate().before(today))){     		
      		continue;
      	}
        	if (policy.getStartDate() == null || policy.getStartDate().before(today)){
@@ -1182,7 +1187,6 @@ public class ItemAdapter extends AbstractAdapter
     		embargo = sdf.format(policy.getStartDate());                        				
        	}
     };
-    String visible = isAllowed;
     if (embargo != null){
     	url += "&embargoDate=" + embargo;
     	visible = "y";
