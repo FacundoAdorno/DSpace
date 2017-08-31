@@ -1182,9 +1182,10 @@ public class ItemAdapter extends AbstractAdapter
     		embargo = sdf.format(policy.getStartDate());                        				
        	}
     };
-    
+    String visible = isAllowed;
     if (embargo != null){
-    	url += "&embargoDate=" + embargo;    	
+    	url += "&embargoDate=" + embargo;
+    	visible = "y";
     }
 	
         // //////////////////////
@@ -1194,7 +1195,7 @@ public class ItemAdapter extends AbstractAdapter
         attributesXLINK.setNamespace(XLINK);
         attributes.put("LOCTYPE", "URL");
         attributesXLINK.put("type","locator");
-        attributesXLINK.put("visible", isAllowed);
+        attributesXLINK.put("visible", visible);
         attributesXLINK.put("title", name);
         if (description != null)
         {
