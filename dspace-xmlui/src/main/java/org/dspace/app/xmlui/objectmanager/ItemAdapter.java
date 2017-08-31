@@ -1194,6 +1194,7 @@ public class ItemAdapter extends AbstractAdapter
         attributesXLINK.setNamespace(XLINK);
         attributes.put("LOCTYPE", "URL");
         attributesXLINK.put("type","locator");
+        attributesXLINK.put("visible", isAllowed);
         attributesXLINK.put("title", name);
         if (description != null)
         {

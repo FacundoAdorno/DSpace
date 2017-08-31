@@ -431,6 +431,7 @@
     </xsl:template>
 	
 	<xsl:template match="mets:file" priority="10">
+	<xsl:if test="contains(mets:FLocat[@LOCTYPE='URL']/@xlink:visible,'y')">
 		<li class="media">
 			<xsl:variable name="documentTitle">
 				<xsl:value-of select="xmlui:replaceAll(substring-after(/mets:METS/@ID,':'), '\/', '_')"/>
@@ -518,6 +519,7 @@
 				</div>
 			</xsl:if>
 		</li>
+	</xsl:if>
 	</xsl:template>
 	
 	<xsl:template match="dim:dim" mode="dctermsIdentifierUrl">
