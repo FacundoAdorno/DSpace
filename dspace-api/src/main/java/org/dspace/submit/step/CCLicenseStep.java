@@ -18,6 +18,8 @@ import org.dspace.app.util.SubmissionInfo;
 import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.license.CCLookup;
@@ -68,7 +70,8 @@ public class CCLicenseStep extends AbstractProcessingStep
     private static Logger log = Logger.getLogger(CCLicenseStep.class);
 
     protected final CreativeCommonsService creativeCommonsService = LicenseServiceFactory.getInstance().getCreativeCommonsService();
-    
+    protected final ChoiceAuthorityService choiceAuthorityService = ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService();
+
     /**
      * Do any processing of the information input by the user, and/or perform
      * step processing (if no user interaction required)
@@ -209,7 +212,12 @@ public class CCLicenseStep extends AbstractProcessingStep
     	{
     		creativeCommonsService.removeLicense(context, uriField, nameField, item);
     		
-    		uriField.addItemValue(context, item, ccLookup.getLicenseUrl());
+            String fieldKey = uriField.getFieldKey();
+        	if (choiceAuthorityService.isChoicesConfigured(fieldKey)){
+        		uriField.addItemAuthority(context, item, ccLookup);
+        	}else{
+        		uriField.addItemValue(context, item, ccLookup.getLicenseUrl());        		
+        	}
     		if (configurationService.getBooleanProperty("cc.submit.addbitstream")) {
                 creativeCommonsService.setLicenseRDF(context, item, ccLookup.getRdf());
     		}	

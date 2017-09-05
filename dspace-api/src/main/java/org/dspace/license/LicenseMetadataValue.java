@@ -9,9 +9,14 @@ package org.dspace.license;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.authority.Choices;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
+import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.MetadataFieldService;
 import org.dspace.core.Context;
 
 import java.io.IOException;
@@ -27,6 +32,9 @@ import java.util.List;
 public class LicenseMetadataValue {
 
     protected final ItemService itemService;
+    protected final MetadataFieldService metadataFieldService;
+    protected final MetadataAuthorityService metadataAuthorityService;
+
     // Shibboleth for Creative Commons license data - i.e. characters that reliably indicate CC in a URI
     protected static final String ccShib = "creativecommons";
 
@@ -44,6 +52,8 @@ public class LicenseMetadataValue {
    			params[3] = Item.ANY;
    		}
         itemService = ContentServiceFactory.getInstance().getItemService();
+        metadataFieldService = ContentServiceFactory.getInstance().getMetadataFieldService();
+        metadataAuthorityService = ContentAuthorityServiceFactory.getInstance().getMetadataAuthorityService();
    	}
 
     /**
@@ -127,5 +137,19 @@ public class LicenseMetadataValue {
     public void addItemValue(Context context, Item item, String value) throws SQLException {
         itemService.addMetadata(context, item, params[0], params[1], params[2], params[3], value);
     }
-
+    
+    /**
+     * Adds passed value to the set of values for the field in passed item.
+     *
+     * @param item - the item to update
+     * @param ccLookup - the value to add in this field
+     */
+    public void addItemAuthority(Context context, Item item, CCLookup ccLookup) throws SQLException {
+    	MetadataField metadatafield = metadataFieldService.findByElement(context, params[0], params[1], params[2]);
+    	itemService.addMetadata(context, item, metadatafield, params[3], ccLookup.getLicenseName(), ccLookup.getLicenseUrl(), Choices.CF_ACCEPTED);
+    }
+    
+    public String getFieldKey(){
+    	return metadataAuthorityService.makeFieldKey(params[0], params[1], params[2]);
+    }
 }
