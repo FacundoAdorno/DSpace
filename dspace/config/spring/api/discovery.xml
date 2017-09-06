@@ -100,7 +100,7 @@
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterKeyword"/>
-<!-- 		        <ref bean="searchFilterContentInOriginalBundle"/> -->
+		        <ref bean="searchFilterContentInOriginalBundle"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -115,7 +115,7 @@
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterKeyword"/>
-<!-- 		        <ref bean="searchFilterContentInOriginalBundle"/> -->
+		        <ref bean="searchFilterContentInOriginalBundle"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -226,7 +226,7 @@
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-<!-- 		        <ref bean="searchFilterContentInOriginalBundle"/> -->
+		        <ref bean="searchFilterContentInOriginalBundle"/>
             </list>
         </property>
 <!--         Set TagCloud configuration per discovery configuration -->
@@ -238,7 +238,7 @@
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-<!-- 		        <ref bean="searchFilterContentInOriginalBundle"/> -->
+		        <ref bean="searchFilterContentInOriginalBundle"/>
             </list>
         </property>
 <!--         The sort filters for the discovery search (same as defaultConfiguration above) -->
