@@ -96,6 +96,7 @@
             <list>
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterLugarDesarrollo" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterKeyword"/>
@@ -110,6 +111,7 @@
                 <ref bean="searchFilterType" />
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterLugarDesarrollo" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterKeyword"/>
@@ -429,6 +431,17 @@
         <property name="sortOrderFilterPage" value="COUNT"/>
     </bean>
 
+    <bean id="searchFilterLugarDesarrollo" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="lugarDesarrollo"/>
+        <property name="metadataFields">
+            <list>
+                <value>cic.lugarDesarrollo</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+    </bean>
 <!--     <bean id="searchFilterSubject" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration"> -->
 <!--         <property name="indexFieldName" value="subject"/> -->
 <!--         <property name="metadataFields"> -->
