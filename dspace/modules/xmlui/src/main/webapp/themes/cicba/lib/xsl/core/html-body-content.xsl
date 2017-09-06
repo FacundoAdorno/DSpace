@@ -45,8 +45,11 @@
 							<h3>
 								<xsl:copy-of select="/dri:document/dri:options/dri:list[@n='discovery']/dri:head" />
 							</h3>
-							<xsl:for-each select="/dri:document/dri:options/dri:list[@n='discovery']/dri:list">
-								<xsl:call-template name="buildPanelFromList" />
+							<xsl:for-each select="/dri:document/dri:options/dri:list[@n='discovery']/dri:list">								
+								<xsl:variable name="group" select="/dri:document/dri:meta/dri:userMeta/dri:metadata[@element='identifier' and @qualifier='group']"/>
+								<xsl:if test="not(current()[@n='has_content_in_original_bundle']) or ($group = 'CIC-ADMIN') or ($group = 'Administrator')">	
+									<xsl:call-template name="buildPanelFromList" />
+								</xsl:if>
 							</xsl:for-each>
 						</div>
 					</div>
