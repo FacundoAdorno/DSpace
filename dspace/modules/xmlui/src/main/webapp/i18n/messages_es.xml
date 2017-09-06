@@ -158,6 +158,8 @@
 <message key="xmlui.ArtifactBrowser.AdvancedSearch.type_identifier">Identificador</message>
 <message key="xmlui.ArtifactBrowser.AdvancedSearch.type_language">Idioma (ISO)</message>
 <message key="xmlui.ArtifactBrowser.AdvancedSearch.type_keyword">Palabra clave</message>
+<message key="xmlui.ArtifactBrowser.AdvancedSearch.type_has_content_in_original_bundle">Tiene Bitstream</message>
+<message key="xmlui.ArtifactBrowser.AdvancedSearch.type_lugarDesarrollo">Lugar de desarrollo</message>
 
    <!--  some common other possibilities for Advanced Search Fields -->
 <message key="xmlui.ArtifactBrowser.AdvancedSearch.type_contributor">Contribuidor/a</message>

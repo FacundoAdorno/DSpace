@@ -108,6 +108,9 @@
 	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.subject">Materia</message>
 	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.subject_filter">Materia</message>
 	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.dateIssued.year">Fecha</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.lugarDesarrollo_filter">Autor</message>
+	<message key="xmlui.Discovery.AbstractSearch.type_lugarDesarrollo">Filtrar por: Lugar de desarrollo</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.has_content_in_original_bundle">Tiene bitstreams</message>
 
 
 	<message key="xmlui.Discovery.AbstractSearch.startswith">Comienza por</message>
