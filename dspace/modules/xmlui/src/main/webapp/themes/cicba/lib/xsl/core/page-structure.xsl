@@ -354,12 +354,12 @@
 			//Evaluates the value of the dc.type field. If it changes, then submits the form and reload.
 			function typeVerification(typeFieldName,index,array){
 				
-				$('form.submission').submit(function() {
-				  if($(this).data("submitted") === true)
-				    return false;
-				  else
-				    $(this).data("submitted", true);
-				  });
+				//$('form.submission').submit(function() {
+				 // if($(this).data("submitted") === true)
+				 //  return false;
+				 // else
+				 //   $(this).data("submitted", true);
+				 // });
 				
 				$('#'+ fieldIDPrefix + typeFieldName).on("autocompleteclose", function(event, ui){
 				  var permitirSubmit = false;
@@ -380,7 +380,57 @@
 				  }
 				});
 			}
+			
+			/**
+             * Esta función marca como "con error" aquellos campos del formulario que sean 'authority.required' y que tengan un value pero que no tengan authority seleccionada.
+             *
+             * @returns boolean    Retorna 'true' si existe al menos un metadato que sea ''authority.required' que tenga "value" pero que NO tenga "authority",
+             */
+             function checkMetadataFieldsRequireds(){
+                 //flag para determinar si existe al menos un campo 'authority.required' que debería tener autoridad y no la tiene...
+                 var allMdtAreAuthConsistent = true;
+                 var allFieldsWithAuthorityInForm = $('input[name $= "_authority"]');
+                 allFieldsWithAuthorityInForm.each(function(index, field){
+                     var fieldName = $(field).attr('name');
+                     //Primero verificamos que los inputs correspondientes a los fields "authority.required" sean consistentes...
+                     if(isAuthorityRequired(fieldName.replace('_authority','').replace(/\_/g,'.'))){
+                         var mdtValueInput = $('input#' + fieldIDPrefix + fieldName.replace('_authority',''));
+                         var authMdtInput = $(field);
+                         var errorMssg_P_Id = (fieldName + 'errormssg_p');
+                         //Si el campo esta marcado como "authority.required", verificar si tiene textvalue y authority
+                         if($(mdtValueInput).val() != '' &amp;&amp; $(authMdtInput).val() == ''){
+                             $(mdtValueInput).addClass('error');
+                             if($('p#' + errorMssg_P_Id).length == 0){
+                                 $(authMdtInput).after("&lt;p id='"+ errorMssg_P_Id +"' class='errormssg' title='Para que esta campo sea válido, debe seleccionar un valor de la lista desplegable o desde la ventana de Lookup'&gt;¡Debe seleccionar un valor válido! &lt;/p&gt;");
+                             }
+                             //Si es el primer campo examinado que le falta el valor de autoridad, entonces movemos la vista hacia allí...
+                             if(allMdtAreAuthConsistent){                                
+                                scrollTo($(mdtValueInput).attr('id'));
+                             }
+                             //Setear el flag indicando que existen metadatos que deben tener authority y no los tienen...
+                             allMdtAreAuthConsistent = false;
+                         } else {
+                             if($('p#' + errorMssg_P_Id).length &gt; 0){
+                                 $(mdtValueInput).removeClass('error');
+                                 $('p#' + errorMssg_P_Id).remove();
+                             }
+                         }
+                     }
+                     //Segundo, hay que verificar que los "previous-values" tambien tengan authority. Los &lt;fields&gt; configurados como &lt;repeteable&gt; desde el input-forms, pueden llegar a tener "previous-values"...
+                     //Hay que buscar todos los campo con la siguiente forma: 'dcterms_isVersionOf_authority_1', 'dcterms_isVersionOf_authority_2', etc...
+                     //TODO: terminar...
+                     //$("input[name^='"+fieldName+"_']");
+                 });
+                 return allMdtAreAuthConsistent;
+             }
+             
+             $('form.submission').submit( function(){
+                 return checkMetadataFieldsRequireds();
+             });
 			</xsl:text>
+			
+			<xsl:call-template name="print-is-authority-required-fn"/>
+			
 			</script>
 			
 			<xsl:if test="dri:body/dri:div[@n='submit-cclicense']">
@@ -601,7 +651,13 @@
 							$("body").animate({scrollTop: $("label[for='<xsl:value-of select="$field_id"/>']").parent().offset().top });
 							$(<xsl:value-of select="$field_id" />).focus();
 					</xsl:if>
-				}		        
+				}
+				
+				function scrollTo(fieldId){              
+                            $("body").animate({scrollTop: $("label[for='"+fieldId+"']").parent().offset().top });
+                            $('#'+fieldId).focus();
+                }
+                		        
 		        $(document).ready(function(){
 		        	 <xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.submission.StepTransformer.div.submit-describe']/dri:list[@id='aspect.submission.StepTransformer.list.submit-describe']">
 		        		var path= "<xsl:value-of select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='contextPath']"/>";

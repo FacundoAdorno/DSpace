@@ -7,16 +7,6 @@
     http://www.dspace.org/license/
 
 -->
-
-<!--
-    Rendering of the authority control related pages.
-
-    Author: art.lowel at atmire.com
-    Author: lieven.droogmans at atmire.com
-    Author: ben at atmire.com
-    Author: Alexey Maslov
-
--->
 <xsl:stylesheet xmlns:i18n="http://apache.org/cocoon/i18n/2.1"
 	xmlns:dri="http://di.tamu.edu/DRI/1.0/"
 	xmlns:mets="http://www.loc.gov/METS/"
@@ -125,17 +115,7 @@
 				}
 			}
 			
-			function isAuthorityControlled(fieldName){
-				var authorityControlledFields=[
-				<xsl:for-each select="xmlui:getPropertyKeys('authority.controlled')">
-					<xsl:text>"</xsl:text>
-					<xsl:value-of select="xmlui:replaceAll(.,'authority\.controlled\.','')"/>
-					<xsl:if test="position() != last()">
-						<xsl:text>", </xsl:text>
-					</xsl:if>
-				</xsl:for-each>"];
-				<xsl:text disable-output-escaping="yes">return (authorityControlledFields.indexOf(fieldName) >= 0);</xsl:text>
-			}
+			<xsl:call-template name="print-is-authority-controlled-fn"/>
 	        
 	        <!-- Modificación de estilos en edicion de metadatos del item -->
 			function inputsStyleSheet(){			

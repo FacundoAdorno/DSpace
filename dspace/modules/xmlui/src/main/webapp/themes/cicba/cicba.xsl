@@ -28,6 +28,7 @@
     
     <xsl:import href="lib/xsl/core/constants.xsl"/>
     <xsl:import href="lib/xsl/core/utils.xsl"/> 
+    <xsl:import href="lib/xsl/core/js-utils.xsl"/>
     <xsl:import href="../Mirage/Mirage.xsl"/>
     <xsl:import href="lib/xsl/core/page-structure.xsl"/>
     <xsl:import href="lib/xsl/core/navigation.xsl"/>

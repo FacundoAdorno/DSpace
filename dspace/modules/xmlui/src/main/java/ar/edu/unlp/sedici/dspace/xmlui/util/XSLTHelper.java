@@ -2,6 +2,7 @@ package ar.edu.unlp.sedici.dspace.xmlui.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -139,8 +140,25 @@ public class XSLTHelper {
 	 */
 	public static NodeSet getPropertyKeys(String prefix){
 		
-		 java.util.List<String> keys = DSpaceServicesFactory.getInstance().getConfigurationService().getPropertyKeys(prefix);
+		 List<String> keys = DSpaceServicesFactory.getInstance().getConfigurationService().getPropertyKeys(prefix);
 		 return collectionToNodeSet(keys);
+	
+	}
+	
+	/*
+	 * Retorna un conjunto de property keys desde el dspace.cfg cuyo prefijo coincida, y que además tengan el valor requerido.
+	 */
+	public static NodeSet getPropertyKeysWithValue(String prefix, String value){
+		
+		 List<String> keys = DSpaceServicesFactory.getInstance().getConfigurationService().getPropertyKeys(prefix);
+		 List<String> filteredKeys = new ArrayList<String>();
+		 for(int i=0; i < keys.size(); i++) {
+			 //check if the property has the expected value...
+			 if(DSpaceServicesFactory.getInstance().getConfigurationService().getProperty(keys.get(i)).equals(value)) {
+				 filteredKeys.add(keys.get(i));
+			 }
+		 }
+		 return collectionToNodeSet(filteredKeys);
 	
 	}
 	
