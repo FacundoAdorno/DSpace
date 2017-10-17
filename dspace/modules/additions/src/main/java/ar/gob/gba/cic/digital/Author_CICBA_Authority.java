@@ -65,9 +65,9 @@ public class Author_CICBA_Authority extends AdvancedSPARQLAuthorityProvider {
 
 		pqs.setCommandText("CONSTRUCT { ?person a foaf:Person. ?person foaf:givenName ?name . ?person foaf:mbox ?mail . ?person foaf:familyName ?surname. ?person cerif:linksToOrganisationUnit ?link . ?link cerif:startDate ?inicio. ?link cerif:endDate ?fin . ?link foaf:Organization ?org . ?org dc:title ?affiliation. ?org sioc:id ?id. }\n");
 		pqs.append("WHERE {\n");
-		pqs.append("?person a foaf:Person ; foaf:givenName ?name ; foaf:familyName ?surname; foaf:mbox ?mail .\n");
+		pqs.append("?person a foaf:Person ; foaf:givenName ?name ; foaf:familyName ?surname .\n");
 		pqs.append("	OPTIONAL {\n");
-		pqs.append("	?person cerif:linksToOrganisationUnit ?link . ?link cerif:startDate ?inicio; cerif:endDate ?fin; foaf:Organization ?org . ?org dc:title ?affiliation; sioc:id ?id\n");
+		pqs.append("	?person cerif:linksToOrganisationUnit ?link; foaf:mbox ?mail . ?link cerif:startDate ?inicio; cerif:endDate ?fin; foaf:Organization ?org . ?org dc:title ?affiliation; sioc:id ?id\n");
 		pqs.append("	}\n");
 		pqs.append("FILTER(REGEX(?person, ?key, \"i\"))\n");
 		pqs.append("}\n");
@@ -90,9 +90,9 @@ public class Author_CICBA_Authority extends AdvancedSPARQLAuthorityProvider {
 
 		pqs.setCommandText("CONSTRUCT { ?person a foaf:Person. ?person foaf:givenName ?name . ?person foaf:mbox ?mail . ?person foaf:familyName ?surname. ?person cerif:linksToOrganisationUnit ?link . ?link cerif:startDate ?inicio. ?link cerif:endDate ?fin . ?link foaf:Organization ?org . ?org dc:title ?affiliation. ?org sioc:id ?id. }\n");
 		pqs.append("WHERE {\n");
-		pqs.append("?person a foaf:Person ; foaf:givenName ?name ; foaf:mbox ?mail ; foaf:familyName ?surname. \n");
+		pqs.append("?person a foaf:Person ; foaf:givenName ?name; foaf:familyName ?surname. \n");
 		pqs.append("OPTIONAL {\n");
-		pqs.append("?person cerif:linksToOrganisationUnit ?link . ?link cerif:startDate ?inicio; cerif:endDate ?fin; foaf:Organization ?org . ?org dc:title ?affiliation; sioc:id ?id\n");
+		pqs.append("?person cerif:linksToOrganisationUnit ?link; foaf:mbox ?mail. ?link cerif:startDate ?inicio; cerif:endDate ?fin; foaf:Organization ?org . ?org dc:title ?affiliation; sioc:id ?id\n");
 		pqs.append("}\n");
 		if (!"".equals(text)) {
 			String[] tokens = text.split(",");
