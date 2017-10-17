@@ -171,10 +171,12 @@ public class Author_CICBA_Authority extends AdvancedSPARQLAuthorityProvider {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		while(persons.hasNext()) {
 			Resource currentPerson = persons.next();
-			String[] respuesta = new String[2];
-			respuesta[0] = currentPerson.getProperty(mbox).getString();
-			respuesta[1] = currentPerson.getProperty(givenName).getString() + ", " + currentPerson.getProperty(familyName).getString();
-			result.add(respuesta);
+			if(currentPerson.getProperty(mbox) != null) {
+				String[] respuesta = new String[2];				
+				respuesta[0] = currentPerson.getProperty(mbox).getString();
+				respuesta[1] = currentPerson.getProperty(givenName).getString() + ", " + currentPerson.getProperty(familyName).getString();
+				result.add(respuesta);
+			}
 		}
 		return result;
 	}
