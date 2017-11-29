@@ -23,11 +23,15 @@ and the recent submissions listing
 
             <map:transformer name="Navigation" src="org.dspace.app.xmlui.aspect.discovery.Navigation"/>
             <map:transformer name="SimpleSearch" src="org.dspace.app.xmlui.aspect.discovery.SimpleSearch"/>
+            
+            <map:transformer name="StatisticsSimpleSearch" src="org.dspace.app.xmlui.aspect.discovery.StatisticsSimpleSearch"/>
+            
             <map:transformer name="BrowseFacet" src="org.dspace.app.xmlui.aspect.discovery.BrowseFacet"/>
             <map:transformer name="SearchFacetFilter" src="org.dspace.app.xmlui.aspect.discovery.SearchFacetFilter"/>
             <map:transformer name="FrontPageFeeds" src="org.dspace.app.xmlui.aspect.discovery.SiteViewer"/>
             <map:transformer name="SiteRecentSubmissions" src="org.dspace.app.xmlui.aspect.discovery.SiteRecentSubmissions"/>
             <map:transformer name="SidebarFacetsTransformer" src="org.dspace.app.xmlui.aspect.discovery.SidebarFacetsTransformer"/>
+            <map:transformer name="StatisticsSidebarFacetsTransformer" src="org.dspace.app.xmlui.aspect.discovery.StatisticsSidebarFacetsTransformer"/>
 
             <map:transformer name="CommunitySearch" src="org.dspace.app.xmlui.aspect.discovery.CommunitySearch"/>
             <map:transformer name="CommunityRecentSubmissions" src="org.dspace.app.xmlui.aspect.discovery.CommunityRecentSubmissions"/>
@@ -115,6 +119,22 @@ and the recent submissions listing
                 <map:act type="DiscoverySearchLoggerAction"/>
 				<map:transform type="SidebarFacetsTransformer"/>
                 <map:transform type="SimpleSearch"/>
+                <map:transform type="IncludePageMeta">
+                    <map:parameter name="stylesheet.screen.discovery#1" value="../../static/css/discovery/discovery-style.css"/>
+
+                    <map:parameter name="javascript.static#1" value="loadJQuery.js"/>
+                    <map:parameter name="javascript.static#2" value="static/js/discovery/search-controls.js"/>
+                </map:transform>
+				<map:serialize type="xml"/>
+			</map:match>
+			
+			<!-- Statistics Search -->
+			<map:match pattern="statistics-discover">
+				<map:transform type="CSVExportDiscoveryNavigation"/>
+				<!-- El DiscoverySearchLoggerAction registra en statistics un evento de búsqueda, lo comento por ahora...  -->
+                <!--  <map:act type="DiscoverySearchLoggerAction"/> -->
+				<map:transform type="StatisticsSidebarFacetsTransformer"/>
+                <map:transform type="StatisticsSimpleSearch"/>
                 <map:transform type="IncludePageMeta">
                     <map:parameter name="stylesheet.screen.discovery#1" value="../../static/css/discovery/discovery-style.css"/>
 

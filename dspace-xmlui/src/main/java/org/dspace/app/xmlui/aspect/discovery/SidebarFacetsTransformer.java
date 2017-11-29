@@ -194,7 +194,7 @@ public class SidebarFacetsTransformer extends AbstractDSpaceTransformer implemen
             DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
             java.util.List<String> fqs = Arrays.asList(DiscoveryUIUtils.getFilterQueries(request, context));
 
-            DiscoveryConfiguration discoveryConfiguration = SearchUtils.getDiscoveryConfiguration(dso);
+            DiscoveryConfiguration discoveryConfiguration = getDiscoveryConfiguration(dso);
             java.util.List<DiscoverySearchFilterFacet> facets = discoveryConfiguration.getSidebarFacets();
 
             if (facets != null && 0 < facets.size()) {
@@ -328,7 +328,7 @@ public class SidebarFacetsTransformer extends AbstractDSpaceTransformer implemen
     public DiscoverQuery getQueryArgs(Context context, DSpaceObject scope, String... filterQueries) {
         DiscoverQuery queryArgs = new DiscoverQuery();
 
-        DiscoveryConfiguration discoveryConfiguration = SearchUtils.getDiscoveryConfiguration(scope);
+        DiscoveryConfiguration discoveryConfiguration = getDiscoveryConfiguration(scope);
         java.util.List<DiscoverySearchFilterFacet> facets = discoveryConfiguration.getSidebarFacets();
 
         log.debug("facets for scope, " + scope + ": " + (facets != null ? facets.size() : null));
@@ -518,4 +518,13 @@ public class SidebarFacetsTransformer extends AbstractDSpaceTransformer implemen
         validity = null;
         super.recycle();
     }
+    
+    
+    /**
+     * MIS CAMBIOS
+     */
+    
+    protected DiscoveryConfiguration getDiscoveryConfiguration(DSpaceObject scope) {
+		return SearchUtils.getDiscoveryConfiguration(scope);
+	}
 }

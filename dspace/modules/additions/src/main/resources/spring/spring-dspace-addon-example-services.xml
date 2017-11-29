@@ -20,5 +20,7 @@
     <context:annotation-config /> <!-- allows us to use spring annotations in beans -->
 
     <bean id="org.dspace.example.Example" class="org.dspace.example.impl.ExampleImpl" />
+    
+    <bean class="org.dspace.discovery.StatisticsSolrServiceImpl" id="org.dspace.discovery.StatisticsSolrServiceImpl"/>
 
 </beans>

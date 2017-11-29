@@ -267,7 +267,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
         {
             order.setValue(request.getParameter("order"));
         }else{
-            DiscoveryConfiguration discoveryConfiguration = SearchUtils.getDiscoveryConfiguration(dso);
+            DiscoveryConfiguration discoveryConfiguration = getDiscoveryConfiguration(dso);
             order.setValue(discoveryConfiguration.getSearchSortConfiguration().getDefaultSortOrder().toString());
         }
         if(!StringUtils.isBlank(request.getParameter("page")))
@@ -697,7 +697,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
         }        
 
         //Add the configured default filter queries
-        DiscoveryConfiguration discoveryConfiguration = SearchUtils.getDiscoveryConfiguration(scope);
+        DiscoveryConfiguration discoveryConfiguration = getDiscoveryConfiguration(scope);
         List<String> defaultFilterQueries = discoveryConfiguration.getDefaultFilterQueries();
         queryArgs.addFilterQueries(defaultFilterQueries.toArray(new String[defaultFilterQueries.size()]));
 
@@ -780,6 +780,10 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
         
         return queryArgs;
     }
+
+	protected DiscoveryConfiguration getDiscoveryConfiguration(DSpaceObject dso) {
+		return SearchUtils.getDiscoveryConfiguration(dso);
+	}
 
     /**
      * Query DSpace for a list of all items / collections / or communities that
@@ -929,7 +933,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer implement
 
 
         DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
-        DiscoveryConfiguration discoveryConfiguration = SearchUtils.getDiscoveryConfiguration(dso);
+        DiscoveryConfiguration discoveryConfiguration = getDiscoveryConfiguration(dso);
 
         Division searchControlsGear = div.addDivision("masked-page-control").addDivision("search-controls-gear", "controls-gear-wrapper");
 

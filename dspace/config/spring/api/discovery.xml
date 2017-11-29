@@ -506,6 +506,83 @@
     </bean>
     
     
-       
+    <!-- ============================================= -->
+    <!-- ============================================= -->
+    <!-- Statistics Solr using Discovery Configuration -->
+    <!-- ============================================= -->
+    <!-- ============================================= -->
+    
+   
+    <!--Bean that is used for mapping communities/collections to certain discovery configurations.-->
+    <bean id="statisticsDiscoveryConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfigurationService">
+        <property name="map">
+            <map>
+                <!--The map containing all the settings,
+                    the key is used to refer to the page (the "site" or a community/collection handle)
+                    the value-ref is a reference to an identifier of the DiscoveryConfiguration format
+                    -->
+                <!--The default entry, DO NOT REMOVE the system requires this-->
+               <entry key="default" value-ref="statisticsDefaultConfiguration" />
+
+               <!--Use site to override the default configuration for the home page & default discovery page-->
+<!--                <entry key="site" value-ref="homepageConfiguration" /> -->
+               <!--<entry key="123456789/7621" value-ref="defaultConfiguration"/>-->
+            </map>
+        </property>
+        <property name="toIgnoreMetadataFields">
+            <map/>
+        </property>
+    </bean>
+    
+    <!--The default configuration settings for discovery-->
+    <bean id="statisticsDefaultConfiguration" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype">
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchIpStatistics" />
+            </list>
+        </property>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchIpStatistics" />
+            </list>
+        </property>
+        
+        <!--The sort filters for the discovery search-->
+        <property name="searchSortConfiguration">
+            <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
+                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
+                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
+                <property name="defaultSortOrder" value="desc"/>
+                <property name="sortFields">
+                    <list/>
+                </property>
+            </bean>
+        </property>
+        <!--Any default filter queries, these filter queries will be used for all queries done by discovery for this configuration-->
+        <!--<property name="defaultFilterQueries">-->
+            <!--<list>-->
+                <!--Only find items-->
+                <!--<value>search.resourcetype:2</value>-->
+            <!--</list>-->
+        <!--</property>-->
+        <!--The configuration for the recent submissions-->
+        <!--Default result per page  -->
+        <property name="defaultRpp" value="10" />
+    </bean>
+    
+    
+    <bean id="searchIpStatistics" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="ip"/>
+        <property name="metadataFields">
+            <list>
+                <value>ip</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="10"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+    </bean>
     
 </beans>
