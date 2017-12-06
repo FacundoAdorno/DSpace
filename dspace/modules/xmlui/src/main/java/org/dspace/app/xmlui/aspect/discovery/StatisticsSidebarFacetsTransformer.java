@@ -28,8 +28,12 @@ import org.dspace.discovery.DiscoverFacetField;
 import org.dspace.discovery.DiscoverQuery;
 import org.dspace.discovery.DiscoverResult;
 import org.dspace.discovery.SearchService;
+import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.StatisticsDiscoverResult;
+import org.dspace.discovery.StatisticsSearchServiceException;
 import org.dspace.discovery.StatisticsSearchUtils;
+import org.dspace.discovery.StatisticsSolrServiceImpl2;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
@@ -199,8 +203,73 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
         return StatisticsSearchUtils.getStatisticsSearchService();
     }
     
+    
     protected DiscoveryConfiguration getDiscoveryConfiguration(DSpaceObject scope) {
 		return StatisticsSearchUtils.getDiscoveryConfiguration(scope);
 	}
+    
+    
+    
+    ////////////////// TESTING NUEVA IMPL		/////////////////
+    /////////////////////////////////////////////////////////////
+    public void performSearch() throws SearchServiceException, UIException, SQLException {
+        DSpaceObject dso = getScope();
+        Request request = ObjectModelHelper.getRequest(objectModel);
+        //TODO crear un DiscoveryUIUtils para Statistics...	 
+        queryArgs = getQueryArgs(context, dso, DiscoveryUIUtils.getFilterQueries(request, context));
+        //If we are on a search page performing a search a query may be used
+        String query = request.getParameter("query");
+        if(query != null && !"".equals(query)){
+            // Do standard escaping of some characters in this user-entered query
+            query = DiscoveryUIUtils.escapeQueryChars(query);
+            queryArgs.setQuery(query);
+        }
+
+        //We do not need to retrieve any dspace objects, only facets
+        queryArgs.setMaxResults(0);
+        ////PRUEBAAAAA
+        try {
+        	StatisticsDiscoverResult result = getSearchService2().search(context, dso,  queryArgs);
+			//Ahora obtenemos todos para probar
+//        	queryArgs.setMaxResults(100);
+			result = getSearchService2().search(context, dso,  queryArgs);
+		} catch (StatisticsSearchServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        queryResults =  getSearchService().search(context, dso,  queryArgs);
+    }
+    
+    /**
+     * Determine the current scope. This may be derived from the current url
+     * handle if present or the scope parameter is given. If no scope is
+     * specified then null is returned.
+     *
+     * @return The current scope.
+     */
+    private DSpaceObject getScope() throws SQLException {
+        Request request = ObjectModelHelper.getRequest(objectModel);
+        String scopeString = request.getParameter("scope");
+
+        // Are we in a community or collection?
+        DSpaceObject dso;
+        if (scopeString == null || "".equals(scopeString))
+        {
+            // get the search scope from the url handle
+            dso = HandleUtil.obtainHandle(objectModel);
+        }
+        else
+        {
+            // Get the search scope from the location parameter
+            dso = handleService.resolveToObject(context, scopeString);
+        }
+
+        return dso;
+    }
+    
+    protected StatisticsSolrServiceImpl2 getSearchService2()
+    {
+    	return StatisticsSearchUtils.getStatisticsSearchService2();
+    }
 
 }

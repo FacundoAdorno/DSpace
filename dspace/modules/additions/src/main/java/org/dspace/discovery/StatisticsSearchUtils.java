@@ -11,6 +11,7 @@ public class StatisticsSearchUtils extends SearchUtils {
 
 	/** Cached statistics search service **/
     private static StatisticsSolrServiceImpl statisticsSearchService;
+    private static StatisticsSolrServiceImpl2 statisticsSearchService2;
     
     private static String statisticsConfigurationBeanName = "statisticsDiscoveryConfiguration";
 
@@ -22,6 +23,14 @@ public class StatisticsSearchUtils extends SearchUtils {
          }
          return statisticsSearchService;
     }
+    
+    public static StatisticsSolrServiceImpl2 getStatisticsSearchService2() {
+   	 if(statisticsSearchService2 ==  null){
+            org.dspace.kernel.ServiceManager manager = DSpaceServicesFactory.getInstance().getServiceManager();
+            statisticsSearchService2 = manager.getServiceByName(StatisticsSolrServiceImpl2.class.getName(),StatisticsSolrServiceImpl2.class);
+        }
+        return statisticsSearchService2;
+   }
 	
     public static DiscoveryConfigurationService getConfigurationService() {
         ServiceManager manager = DSpaceServicesFactory.getInstance().getServiceManager();

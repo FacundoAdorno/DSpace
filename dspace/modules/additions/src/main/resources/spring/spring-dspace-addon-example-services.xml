@@ -22,5 +22,7 @@
     <bean id="org.dspace.example.Example" class="org.dspace.example.impl.ExampleImpl" />
     
     <bean class="org.dspace.discovery.StatisticsSolrServiceImpl" id="org.dspace.discovery.StatisticsSolrServiceImpl"/>
+    
+    <bean class="org.dspace.discovery.StatisticsSolrServiceImpl2" id="org.dspace.discovery.StatisticsSolrServiceImpl2"/>
 
 </beans>
