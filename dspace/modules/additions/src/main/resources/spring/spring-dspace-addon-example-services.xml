@@ -23,6 +23,4 @@
     
     <bean class="org.dspace.discovery.StatisticsSolrServiceImpl" id="org.dspace.discovery.StatisticsSolrServiceImpl"/>
     
-    <bean class="org.dspace.discovery.StatisticsSolrServiceImpl2" id="org.dspace.discovery.StatisticsSolrServiceImpl2"/>
-
 </beans>

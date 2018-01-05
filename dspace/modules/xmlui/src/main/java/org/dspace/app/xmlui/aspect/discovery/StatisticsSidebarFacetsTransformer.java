@@ -1,6 +1,7 @@
 package org.dspace.app.xmlui.aspect.discovery;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,10 +11,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.cocoon.caching.CacheableProcessingComponent;
 import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Request;
+import org.apache.cocoon.util.HashUtil;
 import org.apache.commons.lang.StringUtils;
+import org.apache.excalibur.source.SourceValidity;
 import org.apache.log4j.Logger;
+import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
+import org.dspace.app.xmlui.utils.DSpaceValidity;
 import org.dspace.app.xmlui.utils.HandleUtil;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.Message;
@@ -26,28 +32,143 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.discovery.DiscoverFacetField;
 import org.dspace.discovery.DiscoverQuery;
-import org.dspace.discovery.DiscoverResult;
+import org.dspace.discovery.StatisticsDiscoverResult;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.StatisticsDiscoverResult;
 import org.dspace.discovery.StatisticsSearchServiceException;
 import org.dspace.discovery.StatisticsSearchUtils;
-import org.dspace.discovery.StatisticsSolrServiceImpl2;
+import org.dspace.discovery.StatisticsSolrServiceImpl;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
+import org.dspace.handle.factory.HandleServiceFactory;
+import org.dspace.handle.service.HandleService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.xml.sax.SAXException;
 
-public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer{
+public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransformer implements CacheableProcessingComponent{
 	
-	private static final Message T_FILTER_HEAD = message("xmlui.discovery.AbstractFiltersTransformer.filters.head");
-    private static final Message T_VIEW_MORE = message("xmlui.discovery.AbstractFiltersTransformer.filters.view-more");
-    
     private static final Logger log = Logger.getLogger(StatisticsSidebarFacetsTransformer.class);
-	
-	public void addOptions(Options options) throws SAXException, WingException, SQLException, IOException, AuthorizeException {
+    
+    /**
+     * Cached query results
+     */
+    protected StatisticsDiscoverResult queryResults;
+
+    /**
+     * Cached query arguments
+     */
+    protected DiscoverQuery queryArgs;
+
+    /**
+     * Cached validity object
+     */
+    protected SourceValidity validity;
+    
+    
+    private static final Message T_FILTER_HEAD = message("xmlui.discovery.AbstractFiltersTransformer.filters.head");
+    private static final Message T_VIEW_MORE = message("xmlui.discovery.AbstractFiltersTransformer.filters.view-more");
+
+    protected HandleService handleService = HandleServiceFactory.getInstance().getHandleService();
+
+    protected StatisticsSolrServiceImpl getSearchService()
+    {
+        return StatisticsSearchUtils.getStatisticsSearchService();
+    }
+
+    /**
+     * Generate the unique caching key.
+     * This key must be unique inside the space of this component.
+     * @return the key.
+     */
+    @Override
+    public Serializable getKey() {
+        try {
+            DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
+            if (dso != null)
+            {
+                return HashUtil.hash(dso.getHandle());
+            }else{
+                return "0";
+            }
+        }
+        catch (SQLException sqle) {
+            // Ignore all errors and just return that the component is not
+            // cachable.
+            return "0";
+        }
+    }
+
+    /**
+     * Generate the cache validity object.
+     * <p>
+     * The validity object will include the collection being viewed and
+     * all recently submitted items. This does not include the community / collection
+     * hierarchy, when this changes they will not be reflected in the cache.
+     * @return validity.
+     */
+    @Override
+    public SourceValidity getValidity() {
+        if (this.validity == null) {
+
+            try {
+                Context.Mode originalMode = context.getCurrentMode();
+                context.setMode(Context.Mode.READ_ONLY);
+
+                DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
+                DSpaceValidity val = new DSpaceValidity();
+
+                // Retrieve any facet results to add to the validity key
+                performSearch();
+
+                // Add the actual collection;
+                if (dso != null)
+                {
+                    val.add(context, dso);
+                }
+
+                for (String facetField : queryResults.getFacetResults().keySet()) {
+                    val.add(facetField);
+
+                    java.util.List<StatisticsDiscoverResult.FacetResult> facetValues = queryResults.getFacetResults().get(facetField);
+                    for (StatisticsDiscoverResult.FacetResult facetValue : facetValues) {
+                        val.add(facetField + facetValue.getAsFilterQuery() + facetValue.getCount());
+                    }
+                }
+
+                this.validity = val.complete();
+                context.setMode(originalMode);
+            }
+            catch (Exception e) {
+                log.error(e.getMessage(),e);
+            }
+            //TODO: dependent on tags as well :)
+        }
+        return this.validity;
+    }
+
+
+     public void performSearch() throws UIException, SQLException, StatisticsSearchServiceException {
+        DSpaceObject dso = getScope();
+        Request request = ObjectModelHelper.getRequest(objectModel);
+        //TODO crear un DiscoveryUIUtils para Statistics...	 
+        queryArgs = getQueryArgs(context, dso, StatisticsDiscoveryUIUtils.getFilterQueries(request, context));
+        //If we are on a search page performing a search a query may be used
+        String query = request.getParameter("query");
+        if(query != null && !"".equals(query.trim())){
+            // Do standard escaping of some characters in this user-entered query
+            query = StatisticsDiscoveryUIUtils.escapeQueryChars(query);
+            queryArgs.setQuery(StatisticsSearchUtils.generateDefaultFields(query,dso));
+        }
+
+        //We do not need to retrieve any dspace objects, only facets
+        queryArgs.setMaxResults(0);
+        queryResults =  getSearchService().search(context, dso,  queryArgs);
+    }
+
+    public void addOptions(Options options) throws SAXException, WingException, SQLException, IOException, AuthorizeException {
 
         Context.Mode originalMode = context.getCurrentMode();
         context.setMode(Context.Mode.READ_ONLY);
@@ -64,7 +185,7 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
 
         if (this.queryResults != null) {
             DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
-            java.util.List<String> fqs = Arrays.asList(DiscoveryUIUtils.getFilterQueries(request, context));
+            java.util.List<String> fqs = Arrays.asList(StatisticsDiscoveryUIUtils.getFilterQueries(request, context));
 
             DiscoveryConfiguration discoveryConfiguration = StatisticsSearchUtils.getDiscoveryConfiguration(dso);
             java.util.List<DiscoverySearchFilterFacet> facets = discoveryConfiguration.getSidebarFacets();
@@ -75,7 +196,7 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
 
                 for (DiscoverySearchFilterFacet field : facets) {
                     //Retrieve our values
-                    java.util.List<DiscoverResult.FacetResult> facetValues = queryResults.getFacetResult(field.getIndexFieldName());
+                    java.util.List<StatisticsDiscoverResult.FacetResult> facetValues = queryResults.getFacetResult(field.getIndexFieldName());
                     //Check if we are dealing with a date, sometimes the facet values arrive as dates !
                     if(facetValues.size() == 0 && field.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)){
                         facetValues = queryResults.getFacetResult(field.getIndexFieldName() + ".year");
@@ -93,7 +214,7 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
                             browse.setHead(T_FILTER_HEAD);
                         }
 
-                        Iterator<DiscoverResult.FacetResult> iter = facetValues.iterator();
+                        Iterator<StatisticsDiscoverResult.FacetResult> iter = facetValues.iterator();
 
                         List filterValsList = browse.addList(field.getIndexFieldName());
 
@@ -110,17 +231,21 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
                                 break;
                             }
 
-                            DiscoverResult.FacetResult value = iter.next();
+                            StatisticsDiscoverResult.FacetResult value = iter.next();
 
                             if (i < shownFacets - 1) {
                                 String displayedValue = value.getDisplayedValue();
                                 String filterQuery = value.getAsFilterQuery();
                                 String filterType = value.getFilterType();
+                                String paramsQuery = retrieveParameters(request);
                                 if (fqs.contains(getSearchService().toFilterQuery(context, field.getIndexFieldName(), value.getFilterType(), value.getAsFilterQuery()).getFilterQuery())) {
-                                    filterValsList.addItem(Math.random() + "", "selected").addContent(displayedValue + " (" + value.getCount() + ")");
+                                	org.dspace.app.xmlui.wing.element.Item item = filterValsList.addItem(Math.random() + "", "selected");
+                                	item.addContent(displayedValue + " (" + value.getCount() + ")");
+                                	String urlWithoutFilter = StatisticsDiscoveryUIUtils.getUrlWithoutFilter(contextPath + (dso == null ? "" : "/handle/" + dso.getHandle()) + 
+                                			"/statistics-discover?" + paramsQuery, field.getIndexFieldName(), value.getFilterType(), value.getAsFilterQuery());
+                                	item.addXref(urlWithoutFilter,"", null, "removeFacet");
+                                	
                                 } else {
-                                    String paramsQuery = retrieveParameters(request);
-
                                     filterValsList.addItem().addXref(
                                             contextPath +
                                                     (dso == null ? "" : "/handle/" + dso.getHandle()) +
@@ -145,20 +270,8 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
 
         context.setMode(originalMode);
     }
-	
-	
-	private void addViewMoreUrl(List facet, DSpaceObject dso, Request request, DiscoverySearchFilterFacet field) throws WingException, UnsupportedEncodingException {
-        String parameters = retrieveParameters(request);
-        facet.addItem().addXref(
-                contextPath +
-                        (dso == null ? "" : "/handle/" + dso.getHandle()) +
-                        "/search-filter?" + parameters + BrowseFacet.FACET_FIELD + "=" + field.getIndexFieldName()+"&"+BrowseFacet.ORDER+"="+field.getSortOrderFilterPage(),
-                T_VIEW_MORE
 
-        );
-    }
-	
-	/**
+    /**
      * Returns the parameters used so it can be used in a url
      * @param request the cocoon request
      * @return the parameters used on this page
@@ -182,7 +295,7 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
             parameters.add("rpp=" + request.getParameter("rpp"));
         }
 
-        Map<String, String[]> parameterFilterQueries = DiscoveryUIUtils.getParameterFilterQueries(request);
+        Map<String, String[]> parameterFilterQueries = StatisticsDiscoveryUIUtils.getParameterFilterQueries(request);
         for(String parameter : parameterFilterQueries.keySet()){
             for (int i = 0; i < parameterFilterQueries.get(parameter).length; i++) {
                 String value = parameterFilterQueries.get(parameter)[i];
@@ -197,49 +310,177 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
         }
         return parametersString;
     }
+
     
-    protected SearchService getSearchService()
-    {
-        return StatisticsSearchUtils.getStatisticsSearchService();
+    private void addViewMoreUrl(List facet, DSpaceObject dso, Request request, DiscoverySearchFilterFacet field) throws WingException, UnsupportedEncodingException {
+        String parameters = retrieveParameters(request);
+        facet.addItem().addXref(
+                contextPath +
+                        (dso == null ? "" : "/handle/" + dso.getHandle()) +
+                        "/statistics-search-filter?" + parameters + BrowseFacet.FACET_FIELD + "=" + field.getIndexFieldName()+"&"+BrowseFacet.ORDER+"="+field.getSortOrderFilterPage(),
+                T_VIEW_MORE
+
+        );
     }
-    
-    
-    protected DiscoveryConfiguration getDiscoveryConfiguration(DSpaceObject scope) {
-		return StatisticsSearchUtils.getDiscoveryConfiguration(scope);
-	}
-    
-    
-    
-    ////////////////// TESTING NUEVA IMPL		/////////////////
-    /////////////////////////////////////////////////////////////
-    public void performSearch() throws SearchServiceException, UIException, SQLException {
-        DSpaceObject dso = getScope();
-        Request request = ObjectModelHelper.getRequest(objectModel);
-        //TODO crear un DiscoveryUIUtils para Statistics...	 
-        queryArgs = getQueryArgs(context, dso, DiscoveryUIUtils.getFilterQueries(request, context));
-        //If we are on a search page performing a search a query may be used
-        String query = request.getParameter("query");
-        if(query != null && !"".equals(query)){
-            // Do standard escaping of some characters in this user-entered query
-            query = DiscoveryUIUtils.escapeQueryChars(query);
-            queryArgs.setQuery(query);
+
+    public DiscoverQuery getQueryArgs(Context context, DSpaceObject scope, String... filterQueries) {
+        DiscoverQuery queryArgs = new DiscoverQuery();
+
+        DiscoveryConfiguration discoveryConfiguration = getDiscoveryConfiguration(scope);
+        java.util.List<DiscoverySearchFilterFacet> facets = discoveryConfiguration.getSidebarFacets();
+
+        log.debug("facets for scope, " + scope + ": " + (facets != null ? facets.size() : null));
+
+
+
+
+        if (facets != null){
+            queryArgs.setFacetMinCount(1);
         }
 
-        //We do not need to retrieve any dspace objects, only facets
-        queryArgs.setMaxResults(0);
-        ////PRUEBAAAAA
-        try {
-        	StatisticsDiscoverResult result = getSearchService2().search(context, dso,  queryArgs);
-			//Ahora obtenemos todos para probar
-//        	queryArgs.setMaxResults(100);
-			result = getSearchService2().search(context, dso,  queryArgs);
-		} catch (StatisticsSearchServiceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        queryResults =  getSearchService().search(context, dso,  queryArgs);
+        //Add the default filters
+        queryArgs.addFilterQueries(discoveryConfiguration.getDefaultFilterQueries().toArray(new String[discoveryConfiguration.getDefaultFilterQueries().size()]));
+        queryArgs.addFilterQueries(filterQueries);
+
+        /** enable faceting of search results */
+        if (facets != null){
+            for (DiscoverySearchFilterFacet facet : facets) {
+                if(facet.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)){
+                    String dateFacet = facet.getIndexFieldName() + ".year";
+                    try{
+                        //Get a range query so we can create facet queries ranging from our first to our last date
+                        //Attempt to determine our oldest & newest year by checking for previously selected filters
+                        int oldestYear = -1;
+                        int newestYear = -1;
+                        for (String filterQuery : filterQueries) {
+                            if(filterQuery.startsWith(dateFacet + ":")){
+                                //Check for a range
+                                Pattern pattern = Pattern.compile("\\[(.*? TO .*?)\\]");
+                                Matcher matcher = pattern.matcher(filterQuery);
+                                boolean hasPattern = matcher.find();
+                                if(hasPattern){
+                                    filterQuery = matcher.group(0);
+                                    //We have a range
+                                    //Resolve our range to a first & last year
+                                    int tempOldYear = Integer.parseInt(filterQuery.split(" TO ")[0].replace("[", "").trim());
+                                    int tempNewYear = Integer.parseInt(filterQuery.split(" TO ")[1].replace("]", "").trim());
+
+                                    //Check if we have a further filter (or a first one found)
+                                    if(tempNewYear < newestYear || oldestYear < tempOldYear || newestYear == -1){
+                                        oldestYear = tempOldYear;
+                                        newestYear = tempNewYear;
+                                    }
+
+                                }else{
+                                    if(filterQuery.indexOf(" OR ") != -1){
+                                        //Should always be the case
+                                        filterQuery = filterQuery.split(" OR ")[0];
+                                    }
+                                    //We should have a single date
+                                    oldestYear = Integer.parseInt(filterQuery.split(":")[1].trim());
+                                    newestYear = oldestYear;
+                                    //No need to look further
+                                    break;
+                                }
+                            }
+                        }
+                        //Check if we have found a range, if not then retrieve our first & last year using Solr
+                        if(oldestYear == -1 && newestYear == -1){
+
+                            DiscoverQuery yearRangeQuery = new DiscoverQuery();
+                            yearRangeQuery.setMaxResults(1);
+                            //Set our query to anything that has this value
+                            yearRangeQuery.addFieldPresentQueries(dateFacet);
+                            //Set sorting so our last value will appear on top
+                            yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.asc);
+                            yearRangeQuery.addFilterQueries(filterQueries);
+                            yearRangeQuery.addSearchField(dateFacet);
+                            StatisticsDiscoverResult lastYearResult = getSearchService().search(context, scope, yearRangeQuery);
+
+
+//                            if(0 < lastYearResult.getDspaceObjects().size()){
+//                                java.util.List<StatisticsDiscoverResult.SearchDocument> searchDocuments = lastYearResult.getSearchDocument(lastYearResult.getDspaceObjects().get(0));
+//                                if(0 < searchDocuments.size() && 0 < searchDocuments.get(0).getSearchFieldValues(dateFacet).size()){
+//                                    oldestYear = Integer.parseInt(searchDocuments.get(0).getSearchFieldValues(dateFacet).get(0));
+//                                }
+//                            }
+                            //Now get the first year
+                            yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.desc);
+//                            StatisticsDiscoverResult firstYearResult = getSearchService().search(context, scope, yearRangeQuery);
+//                            if( 0 < firstYearResult.getDspaceObjects().size()){
+//                                java.util.List<StatisticsDiscoverResult.SearchDocument> searchDocuments = firstYearResult.getSearchDocument(firstYearResult.getDspaceObjects().get(0));
+//                                if(0 < searchDocuments.size() && 0 < searchDocuments.get(0).getSearchFieldValues(dateFacet).size()){
+//                                    newestYear = Integer.parseInt(searchDocuments.get(0).getSearchFieldValues(dateFacet).get(0));
+//                                }
+//                            }
+                            //No values found!
+                            if(newestYear == -1 || oldestYear == -1)
+                            {
+                                continue;
+                            }
+
+                        }
+
+                        int gap = 1;
+                        //Attempt to retrieve our gap using the algorithm below
+                        int yearDifference = newestYear - oldestYear;
+                        if(yearDifference != 0){
+                            while (10 < ((double)yearDifference / gap)){
+                                gap *= 10;
+                            }
+                        }
+                        // We need to determine our top year so we can start our count from a clean year
+                        // Example: 2001 and a gap from 10 we need the following result: 2010 - 2000 ; 2000 - 1990 hence the top year
+                        int topYear = (int) (Math.ceil((float) (newestYear)/gap)*gap);
+
+                        if(gap == 1){
+                            //We need a list of our years
+                            //We have a date range add faceting for our field
+                            //The faceting will automatically be limited to the 10 years in our span due to our filterquery
+                            queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(), facet.getType(), 10, facet.getSortOrderSidebar()));
+                        }else{
+                            java.util.List<String> facetQueries = new ArrayList<String>();
+                            //Create facet queries but limit them to 11 (11 == when we need to show a "show more" url)
+                            for(int year = topYear; year > oldestYear && (facetQueries.size() < 11); year-=gap){
+                                //Add a filter to remove the last year only if we aren't the last year
+                                int bottomYear = year - gap;
+                                //Make sure we don't go below our last year found
+                                if(bottomYear < oldestYear)
+                                {
+                                    bottomYear = oldestYear;
+                                }
+
+                                //Also make sure we don't go above our newest year
+                                int currentTop = year;
+                                if((year == topYear))
+                                {
+                                    currentTop = newestYear;
+                                }
+                                else
+                                {
+                                    //We need to do -1 on this one to get a better result
+                                    currentTop--;
+                                }
+                                facetQueries.add(dateFacet + ":[" + bottomYear + " TO " + currentTop + "]");
+                            }
+                            for (String facetQuery : facetQueries) {
+                                queryArgs.addFacetQuery(facetQuery);
+                            }
+                        }
+                    }catch (Exception e){
+                        log.error(LogManager.getHeader(context, "Error in Discovery while setting up date facet range", "date facet: " + dateFacet), e);
+                    }
+                }else{
+                    int facetLimit = facet.getFacetLimit();
+                    //Add one to our facet limit to make sure that if we have more then the shown facets that we show our "show more" url
+                    facetLimit++;
+                    queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(), facet.getType(), facetLimit, facet.getSortOrderSidebar()));
+                }
+            }
+        }
+        return queryArgs;
     }
-    
+
     /**
      * Determine the current scope. This may be derived from the current url
      * handle if present or the scope parameter is given. If no scope is
@@ -266,10 +507,19 @@ public class StatisticsSidebarFacetsTransformer extends SidebarFacetsTransformer
 
         return dso;
     }
-    
-    protected StatisticsSolrServiceImpl2 getSearchService2()
-    {
-    	return StatisticsSearchUtils.getStatisticsSearchService2();
-    }
 
+
+    @Override
+    public void recycle() {
+        queryResults = null;
+        queryArgs = null;
+        validity = null;
+        super.recycle();
+    }
+    
+    
+    protected DiscoveryConfiguration getDiscoveryConfiguration(DSpaceObject scope) {
+		return StatisticsSearchUtils.getDiscoveryConfiguration(scope);
+	}
+	
 }

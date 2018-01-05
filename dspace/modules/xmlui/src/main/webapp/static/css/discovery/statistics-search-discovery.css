@@ -1,0 +1,49 @@
+/**
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ * http://www.dspace.org/license/
+ */
+
+
+/**
+    Statistics Discovery Styles 
+**/
+input#aspect_discovery_StatisticsSimpleSearch_field_query{
+	width: 565px;
+}
+
+input#aspect_discovery_StatisticsSimpleSearch_field_submit {
+    font-size: 93%;
+}
+
+input#aspect_discovery_StatisticsSimpleSearch_field_query {
+    height: 33px;
+    font-size: 18px;
+    float: left;
+    display: block;
+}
+
+div#aspect_discovery_StatisticsSimpleSearch_div_search .pagination-links{
+	float: left;
+}
+
+div#aspect_discovery_StatisticsSimpleSearch_div_search .pagination-info{
+	display: none;
+}
+
+ul.statistics-discovery-list-results li{
+	margin-bottom: 15px;
+	border: 2px solid #cde7f5;
+	border-radius: 4px;
+	list-style: none;
+}
+
+ul.statistics-discovery-list-results li div.first-row search-result{
+    background-color: #add8e6cc;
+}
+
+ul.statistics-discovery-list-results li div.first-row search-result{
+    background-color: #add8e6cc;
+}

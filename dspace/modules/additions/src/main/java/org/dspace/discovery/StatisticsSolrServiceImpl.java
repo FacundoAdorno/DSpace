@@ -1,23 +1,22 @@
-/**
- * The contents of this file are subject to the license and copyright
- * detailed in the LICENSE and NOTICE files at the root of the source
- * tree and available online at
- *
- * http://www.dspace.org/license/
- */
 package org.dspace.discovery;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.params.FacetParams;
-import org.apache.solr.common.params.HighlightParams;
-import org.apache.solr.common.params.SpellingParams;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
@@ -26,15 +25,82 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.storage.rdbms.DatabaseUtils;
+import org.dspace.core.Constants;
 
-public class StatisticsSolrServiceImpl extends SolrServiceImpl{
-	
+public class StatisticsSolrServiceImpl implements StatisticsSearchService {
+
+	private Logger log = Logger.getLogger(StatisticsSolrServiceImpl.class);
 	private HttpSolrServer solr;
-	
-	private static final Logger log = Logger.getLogger(StatisticsSolrServiceImpl.class);
+	protected static String STATISTICS_TYPE_FIELD = "statistics_type";
+	protected static String DSO_TYPE_FIELD = "type";
+	protected static String IS_BOT_FIELD = "isBot";
 	
 	@Override
+	public StatisticsDiscoverResult search(Context context, DiscoverQuery query)
+			throws StatisticsSearchServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StatisticsDiscoverResult search(Context context, DSpaceObject dso, DiscoverQuery discoveryQuery)
+			throws StatisticsSearchServiceException {
+
+		if(dso != null)
+        {
+            if (dso instanceof Community)
+            {
+            	Community comm = (Community)dso;
+            	String owningCommFilter = "owningComm:(" + comm.getID() + " OR " + comm.getLegacyId() + ")";
+            	//Incluimos este objeto al contexto también...
+            	String commFilter = "id:(" + comm.getID() + " OR " + comm.getLegacyId() + ")";
+                discoveryQuery.addFilterQueries(owningCommFilter + " OR " + commFilter);
+            } else if (dso instanceof Collection)
+            {
+            	Collection coll = (Collection)dso;
+            	String owningCollFilter = "owningColl:(" + coll.getID() + " OR " + coll.getLegacyId() + ")";
+            	//Incluimos este objeto al contexto también...
+            	String collFilter = "id:(" + coll.getID() + " OR " + coll.getLegacyId() + ")";
+                discoveryQuery.addFilterQueries(owningCollFilter + " OR " + collFilter);
+            } else if (dso instanceof Item)
+            {
+            	Item item = (Item)dso;
+                discoveryQuery.addFilterQueries("id:(" + item.getID() + " OR " + item.getLegacyId() + ")");
+            }
+        }
+		
+		return search(context, discoveryQuery, false);
+	}
+
+	@Override
+	public StatisticsDiscoverResult search(Context context, DiscoverQuery discoveryQuery, boolean includeBots)
+			throws StatisticsSearchServiceException {
+		try {
+            if(getSolr() == null){
+                return new StatisticsDiscoverResult();
+            }
+            SolrQuery solrQuery = resolveToSolrQuery(context, discoveryQuery, includeBots);
+
+
+            QueryResponse queryResponse = getSolr().query(solrQuery);
+            return retrieveResult(context, discoveryQuery, queryResponse);
+
+        } catch (Exception e)
+        {
+            throw new org.dspace.discovery.StatisticsSearchServiceException(e.getMessage(),e);
+        }
+	}
+
+	public StatisticsDiscoverResult search(Context context, DSpaceObject dso, DiscoverQuery query,
+			boolean includeBots) throws StatisticsSearchServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	///////////////////
+	//
+	//////////////////
+	
 	protected HttpSolrServer getSolr() {
 		if ( solr == null)
         {
@@ -48,12 +114,6 @@ public class StatisticsSolrServiceImpl extends SolrServiceImpl{
 
 				solr.setBaseURL(solrService);
 				solr.setUseMultiPartPost(true);
-				// Dummy/test query to search for Item (type=2) of ID=1
-//                    SolrQuery solrQuery = new SolrQuery()
-//                            .setQuery(RESOURCE_TYPE_FIELD + ":2 AND " + RESOURCE_ID_FIELD + ":1");
-				// Only return obj identifier fields in result doc
-//                    solrQuery.setFields(RESOURCE_TYPE_FIELD, RESOURCE_ID_FIELD);
-//                    solr.query(solrQuery);
             }
             else
             {
@@ -64,43 +124,7 @@ public class StatisticsSolrServiceImpl extends SolrServiceImpl{
         return solr;
 	}
 	
-	
-	 //========== SearchService implementation
-    @Override
-    public DiscoverResult search(Context context, DiscoverQuery query) throws SearchServiceException
-    {
-        return search(context, query, false);
-    }
-
-    @Override
-    public DiscoverResult search(Context context, DSpaceObject dso,
-            DiscoverQuery query)
-            throws SearchServiceException
-    {
-        return search(context, dso, query, false);
-    }
-
-    @Override
-    public DiscoverResult search(Context context, DSpaceObject dso, DiscoverQuery discoveryQuery, boolean includeUnDiscoverable) throws SearchServiceException {
-        if(dso != null)
-        {
-//            if (dso instanceof Community)
-//            {
-//                discoveryQuery.addFilterQueries("location:m" + dso.getID());
-//            } else if (dso instanceof Collection)
-//            {
-//                discoveryQuery.addFilterQueries("location:l" + dso.getID());
-//            } else if (dso instanceof Item)
-//            {
-//                discoveryQuery.addFilterQueries(HANDLE_FIELD + ":" + dso.getHandle());
-//            }
-        }
-        return search(context, discoveryQuery, includeUnDiscoverable);
-
-    }
-	
-	@Override
-	protected SolrQuery resolveToSolrQuery(Context context, DiscoverQuery discoveryQuery, boolean includeUnDiscoverable)
+	protected SolrQuery resolveToSolrQuery(Context context, DiscoverQuery discoveryQuery, boolean includeBots)
     {
         SolrQuery solrQuery = new SolrQuery();
 
@@ -112,29 +136,21 @@ public class StatisticsSolrServiceImpl extends SolrServiceImpl{
 
         solrQuery.setQuery(query);
 
-        // Add any search fields to our query. This is the limited list
-        // of fields that will be returned in the solr result
-        for(String fieldName : discoveryQuery.getSearchFields())
-        {
-            solrQuery.addField(fieldName);
+        if(discoveryQuery.getSearchFields().size() > 0) {
+        	// Add any search fields to our query. This is the limited list
+        	// of fields that will be returned in the solr result
+        	for(String fieldName : discoveryQuery.getSearchFields())
+        	{
+        		solrQuery.addField(fieldName);
+        	}
+        	// Also ensure a few key obj identifier fields are returned with every query
+        	solrQuery.addField(STATISTICS_TYPE_FIELD);
         }
-        // Also ensure a few key obj identifier fields are returned with every query
-//        solrQuery.addField(HANDLE_FIELD);
-//        solrQuery.addField(RESOURCE_TYPE_FIELD);
-//        solrQuery.addField(RESOURCE_ID_FIELD);
 
-//        if(discoveryQuery.isSpellCheck())
-//        {
-//            solrQuery.setParam(SpellingParams.SPELLCHECK_Q, query);
-//            solrQuery.setParam(SpellingParams.SPELLCHECK_COLLATE, Boolean.TRUE);
-//            solrQuery.setParam("spellcheck", Boolean.TRUE);
-//        }
-//
-//        if (!includeUnDiscoverable)
-//        {
-//        	solrQuery.addFilterQuery("NOT(withdrawn:true)");
-//        	solrQuery.addFilterQuery("NOT(discoverable:false)");
-//		}
+        if (!includeBots)
+        {
+        	solrQuery.addFilterQuery("NOT("+IS_BOT_FIELD+":true)");
+		}
 
         for (int i = 0; i < discoveryQuery.getFilterQueries().size(); i++)
         {
@@ -183,7 +199,7 @@ public class StatisticsSolrServiceImpl extends SolrServiceImpl{
             //Only add facet information if there are any facets
             for (DiscoverFacetField facetFieldConfig : facetFields)
             {
-                String field = transformFacetField(facetFieldConfig, facetFieldConfig.getField(), false);
+                String field = facetFieldConfig.getField();
                 solrQuery.addFacetField(field);
 
                 // Setting the facet limit in this fashion ensures that each facet can have its own max
@@ -222,19 +238,6 @@ public class StatisticsSolrServiceImpl extends SolrServiceImpl{
             solrQuery.setParam(FacetParams.FACET_OFFSET, String.valueOf(discoveryQuery.getFacetOffset()));
         }
 
-//        if(0 < discoveryQuery.getHitHighlightingFields().size())
-//        {
-//            solrQuery.setHighlight(true);
-//            solrQuery.add(HighlightParams.USE_PHRASE_HIGHLIGHTER, Boolean.TRUE.toString());
-//            for (DiscoverHitHighlightingField highlightingField : discoveryQuery.getHitHighlightingFields())
-//            {
-//                solrQuery.addHighlightField(highlightingField.getField() + "_hl");
-//                solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.FRAGSIZE, String.valueOf(highlightingField.getMaxChars()));
-//                solrQuery.add("f." + highlightingField.getField() + "_hl." + HighlightParams.SNIPPETS, String.valueOf(highlightingField.getMaxSnippets()));
-//            }
-//
-//        }
-
         //Add any configured search plugins !
         List<StatisticsSolrServiceSearchPlugin> solrServiceSearchPlugins = DSpaceServicesFactory.getInstance().getServiceManager().getServicesByType(StatisticsSolrServiceSearchPlugin.class);
         for (StatisticsSolrServiceSearchPlugin searchPlugin : solrServiceSearchPlugins)
@@ -244,11 +247,189 @@ public class StatisticsSolrServiceImpl extends SolrServiceImpl{
         return solrQuery;
     }
 	
-	@Override
-	protected String transformFacetField(DiscoverFacetField facetFieldConfig, String field, boolean removePostfix)
-    {
-		//Siempre retornamos el nobre del campo...
-		return field;
-		
+	
+	protected StatisticsDiscoverResult retrieveResult(Context context, DiscoverQuery query, QueryResponse solrQueryResponse) throws SQLException {
+		StatisticsDiscoverResult result = new StatisticsDiscoverResult();
+
+        if(solrQueryResponse != null)
+        {
+            result.setSearchTime(solrQueryResponse.getQTime());
+            result.setStart(query.getStart());
+            result.setMaxResults(query.getMaxResults());
+            result.setTotalSearchResults(solrQueryResponse.getResults().getNumFound());
+
+            List<String> searchFields = query.getSearchFields();
+            for (SolrDocument doc : solrQueryResponse.getResults())
+            {
+            	//TODO lo hacemos asi?
+            	//Chequeamos si no hay ningun campo que se quiere mostrar específicamente, entonces mostramos todos los campos por ahora...
+            	if(query.getSearchFields().isEmpty()) {
+                	searchFields = new ArrayList<String>(doc.getFieldNames());
+                }
+                DiscoverResult.SearchDocument resultDoc = new DiscoverResult.SearchDocument();
+                //Add information about our search fields
+                for (String field : searchFields)
+                {
+                    List<String> valuesAsString = new ArrayList<String>();
+                    for (Object o : doc.getFieldValues(field))
+                    {
+                        valuesAsString.add(String.valueOf(o));
+                    }
+                    resultDoc.addSearchField(field, valuesAsString.toArray(new String[valuesAsString.size()]));
+                }
+                result.addSearchDocument(resultDoc);
+            }
+
+            //Resolve our facet field values
+            List<FacetField> facetFields = solrQueryResponse.getFacetFields();
+            if(facetFields != null)
+            {
+                for (int i = 0; i <  facetFields.size(); i++)
+                {
+                    FacetField facetField = facetFields.get(i);
+                    DiscoverFacetField facetFieldConfig = query.getFacetFields().get(i);
+                    List<FacetField.Count> facetValues = facetField.getValues();
+                    if (facetValues != null)
+                    {
+                        if(facetFieldConfig.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE) && facetFieldConfig.getSortOrder().equals(DiscoveryConfigurationParameters.SORT.VALUE))
+                        {
+                            //If we have a date & are sorting by value, ensure that the results are flipped for a proper result
+                           Collections.reverse(facetValues);
+                        }
+
+                        for (FacetField.Count facetValue : facetValues)
+                        {
+                            String displayedValue = transformDisplayedValue(context, facetField.getName(), facetValue.getName());
+                            String field = facetField.getName();
+                            String authorityValue = null;
+                            String sortValue = facetValue.getName();
+                            String filterValue = displayedValue;
+                            if (StringUtils.isNotBlank(authorityValue))
+                            {
+                                filterValue = authorityValue;
+                            }
+                            result.addFacetResult(
+                                    field,
+                                    new DiscoverResult.FacetResult(filterValue,
+                                            displayedValue, authorityValue,
+                                            sortValue, facetValue.getCount()));
+                        }
+                    }
+                }
+            }
+
+            if(solrQueryResponse.getFacetQuery() != null)
+            {
+				// just retrieve the facets in the order they where requested!
+				// also for the date we ask it in proper (reverse) order
+				// At the moment facet queries are only used for dates
+                LinkedHashMap<String, Integer> sortedFacetQueries = new LinkedHashMap<String, Integer>(solrQueryResponse.getFacetQuery());
+                for(String facetQuery : sortedFacetQueries.keySet())
+                {
+                    //TODO: do not assume this, people may want to use it for other ends, use a regex to make sure
+                    //We have a facet query, the values looks something like: dateissued.year:[1990 TO 2000] AND -2000
+                    //Prepare the string from {facet.field.name}:[startyear TO endyear] to startyear - endyear
+                    String facetField = facetQuery.substring(0, facetQuery.indexOf(":"));
+                    String name = "";
+                    String filter = "";
+                    if (facetQuery.indexOf('[') > -1 && facetQuery.lastIndexOf(']') > -1)
+                    {
+                        name = facetQuery.substring(facetQuery.indexOf('[') + 1);
+                        name = name.substring(0, name.lastIndexOf(']')).replaceAll("TO", "-");
+                        filter = facetQuery.substring(facetQuery.indexOf('['));
+                        filter = filter.substring(0, filter.lastIndexOf(']') + 1);
+                    }
+
+                    Integer count = sortedFacetQueries.get(facetQuery);
+
+                    //No need to show empty years
+                    if(0 < count)
+                    {
+                        result.addFacetResult(facetField, new DiscoverResult.FacetResult(filter, name, null, name, count));
+                    }
+                }
+            }
+        }
+
+        return result;
     }
+
+	protected String transformDisplayedValue(Context context, String field, String value) {
+		if(field.equals(DSO_TYPE_FIELD)) {
+			int dsoType = Integer.parseInt(value);
+			ArrayList<String> constants = new ArrayList<String>(Arrays.asList(Constants.typeText));
+			//chequeamos si el DSO_TYPE_FIELD está dentro de los valores de constantes por las dudas
+			if(constants.size() >= dsoType) {
+				return constants.get(dsoType);
+			}
+		}
+		
+		return value;
+	}
+
+	@Override
+    public DiscoverFilterQuery toFilterQuery(Context context, String field, String operator, String value) throws SQLException{
+        DiscoverFilterQuery result = new DiscoverFilterQuery();
+
+        StringBuilder filterQuery = new StringBuilder();
+        if(StringUtils.isNotBlank(field) && StringUtils.isNotBlank(value))
+        {
+        	//TODO agregar nuevo tipo filtro "String"
+        	//TODO modificar lógica para los campos del tipo "String"
+            filterQuery.append(field);
+            if("equals".equals(operator))
+            {
+            }
+            else if ("authority".equals(operator))
+            {
+            }
+            else if ("notequals".equals(operator)
+                    || "notcontains".equals(operator)
+                    || "notauthority".equals(operator))
+            {
+                filterQuery.insert(0, "-");
+            }
+            filterQuery.append(":");
+            if("equals".equals(operator) || "notequals".equals(operator))
+            {
+                //DO NOT ESCAPE RANGE QUERIES !
+                if(!value.matches("\\[.*TO.*\\]"))
+                {
+                    value = ClientUtils.escapeQueryChars(value);
+                    filterQuery.append(value);
+                }
+                else
+                {
+                	if (value.matches("\\[\\d{1,4} TO \\d{1,4}\\]"))
+                	{
+                		int minRange = Integer.parseInt(value.substring(1, value.length()-1).split(" TO ")[0]);
+                		int maxRange = Integer.parseInt(value.substring(1, value.length()-1).split(" TO ")[1]);
+                		value = "["+String.format("%04d", minRange) + " TO "+ String.format("%04d", maxRange) + "]";
+                	}
+                	filterQuery.append(value);
+                }
+            }
+            else{
+                //DO NOT ESCAPE RANGE QUERIES !
+                if(!value.matches("\\[.*TO.*\\]"))
+                {
+                    value = ClientUtils.escapeQueryChars(value);
+                    filterQuery.append("(").append(value).append(")");
+                }
+                else
+                {
+                    filterQuery.append(value);
+                }
+            }
+
+            result.setDisplayedValue(transformDisplayedValue(context, field, value));
+        }
+
+        result.setFilterQuery(filterQuery.toString());
+        return result;
+    }
+	
+	
+	
+
 }

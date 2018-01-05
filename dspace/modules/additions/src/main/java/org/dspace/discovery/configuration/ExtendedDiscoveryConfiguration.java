@@ -13,6 +13,8 @@ import java.util.List;
 public class ExtendedDiscoveryConfiguration extends DiscoveryConfiguration {
 	/** The search filters which can be selected on the search page**/
     private List<DiscoveryMultipleSearchFilter> multipleSearchFilters = new ArrayList<DiscoveryMultipleSearchFilter>();
+    
+    private List<String> defaultQueryFields = new ArrayList<String>();
 
 	public List<DiscoveryMultipleSearchFilter> getMultipleSearchFilters() {
 		return multipleSearchFilters;
@@ -22,6 +24,14 @@ public class ExtendedDiscoveryConfiguration extends DiscoveryConfiguration {
 		this.multipleSearchFilters = multipleSearchFilters;
 	}
     
+	public List<String> getDefaultQueryFields() {
+		return defaultQueryFields;
+	}
+
+	public void setDefaultQueryFields(List<String> defaultQueryFields) {
+		this.defaultQueryFields = defaultQueryFields;
+	}
+
 	@Override
     public void afterPropertiesSet() throws Exception{
     	for (DiscoveryMultipleSearchFilter discoveryMultipleSearchFilter : multipleSearchFilters) {

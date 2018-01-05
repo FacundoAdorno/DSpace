@@ -579,6 +579,45 @@
         <!--The configuration for the recent submissions-->
         <!--Default result per page  -->
         <property name="defaultRpp" value="10" />
+        
+        <!-- Agregado para estadísticas -->
+        <!-- Campos utilizados por defecto sobre los que se realizará la query general -->
+        <property name="defaultQueryFields">
+        	<list>
+        		<value>type</value>
+				<value>id</value>
+				<value>ip</value>
+				<value>time</value>
+				<value>epersonid</value>
+				<value>continent</value>
+				<value>country</value>
+				<value>countryCode</value>
+				<value>city</value>
+				<value>longitude</value>
+				<value>latitude</value>
+				<value>owningComm</value>
+				<value>owningColl</value>
+				<value>owningItem</value>
+				<value>dns</value>
+				<value>userAgent</value>
+				<value>referrer</value>
+				<!-- <value>bundleName</value>
+				<value>statistics_type</value>
+				<value>query</value>
+				<value>scopeType</value>
+				<value>scopeId</value>
+				<value>rpp</value>
+				<value>sortBy</value>
+				<value>sortOrder</value>
+				<value>page</value>
+				<value>workflowStep</value>
+				<value>previousWorkflowStep</value>
+				<value>owner</value>
+				<value>submitter</value>
+				<value>actor</value>
+				<value>workflowItemId</value> -->
+        	</list>
+        </property>
     </bean>
     
     
