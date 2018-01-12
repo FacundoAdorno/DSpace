@@ -90,6 +90,14 @@
     <message key="xmlui.ArtifactBrowser.SimpleSearch.filter.title">Title</message>
     <message key="xmlui.ArtifactBrowser.SimpleSearch.filter.subject">Subject</message>
     <message key="xmlui.ArtifactBrowser.SimpleSearch.filter.dateIssued">Date issued</message>
+    <message key="xmlui.ArtifactBrowser.SimpleSearch.filter.ip">IP</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.countryCode">Country Code</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.statistics_type">Statistics Type</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.continent">Continent Code</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.city">City</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.userAgent">User Agent</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.referrer">Referrer</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.time">Access DateTime</message>
 
 
 
@@ -152,6 +160,8 @@
 	<message key="xmlui.Discovery.SimpleSearch.filter.notcontains">Not Contains</message>
     <message key="xmlui.Discovery.SimpleSearch.filter.notequals">Not Equals</message>
     <message key="xmlui.Discovery.SimpleSearch.filter.notauthority">Not ID</message>
+    <message key="xmlui.Discovery.SimpleSearch.filter.from_date">From Date</message>
+    <message key="xmlui.Discovery.SimpleSearch.filter.until_date">Until Date</message>
     
     <message key="xmlui.Discovery.RelatedItems.head">Related items</message>
     <message key="xmlui.Discovery.RelatedItems.help">Showing items related by title, author, creator and subject.</message>

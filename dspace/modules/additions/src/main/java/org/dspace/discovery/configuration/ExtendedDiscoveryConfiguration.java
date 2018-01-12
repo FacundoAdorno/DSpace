@@ -39,4 +39,5 @@ public class ExtendedDiscoveryConfiguration extends DiscoveryConfiguration {
 		}
 		super.afterPropertiesSet();
     }
+	
 }

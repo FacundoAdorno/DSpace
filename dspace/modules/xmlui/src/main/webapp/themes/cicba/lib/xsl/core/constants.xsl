@@ -76,4 +76,6 @@
 		<xsl:value-of select="/dri:document/dri:meta/dri:repositoryMeta/dri:repository/@repositoryID"/>
 		<xsl:text>/2</xsl:text>
 	</xsl:variable>
+	
+	<xsl:variable name="statistics-discovery-path"><xsl:text>/statistics-discover</xsl:text></xsl:variable>
 </xsl:stylesheet>

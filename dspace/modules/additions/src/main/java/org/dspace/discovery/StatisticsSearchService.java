@@ -76,4 +76,11 @@ public interface StatisticsSearchService {
      * @throws SQLException if database error
      */
     DiscoverFilterQuery toFilterQuery(Context context, String field, String operator, String value) throws SQLException;
+    
+    /**
+	 * Creamos un filtro correspondiente al DSO (Item, Colección, Comunidad) pasado como parámetro
+	 * @param dso
+	 * @return un string representando el filtro relacionado a ese DSO, o NULL en caso de que el DSO no sea un Item, Colección o Comunidad.
+	 */
+    String filterQueryForDSO(DSpaceObject dso);
 }

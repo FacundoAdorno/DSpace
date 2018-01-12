@@ -109,6 +109,8 @@
 <message key="xmlui.cicdigital.staticPage.what-is-cic-digital.uri">/page/que-es-cic-digital_en</message>
 <message key="xmlui.cicdigital.staticPage.reposiotry-policies.uri">/page/politicas-del-repositorio_en</message>
 <message key="xmlui.cicdigital.staticPage.how-to-contribute-material.uri">/page/como-aportar-material_en</message>
+
+<message key="xmlui.cicdigital.discovery.show-statistics">Show statistics for this object</message>
 	<!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		             ArtifactBrowser Aspect

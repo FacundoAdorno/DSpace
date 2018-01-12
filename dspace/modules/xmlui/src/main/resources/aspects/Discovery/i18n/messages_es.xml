@@ -90,6 +90,14 @@
 	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.title">Título</message>
 	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.subject">Materia</message>
 	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.dateIssued">Fecha</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.ip">IP</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.countryCode">Código de País</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.statistics_type">Tipo de estadística</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.continent">Código de Continente</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.city">Ciudad</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.userAgent">Agente de usuario</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.referrer">Referrer</message>
+	<message key="xmlui.ArtifactBrowser.SimpleSearch.filter.time">Fecha de acceso</message>
 
 
 	<message key="xmlui.dri2xhtml.structural.pagination-info.nototal">Mostrando items {0}-{1}</message>
@@ -168,6 +176,8 @@
 	<message key="xmlui.Discovery.SimpleSearch.filter.notcontains">No contiene</message>
 	<message key="xmlui.Discovery.SimpleSearch.filter.notequals">No es</message>
 	<message key="xmlui.Discovery.SimpleSearch.filter.notauthority">No es ID</message>
+	<message key="xmlui.Discovery.SimpleSearch.filter.from_date">Desde la fecha</message>
+    <message key="xmlui.Discovery.SimpleSearch.filter.until_date">Hasta la fecha</message>
 
 	<message key="xmlui.Discovery.RelatedItems.head">Ítems relacionados</message>
 	<message key="xmlui.Discovery.RelatedItems.help">Mostrando ítems relacionados por Título, autor o

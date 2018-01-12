@@ -286,7 +286,8 @@
    -->
 
    <field name="type" type="integer" indexed="true" stored="true" required="false" />
-   <field name="id" type="integer" indexed="true" stored="true" required="false" />
+   <!-- <field name="id" type="integer" indexed="true" stored="true" required="false" /> -->
+   <field name="id" type="string" indexed="true" stored="true" required="false" />
    <field name="ip" type="string" indexed="true" stored="true" required="false" docValues="true"/>
    <field name="time" type="date" indexed="true" stored="true" required="true" /> 
    <field name="epersonid" type="integer" indexed="true" stored="true" required="false" />
@@ -296,9 +297,12 @@
    <field name="city" type="string" indexed="true" stored="true" required="false" docValues="true"/>
    <field name="longitude" type="float" indexed="true" stored="true" required="false" />
    <field name="latitude" type="float" indexed="true" stored="true" required="false" />
-   <field name="owningComm" type="integer" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="owningColl" type="integer" indexed="true" stored="true" required="false" multiValued="true" /> 
-   <field name="owningItem" type="integer" indexed="true" stored="true" required="false" multiValued="true" />
+   <!-- <field name="owningComm" type="integer" indexed="true" stored="true" required="false" multiValued="true" /> -->
+   <!-- <field name="owningColl" type="integer" indexed="true" stored="true" required="false" multiValued="true" /> --> 
+   <!-- <field name="owningItem" type="integer" indexed="true" stored="true" required="false" multiValued="true" /> -->
+   <field name="owningComm" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="owningColl" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+   <field name="owningItem" type="string" indexed="true" stored="true" required="false" multiValued="true" />
    <field name="dns" type="string" indexed="true" stored="true" required="false" docValues="true"/>
    <field name="userAgent" type="string" indexed="true" stored="true" required="false" docValues="true"/>
    <field name="isBot" type="boolean" indexed="true" stored="true" required="false" />

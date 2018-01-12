@@ -37,6 +37,7 @@ import org.dspace.discovery.StatisticsSearchUtils;
 import org.dspace.discovery.StatisticsSolrServiceImpl;
 import org.dspace.discovery.GenericDiscoverResult.SearchDocument;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
+import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.core.Constants;
@@ -80,7 +81,11 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     private static final Message T_filter_notequals = message("xmlui.Discovery.SimpleSearch.filter.notequals");
     private static final Message T_filter_authority = message("xmlui.Discovery.SimpleSearch.filter.authority");
     private static final Message T_filter_notauthority = message("xmlui.Discovery.SimpleSearch.filter.notauthority");
+    //DATE OPERATORS
+    private static final Message T_filter_from_date = message("xmlui.Discovery.SimpleSearch.filter.from_date");
+    private static final Message T_filter_until_date = message("xmlui.Discovery.SimpleSearch.filter.until_date");
     private static final Message T_did_you_mean = message("xmlui.Discovery.SimpleSearch.did_you_mean");
+
 	
     private String aspectPath = "statistics-discover";
     
@@ -168,7 +173,8 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         java.util.List<DiscoverySearchFilter> filterFields = discoveryConfiguration.getSearchFilters();
         java.util.List<String> filterTypes = StatisticsDiscoveryUIUtils.getRepeatableParameters(request, "filtertype");
         java.util.List<String> filterOperators = StatisticsDiscoveryUIUtils.getRepeatableParameters(request, "filter_relational_operator");
-        java.util.List<String> filterValues = StatisticsDiscoveryUIUtils.getRepeatableParameters(request,  "filter");
+        //Buscamos los parametros que tienen EXACTAMENTE la forma "filter" o "filter_N"...
+        java.util.List<String> filterValues = StatisticsDiscoveryUIUtils.getRepeatableParametersWithRegex(request,  "^filter(_\\d+)?$");
 
         if(0 < filterFields.size() && filterTypes.size() == 0)
         {
@@ -181,7 +187,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         if(0 < filterFields.size())
         {
             Division searchFiltersDiv = searchBoxDivision.addInteractiveDivision("search-filters",
-            		aspectPath, Division.METHOD_GET, "discover-filters-box " + (0 < filterTypes.size() ? "" : "hidden"));
+            		aspectPath, Division.METHOD_GET, "discover-filters-box "/* + (0 < filterTypes.size() ? "" : "hidden")*/);
 
             Division filtersWrapper = searchFiltersDiv.addDivision("discovery-filters-wrapper");
             filtersWrapper.setHead(T_filter_label);
@@ -199,22 +205,27 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
                     String filterType = filterTypes.get(i);
                     String filterValue = filterValues.get(i);
                     String filterOperator = filterOperators.get(i);
-
-                    if(StringUtils.isNotBlank(filterValue))
+                    
+                    String filterConfigurationType = this.getTypeByFilterID(filterType, discoveryConfiguration);
+                    //TODO verificar si es un campo del tipo 'DATE' que sea una fecha válida, sino no imprimir el filtro...
+                    if(StringUtils.isNotBlank(filterValue) && StringUtils.isNotBlank(filterConfigurationType))
                     {
+                    	if(filterConfigurationType.equals(DiscoveryConfigurationParameters.TYPE_DATE) && !StatisticsDiscoveryUIUtils.isValidDate(filterValue)) {
+                    		continue;
+                    	}
                         Row row = filtersTable.addRow("used-filters-" + i+1, Row.ROLE_DATA, "search-filter used-filter");
-                        addFilterRow(filterFields, i+1, row, filterType, filterOperator, filterValue);
+                        addFilterRow(filterFields, i+1, row, filterType, filterOperator, filterValue, filterConfigurationType);
                     }
                 }
                 filtersTable.addRow("filler-row", Row.ROLE_DATA, "search-filter filler").addCell(1, 4).addContent("");
                 filtersTable.addRow(Row.ROLE_HEADER).addCell("", Cell.ROLE_HEADER, 1, 4, "new-filter-header").addContent(T_filter_new_filters);
             }
 
-
             int index = filterTypes.size() + 1;
-            Row row = filtersTable.addRow("filter-new-" + index, Row.ROLE_DATA, "search-filter");
-
-            addFilterRow(filterFields, index, row, null, null, null);
+            Row textRow = filtersTable.addRow("filter-new-" + index, Row.ROLE_DATA, "search-filter");
+            addFilterRow(filterFields, index, textRow, null, null, null, DiscoveryConfigurationParameters.TYPE_TEXT);
+            Row dateRow = filtersTable.addRow("filter-new-" + (index + 1), Row.ROLE_DATA, "search-filter");
+            addFilterRow(filterFields, index + 1, dateRow, null, null, null, DiscoveryConfigurationParameters.TYPE_DATE);
 
             Row filterControlsItem = filtersTable.addRow("filter-controls", Row.ROLE_DATA, "apply-filter");
 //            filterControlsItem.addCell(1, 3).addContent("");
@@ -242,33 +253,69 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         context.setMode(originalMode);
     }
     
-    protected void addFilterRow(java.util.List<DiscoverySearchFilter> filterFields, int index, Row row, String selectedFilterType, String relationalOperator, String value) throws WingException {
-        Select select = row.addCell("", Cell.ROLE_DATA, "selection").addSelect("filtertype_" + index);
+    /**
+     * Print a filter row. This filter may be already applied or not, i.e. the filter is applied if it was instantiated and has a triplet (type,operator,value) assigned.
+     * If filter is 'date' type, then print the operators available for a date.
+     * 
+     * @param filterFields 	all filters that can be applied
+     * @param index 	the position of the filter in the chain of applied (or to apply) filters.
+     * @param row 	the Row where to put the filter
+     * @param selectedFilterType	tell the type of the filter if it was instantiated
+     * @param relationalOperator	tell the operator of the filter if it was instantiated
+     * @param value					tell the value of the filter if it was instantiated
+     * @param filterType			corresponds to any of the values in DiscoveryConfigurationParameters
+     * @throws WingException
+     */
+    protected void addFilterRow(java.util.List<DiscoverySearchFilter> filterFields, int index, Row row, String selectedFilterType, String relationalOperator, String value, String filterType) throws WingException {
 
-        //For each field found (at least one) add options
-        for (DiscoverySearchFilter searchFilter : filterFields)
-        {
-            select.addOption(StringUtils.equals(searchFilter.getIndexFieldName(), selectedFilterType), searchFilter.getIndexFieldName(), message("xmlui.ArtifactBrowser.SimpleSearch.filter." + searchFilter.getIndexFieldName()));
+        if(filterType !=null && (filterType.equals(DiscoveryConfigurationParameters.TYPE_TEXT) || filterType.equals(DiscoveryConfigurationParameters.TYPE_HIERARCHICAL))) {
+        	Select select = row.addCell("text-filter_" + index, Cell.ROLE_DATA, "selection").addSelect("filtertype_" + index);
+        	//For each field found (at least one) add options
+            for (DiscoverySearchFilter searchFilter : filterFields)
+            {
+            	if(searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_TEXT) || searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_HIERARCHICAL)) {
+            		select.addOption(StringUtils.equals(searchFilter.getIndexFieldName(), selectedFilterType), searchFilter.getIndexFieldName(), message("xmlui.ArtifactBrowser.SimpleSearch.filter." + searchFilter.getIndexFieldName()));
+            	}
+            }
+            Select typeSelect = row.addCell("text-filter_operators_" + index, Cell.ROLE_DATA, "selection").addSelect("filter_relational_operator_" + index);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "contains"), "contains", T_filter_contain);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "equals"), "equals", T_filter_equals);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "authority"), "authority", T_filter_authority);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "notcontains"), "notcontains", T_filter_notcontain);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "notequals"), "notequals", T_filter_notequals);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "notauthority"), "notauthority", T_filter_notauthority);
+            
+          //Add a box so we can search for our value
+          row.addCell("text-filter_value_" + index, Cell.ROLE_DATA, "discovery-filter-input-cell").addText("filter_" + index, "discovery-filter-input text-input").setValue(value == null ? "" : value);
+
+          //And last add an add button
+          Cell buttonsCell = row.addCell("filter-controls_" + index, Cell.ROLE_DATA, "filter-controls");
+          buttonsCell.addButton("add-filter_" + index, "filter-control filter-add").setValue(T_filter_controls_add);
+          buttonsCell.addButton("remove-filter_" + index, "filter-control filter-remove").setValue(T_filter_controls_remove);
         }
-        Select typeSelect = row.addCell("", Cell.ROLE_DATA, "selection").addSelect("filter_relational_operator_" + index);
-        typeSelect.addOption(StringUtils.equals(relationalOperator, "contains"), "contains", T_filter_contain);
-        typeSelect.addOption(StringUtils.equals(relationalOperator, "equals"), "equals", T_filter_equals);
-        typeSelect.addOption(StringUtils.equals(relationalOperator, "authority"), "authority", T_filter_authority);
-        typeSelect.addOption(StringUtils.equals(relationalOperator, "notcontains"), "notcontains", T_filter_notcontain);
-        typeSelect.addOption(StringUtils.equals(relationalOperator, "notequals"), "notequals", T_filter_notequals);
-        typeSelect.addOption(StringUtils.equals(relationalOperator, "notauthority"), "notauthority", T_filter_notauthority);
-         
-
-
-
-        //Add a box so we can search for our value
-        row.addCell("", Cell.ROLE_DATA, "discovery-filter-input-cell").addText("filter_" + index, "discovery-filter-input").setValue(value == null ? "" : value);
-
-        //And last add an add button
-        Cell buttonsCell = row.addCell("filter-controls_" + index, Cell.ROLE_DATA, "filter-controls");
-        buttonsCell.addButton("add-filter_" + index, "filter-control filter-add").setValue(T_filter_controls_add);
-        buttonsCell.addButton("remove-filter_" + index, "filter-control filter-remove").setValue(T_filter_controls_remove);
-
+        
+        if(filterType !=null && filterType.equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
+        	Select select = row.addCell("date-filter_" + index, Cell.ROLE_DATA, "selection").addSelect("filtertype_" + index);
+        	//For each field found (at least one) add options
+            for (DiscoverySearchFilter searchFilter : filterFields)
+            {
+            	if(searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
+            		select.addOption(StringUtils.equals(searchFilter.getIndexFieldName(), selectedFilterType), searchFilter.getIndexFieldName(), message("xmlui.ArtifactBrowser.SimpleSearch.filter." + searchFilter.getIndexFieldName()));
+            	}
+            }
+            Select typeSelect = row.addCell("date-filter_operators_" + index, Cell.ROLE_DATA, "selection").addSelect("filter_relational_operator_" + index);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "fromDate"), "fromDate", T_filter_from_date);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "untilDate"), "untilDate", T_filter_until_date);
+            
+          //Add a box so we can search for our value
+          row.addCell("date-filter_value_" + index, Cell.ROLE_DATA, "discovery-filter-input-cell").addText("filter_" + index, "discovery-filter-input date-input").setValue(value == null ? "" : value);
+          
+       
+          //And last add an add button
+          Cell buttonsCell = row.addCell("filter-controls_" + index, Cell.ROLE_DATA, "filter-controls");
+          buttonsCell.addButton("add-filter_" + index, "filter-control filter-add").setValue(T_filter_controls_add);
+          buttonsCell.addButton("remove-filter_" + index, "filter-control filter-remove").setValue(T_filter_controls_remove);
+        }
     }
 
     @Override
@@ -413,6 +460,34 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         Map parameters = new HashMap();
         parameters.put("query", newQuery);
         return addFilterQueriesToUrl(generateURL(parameters));
+    }
+    
+    
+    /**
+     * Verificamos el tipo de filtro a partir del ID de un determinado filtro...
+     * @param filterId	el ID del filtro al que se quiere saber el filter type
+     * @return	el tipo del filtro correspondiente a 'filterId' (alguno de los tipos declarados en DiscoveryConfigurationParameters) 
+     * 			ó NULL en caso de no existir el filtro pasado
+     */
+    protected String getTypeByFilterID(String filterId, DiscoveryConfiguration config) {
+    	for (DiscoverySearchFilter filter : config.getSearchFilters()) {
+			if(StringUtils.equals(filter.getIndexFieldName(), filterId)) {
+				return filter.getType();
+			}
+		}
+    	return null;
+    }
+    
+    /**
+     * Retornamos el scope relativo al parámetro "scope", a menos el scope de la actual consulta es derivado de "/discover".
+     */
+    protected DSpaceObject getScope() throws SQLException {
+    	Request request = ObjectModelHelper.getRequest(objectModel);
+    	if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+    		return null;
+    	}
+    	return super.getScope();
+    	
     }
 	
 }

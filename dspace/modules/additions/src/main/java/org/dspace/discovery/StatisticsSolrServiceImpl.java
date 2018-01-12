@@ -53,19 +53,25 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
             	Community comm = (Community)dso;
             	String owningCommFilter = "owningComm:(" + comm.getID() + " OR " + comm.getLegacyId() + ")";
             	//Incluimos este objeto al contexto también...
-            	String commFilter = "id:(" + comm.getID() + " OR " + comm.getLegacyId() + ")";
+            	String commFilter = "id:(" + comm.getID() + " OR (" + comm.getLegacyId() + "AND type:" + Constants.COMMUNITY + "))";
                 discoveryQuery.addFilterQueries(owningCommFilter + " OR " + commFilter);
+//            	String commFilter = "id:(" + comm.getID() + " OR " + comm.getLegacyId() + ")";
+//                discoveryQuery.addFilterQueries("type:(" + Constants.COMMUNITY + ")");
             } else if (dso instanceof Collection)
             {
             	Collection coll = (Collection)dso;
             	String owningCollFilter = "owningColl:(" + coll.getID() + " OR " + coll.getLegacyId() + ")";
             	//Incluimos este objeto al contexto también...
-            	String collFilter = "id:(" + coll.getID() + " OR " + coll.getLegacyId() + ")";
+            	String collFilter = "id:(" + coll.getID() + " OR (" + coll.getLegacyId() + "AND type:" + Constants.COLLECTION + "))";
                 discoveryQuery.addFilterQueries(owningCollFilter + " OR " + collFilter);
+//            	String collFilter = "id:(" + coll.getID() + " OR " + coll.getLegacyId() + ")";
+//                discoveryQuery.addFilterQueries("type:(" + Constants.COLLECTION + ")");
             } else if (dso instanceof Item)
             {
             	Item item = (Item)dso;
-                discoveryQuery.addFilterQueries("id:(" + item.getID() + " OR " + item.getLegacyId() + ")");
+            	discoveryQuery.addFilterQueries("id:(" + item.getID() + " OR (" + item.getLegacyId() + "AND type:" + Constants.ITEM + "))");
+//                discoveryQuery.addFilterQueries("id:(" + item.getID() + " OR " + item.getLegacyId() + ")");
+//                discoveryQuery.addFilterQueries("type:(" + Constants.ITEM + ")");
             }
         }
 		
@@ -383,6 +389,10 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
             else if ("authority".equals(operator))
             {
             }
+            //Date fields operators
+            else if ("fromDate".equals(operator) || "untilDate".equals(operator)) {
+            	
+            }
             else if ("notequals".equals(operator)
                     || "notcontains".equals(operator)
                     || "notauthority".equals(operator))
@@ -409,6 +419,17 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
                 	filterQuery.append(value);
                 }
             }
+            //Date fields operators
+            else if("fromDate".equals(operator) || "untilDate".equals(operator)) {
+            	switch (operator) {
+				case "fromDate":
+					filterQuery.append("[" + value + " TO *]");
+					break;
+				case "untilDate":
+					filterQuery.append("[* TO " + value + "]");
+					break;
+				}
+            }
             else{
                 //DO NOT ESCAPE RANGE QUERIES !
                 if(!value.matches("\\[.*TO.*\\]"))
@@ -428,6 +449,49 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
         result.setFilterQuery(filterQuery.toString());
         return result;
     }
+	
+	/**
+	 * Creamos un filtro correspondiente al DSO (Item, Colección, Comunidad) pasado como parámetro
+	 * @param dso
+	 * @return un string representando el filtro relacionado a ese DSO, o NULL en caso de que el DSO no sea un Item, Colección o Comunidad.
+	 */
+	public String filterQueryForDSO(DSpaceObject dso) {
+		if(dso instanceof Item || dso instanceof Collection || dso instanceof Community) {
+			//Un DSO puede o no tener un legacyID, dependiendo de la versión de DSpace en la que fue creado
+			String legacyID = null;
+			String dsoType = null;
+			StringBuilder fq = new StringBuilder();
+			if(dso instanceof Item) {
+				Item item = (Item) dso;
+				legacyID = item.getLegacyId().toString();
+				dsoType = String.valueOf(item.getType());
+			} else if(dso instanceof Collection) {
+				Collection collection = (Collection) dso;
+				legacyID = collection.getLegacyId().toString();
+				dsoType = String.valueOf(collection.getType());
+			} else if(dso instanceof Community) {
+				Community community = (Community) dso;
+				legacyID = community.getLegacyId().toString();
+				dsoType = String.valueOf(community.getType());
+			}
+			//TODO sería mejor utilizar una formatter reemplazando los parametros (por ejemplo, format("El item tiene UUID %s", uuid)) 
+			fq.append("id:"); 
+			fq.append(dso.getID().toString());
+			//Has legacy ID?
+			if(legacyID != null) {
+				fq.append(" OR (id:");
+				fq.append(legacyID);
+				fq.append(" AND type:");
+				fq.append(dsoType);
+				fq.append(")");
+			}
+			
+			return fq.toString();
+				
+		} else {
+			return null;
+		}
+	}
 	
 	
 	

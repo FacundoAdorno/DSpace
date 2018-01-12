@@ -9,27 +9,39 @@ package org.dspace.app.xmlui.aspect.discovery;
 
 import org.apache.cocoon.environment.Request;
 import org.apache.commons.lang.StringUtils;
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.factory.ContentServiceFactoryImpl;
+import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.CommunityService;
+import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.StatisticsSearchService;
 import org.dspace.discovery.StatisticsSearchUtils;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author Kevin Van de Velde (kevin at atmire dot com)
- * @author Ben Bosman (ben at atmire dot com)
- * @author Mark Diggory (markd at atmire dot com)
+ * TODO Hacer un refactor de esta clase, crear una estructura jerárquica con la clase DiscoveryUIUtils, teniendo como superclase GenericSolrUIUtils
+ * 
+ * @author facundo
+ *
  */
 public class StatisticsDiscoveryUIUtils {
 
-    private static StatisticsSearchService searchService = null;
+    private static StatisticsSearchService statisticsSearchService = null;
 
     static {
-        searchService = StatisticsSearchUtils.getStatisticsSearchService();
+        statisticsSearchService = StatisticsSearchUtils.getStatisticsSearchService();
     }
+    
+    public static String DISCOVERY_QUERY_PARAM = "discovery_query";
+    public static String SCOPE_DSO_UUIDS_PARAM = "scope_dso_uuids";
 
 
 
@@ -43,7 +55,7 @@ public class StatisticsDiscoveryUIUtils {
 
         List<String> filterTypes = getRepeatableParameters(request, "filtertype");
         List<String> filterOperators = getRepeatableParameters(request, "filter_relational_operator");
-        List<String> filterValues = getRepeatableParameters(request, "filter");
+        List<String> filterValues = StatisticsDiscoveryUIUtils.getRepeatableParametersWithRegex(request,  "^filter(_\\d+)?$");
 
         for (int i = 0; i < filterTypes.size(); i++) {
             String filterType = filterTypes.get(i);
@@ -68,7 +80,7 @@ public class StatisticsDiscoveryUIUtils {
             List<String> allFilterQueries = new ArrayList<String>();
             List<String> filterTypes = getRepeatableParameters(request, "filtertype");
             List<String> filterOperators = getRepeatableParameters(request, "filter_relational_operator");
-            List<String> filterValues = getRepeatableParameters(request, "filter");
+            List<String> filterValues = StatisticsDiscoveryUIUtils.getRepeatableParametersWithRegex(request,  "^filter(_\\d+)?$");
 
             for (int i = 0; i < filterTypes.size(); i++) {
                 String filterType = filterTypes.get(i);
@@ -76,8 +88,22 @@ public class StatisticsDiscoveryUIUtils {
                 String filterValue = filterValues.get(i);
 
                 if(StringUtils.isNotBlank(filterValue)){
-                    allFilterQueries.add(searchService.toFilterQuery(context, (filterType.equals("*") ? "" : filterType), filterOperator, filterValue).getFilterQuery());
+                    allFilterQueries.add(statisticsSearchService.toFilterQuery(context, (filterType.equals("*") ? "" : filterType), filterOperator, filterValue).getFilterQuery());
                 }
+            }
+            
+            //Verificamos si el contexto que queremos derivar 
+            if(isDiscoveryDerivedScope(request)) {
+            	String filterQuery;
+            	for (String uuid : getSpecificDiscoveryContext(request)) {
+					DSpaceObject dso = getDSOByUUID(context, uuid);
+					filterQuery = statisticsSearchService.filterQueryForDSO(dso);
+					if(filterQuery != null || !filterQuery.isEmpty()) {
+						allFilterQueries.add(filterQuery);
+					}
+				}
+            	//TODO terminar, ahora falta conectar desde la vista de SimpleSearch (Discovery) con esta funcionalidad
+            	a;
             }
 
             return allFilterQueries.toArray(new String[allFilterQueries.size()]);
@@ -175,6 +201,27 @@ public class StatisticsDiscoveryUIUtils {
         }
         return new ArrayList<String>(result.values());
     }
+    
+    /**
+     * Busca nombres de parámetros (parámetro es 'nombre=valor') que tengan coincidencia con la expresión regular pasada como parámetro.
+     * @param request	es el objeto que representa el petición HTTP
+     * @param regex		es la expresión regular
+     * @return	la lista de valores que tengan coincidencia con la expresión regular pasada como parámetro
+     */
+    public static List<String> getRepeatableParametersWithRegex(Request request, String regex){
+        TreeMap<String, String> result = new TreeMap<String, String>();
+
+        Enumeration parameterNames = request.getParameterNames();
+        Pattern regexPattern = Pattern.compile(regex);
+        while (parameterNames.hasMoreElements()) {
+            String parameter = (String) parameterNames.nextElement();
+        	Matcher matcherRegex = regexPattern.matcher(parameter);
+            if(matcherRegex.find()){
+                result.put(parameter, request.getParameter(parameter));
+            }
+        }
+        return new ArrayList<String>(result.values());
+    }
 
     /**
      * Escape colon-space sequence in a user-entered query, based on the
@@ -188,5 +235,80 @@ public class StatisticsDiscoveryUIUtils {
     {
         return StringUtils.replace(query, ": ", "\\: ");
     }
+    
+    /**
+     * Revisamos si la fecha pasada como parámetro es parseable al formato UTC. Por ejemplo, si se recibe la fecha en el formato 
+     * hora Argentina '2017-06-10T00:00:00-03:00' (ART), se verificará si se podrá pasar al formato universal '2017-06-10T03:00:00Z' (UTC).
+     * 
+     * @param dateRepresentation	es el String correspondiente a la fecha que se quiere parsear a UTC
+     * @return true si es parseable
+     */
+    public static boolean isValidDate(String dateRepresentation) {
+    	try{
+    		new DateTime(dateRepresentation, DateTimeZone.UTC );
+    		return true;
+		} catch (IllegalArgumentException e) {
+			//Cuando se le pasa un String no válido al constructor de DateTime, entonces salta la IllegalArgumentException...
+			return false;
+		}
+    }
+    
+    /**
+     * Determina si el scope de la actual consulta es derivado de "/discover", es decir, si el scope son los DSO resultantes de una consulta realizada en "/discover"..
+     * @param request
+     * @return
+     */
+    public static boolean isDiscoveryDerivedScope(Request request) {
+    	return (request.getParameter(DISCOVERY_QUERY_PARAM) != null && !request.getParameter(SCOPE_DSO_UUIDS_PARAM).isEmpty() && request.getParameter(SCOPE_DSO_UUIDS_PARAM)!= null && !request.getParameter(SCOPE_DSO_UUIDS_PARAM).isEmpty());
+    }
+    
+    public static String getDiscoveryQueryParam(Request request) {
+    	if(request.getParameter(DISCOVERY_QUERY_PARAM) != null && !request.getParameter(SCOPE_DSO_UUIDS_PARAM).isEmpty()) {
+    		return request.getParameter(DISCOVERY_QUERY_PARAM);
+    	}
+    	return null;
+    }
+    
+    /**
+     * Retorna una lista de identificadores correspondientes al scope derivado desde "/discover".
+     * @param request
+     * @return
+     */
+    public static List<String> getSpecificDiscoveryContext(Request request){
+    	List<String> result = new ArrayList<String>();
+    	if(isDiscoveryDerivedScope(request)) {
+    		for (String uuid : request.getParameter(SCOPE_DSO_UUIDS_PARAM).split(",")) {
+				result.add(uuid);
+			}
+    	}
+    	return result;
+    }
+    
+    /**
+	 * Buscamos el DSO (Item, Comunidad ó Colección) asociado a un UUID dado.
+	 * @param uuid
+	 * @return el DSO (Item, Comunidad ó Colección) asociado a ese uuid, o NULL en caso contrario.
+	 * @throws SQLException if the 
+	 */
+	public static DSpaceObject getDSOByUUID(Context context, String uuid) throws SQLException {
+		ItemService itemService = ContentServiceFactoryImpl.getInstance().getItemService();
+		CollectionService collectionService = ContentServiceFactoryImpl.getInstance().getCollectionService();
+		CommunityService communityService = ContentServiceFactoryImpl.getInstance().getCommunityService();
+		try {
+			UUID uuid_ = UUID.fromString(uuid);
+			if(itemService.find(context, uuid_) != null) {
+				return itemService.find(context, uuid_);
+			} else if(collectionService.find(context, uuid_) != null){
+				return collectionService.find(context, uuid_);
+			} else if(communityService.find(context, uuid_) != null){
+				return communityService.find(context, uuid_);
+			}
+			//Si no matchea con ningun DSO, entonces retornamos null
+			return null;
+		} catch (IllegalArgumentException e) {
+			return null;
+		} 
+	}
+    
 }
 

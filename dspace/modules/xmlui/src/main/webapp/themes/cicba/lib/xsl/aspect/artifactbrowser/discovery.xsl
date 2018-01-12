@@ -350,6 +350,18 @@
 	            		<xsl:with-param name="classname" select="'metadata-dc_type'"/>
 	            	</xsl:call-template>
             	</div>
+            	
+            	<!-- Icons Section For results-->
+            	<div class="discovery-icons-section">
+            		<a href="xmlui.cicdigital.discovery.show-statistics" i18n:attr="title" class="discovery-statistics-icon">
+            			<xsl:attribute name="href">
+            				<xsl:call-template name="statisticsDiscoveryLinkForScope">
+            					<xsl:with-param name="scope" select="$handle"/>
+            				</xsl:call-template>
+            			</xsl:attribute>
+            			<span class="glyphicon glyphicon-stats"></span>
+            		</a>
+            	</div>
             </div>
         
         

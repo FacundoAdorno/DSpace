@@ -37,7 +37,7 @@ public class DiscoveryMultipleSearchFilter {
         this.filterName = filterName;
     }
 
-    //NOTE por cada indexFieldName tiene que crearse un message con el prefijo xmlui.ArtifactBrowser.SimpleSearch.filter. + valor de este campo
+    //TODO por cada indexFieldName tiene que crearse un message con el prefijo xmlui.ArtifactBrowser.SimpleSearch.filter. + valor de este campo
     
     public List<String> getIndexMedatadaFields() {
         return indexMedatadaFields;
@@ -69,6 +69,12 @@ public class DiscoveryMultipleSearchFilter {
         return FILTER_TYPE_DEFAULT;
     }
     
+    /**
+     * Convierte cada valor de la lista en un conjunto de {@code DiscoverySearchFilter} independientes, en los que su campo 'metadataFields' está vacío,
+     * de tal forma que no se trate de indexar ningun metadata nuevo en los documentos Solr cuando se utilice este filtro por los servicios de indexación...
+     * 
+     * @return {@code ArrayList<DiscoverySearchFilter>} una lista de filtros independientes
+     */
     public ArrayList<DiscoverySearchFilter> convertToFilters(){
     	ArrayList<DiscoverySearchFilter> filters = new ArrayList<DiscoverySearchFilter>();
     	for (String indexMetadataField : this.getIndexMedatadaFields()) {
@@ -78,7 +84,7 @@ public class DiscoveryMultipleSearchFilter {
 			searchFilter.setMetadataFields(new ArrayList<String>());
 			searchFilter.setIndexFieldName(indexMetadataField);
 			try {
-				searchFilter.setType(this.getFilterType());
+				searchFilter.setType(this.getType());
 			} catch (DiscoveryConfigurationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

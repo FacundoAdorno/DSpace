@@ -594,6 +594,15 @@ p.intro-text > a {
 	background-position-x: center;
 }
 
+.discovery-icons-section {
+    font-size: 1.3em;
+}
+
+.discovery-icons-section i {
+    margin: 0 4px 0 0;
+    float: right;
+}
+
 @media(max-width: 768px){
 	.ds-div-head {
 		font-size: 150%;

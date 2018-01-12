@@ -92,7 +92,7 @@ public class StatisticsSearchUtils extends SearchUtils {
 		java.util.List<String> dsoTypeList;
 		java.util.List<String> idList;
 		if(statTypeList == null || statTypeList.size() == 0) {
-			log.warn("The statistics with uid=" + document.getSearchFields().get("uid"));
+			log.warn("The statistics with uid=" + document.getSearchFields().get("uid") + "does not have a 'statistics_type' vinculated.");
 			return null;
 		} else {
 			String statisticType = statTypeList.get(0);
@@ -100,7 +100,7 @@ public class StatisticsSearchUtils extends SearchUtils {
 				dsoTypeList = document.getSearchFields().get("scopeType");
 		    	idList = document.getSearchFields().get("scopeId");
 			} else {
-				//Otherwise, if "wokflow" other "view"
+				//Otherwise, if "wokflow" or "view"
 				dsoTypeList = document.getSearchFields().get("type");
 				idList = document.getSearchFields().get("id");
 			}

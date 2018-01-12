@@ -228,5 +228,15 @@
 				<i18n:text>xmlui.Submission.submit.CCLicenseStep.no_license</i18n:text>
 			</xsl:otherwise>
 		</xsl:choose>
-	</xsl:template> 
+	</xsl:template>
+	
+	<xsl:template name="statisticsDiscoveryLinkForScope">
+		<xsl:param name="scope"/>
+		<xsl:if test="$scope">
+			<xsl:call-template name="print-path">
+				<!-- esta variable esta definida en el archivo constants.xsl -->
+				<xsl:with-param name="path" select="concat($statistics-discovery-path,'?scope=',$scope)"/>
+			</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
  </xsl:stylesheet>
