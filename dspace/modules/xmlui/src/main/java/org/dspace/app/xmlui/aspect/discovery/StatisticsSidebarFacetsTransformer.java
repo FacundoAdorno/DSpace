@@ -3,6 +3,7 @@ package org.dspace.app.xmlui.aspect.discovery;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.Options;
+import org.dspace.app.xmlui.wing.element.Select;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
@@ -154,7 +156,7 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
         DSpaceObject dso = getScope();
         Request request = ObjectModelHelper.getRequest(objectModel);
         //TODO crear un DiscoveryUIUtils para Statistics...	 
-        queryArgs = getQueryArgs(context, dso, StatisticsDiscoveryUIUtils.getFilterQueries(request, context));
+        queryArgs = getQueryArgs(context, dso, StatisticsDiscoveryUIUtils.getFilterQueries(request, context,dso));
         //If we are on a search page performing a search a query may be used
         String query = request.getParameter("query");
         if(query != null && !"".equals(query.trim())){
@@ -185,7 +187,7 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
 
         if (this.queryResults != null) {
             DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
-            java.util.List<String> fqs = Arrays.asList(StatisticsDiscoveryUIUtils.getFilterQueries(request, context));
+            java.util.List<String> fqs = Arrays.asList(StatisticsDiscoveryUIUtils.getFilterQueries(request, context, dso));
 
             DiscoveryConfiguration discoveryConfiguration = StatisticsSearchUtils.getDiscoveryConfiguration(dso);
             java.util.List<DiscoverySearchFilterFacet> facets = discoveryConfiguration.getSidebarFacets();
@@ -294,7 +296,11 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
         if(StringUtils.isNotBlank(request.getParameter("rpp"))){
             parameters.add("rpp=" + request.getParameter("rpp"));
         }
-
+        //TODO falta manejar los casos de cuando en la consulta discovery venga un scope fijo (handle/xxx/xxx) o un contexto por parámetro (scope=XXX) en la consulta Discovery
+        if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)){
+        	parameters.add(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM + "=" + URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request), "UTF-8"));
+        }
+        
         Map<String, String[]> parameterFilterQueries = StatisticsDiscoveryUIUtils.getParameterFilterQueries(request);
         for(String parameter : parameterFilterQueries.keySet()){
             for (int i = 0; i < parameterFilterQueries.get(parameter).length; i++) {

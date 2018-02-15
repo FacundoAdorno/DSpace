@@ -367,5 +367,15 @@
         
         	
     </xsl:template>
+    
+    <xsl:template match="dri:div[@id='aspect.discovery.SimpleSearch.div.discovery-statistics-box']/dri:p/dri:xref">
+    	<a id="link-statisticsFromQuery">
+    		<xsl:attribute name="href">
+    			<xsl:value-of select="@target"/>
+    		</xsl:attribute>
+    		<span class="glyphicon glyphicon-stats"> -</span>
+    		<xsl:text> IR A ESTADISTICAS </xsl:text>
+    	</a>
+    </xsl:template>
 
 </xsl:stylesheet>

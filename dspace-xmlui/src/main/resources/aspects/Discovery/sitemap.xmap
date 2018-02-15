@@ -18,7 +18,6 @@ and the recent submissions listing
 <map:sitemap xmlns:map="http://apache.org/cocoon/sitemap/1.0">
     <map:components>
 
-        
         <map:transformers>
 
             <map:transformer name="Navigation" src="org.dspace.app.xmlui.aspect.discovery.Navigation"/>
@@ -113,7 +112,6 @@ and the recent submissions listing
                 <map:serialize type="xml"/>
             </map:match>  -->
 
-
 			<!-- Search -->
 			<map:match pattern="discover">
 				<map:transform type="CSVExportDiscoveryNavigation"/>
@@ -128,6 +126,7 @@ and the recent submissions listing
                 </map:transform>
 				<map:serialize type="xml"/>
 			</map:match>
+			
 			
 			<!-- Statistics Search -->
 			<map:match pattern="statistics-discover">
@@ -189,6 +188,24 @@ and the recent submissions listing
                             <!--adds the "no index" robots meta tag to the page-->
                             <map:transform type="RobotsNoIndexTransformer"/>
                             <map:serialize type="xml"/>
+						</map:match>
+						
+						<!-- Statistics Search -->
+						<map:match pattern="handle/*/*/statistics-discover">
+							<map:transform type="CSVExportDiscoveryNavigation"/>
+							<!-- El DiscoverySearchLoggerAction registra en statistics un evento de búsqueda, lo comento por ahora...  -->
+			                <!--  <map:act type="DiscoverySearchLoggerAction"/> -->
+							<map:transform type="StatisticsSidebarFacetsTransformer"/>
+			                <map:transform type="StatisticsSimpleSearch"/>
+			                <map:transform type="IncludePageMeta">
+			                    <map:parameter name="stylesheet.screen.discovery#1" value="../../static/css/discovery/discovery-style.css"/>
+			                    <map:parameter name="stylesheet.screen.discovery#2" value="../../static/css/discovery/statistics-search-discovery.css"/>
+			                    <map:parameter name="javascript.static#1" value="loadJQuery.js"/>
+			                    <map:parameter name="javascript.static#2" value="static/js/discovery/search-controls.js"/>
+			                </map:transform>
+			                <!--adds the "no index" robots meta tag to the page-->
+                            <map:transform type="RobotsNoIndexTransformer"/>
+							<map:serialize type="xml"/>
 						</map:match>
 
                         <map:match pattern="handle/*/*/search-filter">

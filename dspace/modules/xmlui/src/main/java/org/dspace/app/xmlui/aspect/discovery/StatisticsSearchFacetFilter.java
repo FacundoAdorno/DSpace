@@ -187,12 +187,14 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
      *
      * @param scope The collection.
      * @return recently submitted items.
+     * @throws SQLException 
      */
-    protected StatisticsDiscoverResult getQueryResponse(DSpaceObject scope) {
+    protected StatisticsDiscoverResult getQueryResponse(DSpaceObject scope) throws SQLException {
 
 
         Request request = ObjectModelHelper.getRequest(objectModel);
-
+        DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
+        
         if (queryResults != null)
         {
             return queryResults;
@@ -210,7 +212,7 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
 
         queryArgs.setMaxResults(0);
 
-        queryArgs.addFilterQueries(StatisticsDiscoveryUIUtils.getFilterQueries(request, context));
+        queryArgs.addFilterQueries(StatisticsDiscoveryUIUtils.getFilterQueries(request, context, dso));
 
 
         queryArgs.setFacetMinCount(1);
@@ -356,7 +358,7 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
 
                     Table singleTable = results.addTable("browse-by-" + facetField + "-results", (int) (queryResults.getAllResults().size() + 1), 1);
 
-                    List<String> filterQueries = Arrays.asList(StatisticsDiscoveryUIUtils.getFilterQueries(request, context));
+                    List<String> filterQueries = Arrays.asList(StatisticsDiscoveryUIUtils.getFilterQueries(request, context, dso));
 
 
                     int end = values.size();
@@ -375,7 +377,7 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
         }
     }
 
-    private void updateQueryResultsAndOffset(Request request, DSpaceObject dso) {
+    private void updateQueryResultsAndOffset(Request request, DSpaceObject dso) throws SQLException {
         int configuredOffset=-1;
         boolean retainOffset = false;
         if (request.getParameters().containsKey("update")) {

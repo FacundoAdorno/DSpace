@@ -9,10 +9,14 @@ package org.dspace.app.xmlui.aspect.discovery;
 
 import org.apache.cocoon.environment.Request;
 import org.apache.commons.lang.StringUtils;
+import org.dspace.app.xmlui.utils.UIException;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -110,5 +114,71 @@ public class DiscoveryUIUtils {
     public static String escapeQueryChars(String query)
     {
         return StringUtils.replace(query, ": ", "\\: ");
+    }
+    
+    /**
+     * Returns the parameters used so it can be used in a url
+     * @param request the cocoon request
+     * @return the parameters used on this page
+     */
+    public static String retrieveParameters(Request request) throws UnsupportedEncodingException, UIException {
+        java.util.List<String> parameters = new ArrayList<String>();
+        if(StringUtils.isNotBlank(request.getParameter("query"))){
+            parameters.add("query=" + encodeForURL(request.getParameter("query")));
+        }
+
+        if(StringUtils.isNotBlank(request.getParameter("scope"))){
+            parameters.add("scope=" + request.getParameter("scope"));
+        }
+        if(StringUtils.isNotBlank(request.getParameter("sort_by"))){
+            parameters.add("sort_by=" + request.getParameter("sort_by"));
+        }
+        if(StringUtils.isNotBlank(request.getParameter(BrowseFacet.ORDER))){
+            parameters.add(BrowseFacet.ORDER+"=" + request.getParameter(BrowseFacet.ORDER));
+        }
+        if(StringUtils.isNotBlank(request.getParameter("rpp"))){
+            parameters.add("rpp=" + request.getParameter("rpp"));
+        }
+
+        Map<String, String[]> parameterFilterQueries = DiscoveryUIUtils.getParameterFilterQueries(request);
+        for(String parameter : parameterFilterQueries.keySet()){
+            for (int i = 0; i < parameterFilterQueries.get(parameter).length; i++) {
+                String value = parameterFilterQueries.get(parameter)[i];
+                parameters.add(parameter + "=" + encodeForURL(value));
+            }
+
+        }
+        //Join all our parameters using an "&" sign
+        String parametersString = StringUtils.join(parameters.toArray(new String[parameters.size()]), "&");
+        if(StringUtils.isNotEmpty(parametersString)){
+            parametersString += "&";
+        }
+        return parametersString;
+    }
+    
+    /**
+     * Encode the given string for URL transmission.
+     * 
+     * @param unencodedString
+     *            The unencoded string.
+     * @return The encoded string
+     * @throws org.dspace.app.xmlui.utils.UIException if the encoding is unsupported.
+     */
+    public static String encodeForURL(String unencodedString) throws UIException
+    {
+    	if (unencodedString == null)
+        {
+            return "";
+        }
+
+        try
+        {
+            return URLEncoder.encode(unencodedString,Constants.DEFAULT_ENCODING);
+        }
+        catch (UnsupportedEncodingException uee)
+        {
+            throw new UIException(uee);
+        }
+
     }
 }

@@ -8,6 +8,7 @@
 package org.dspace.app.xmlui.aspect.discovery;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -79,6 +80,7 @@ public class SimpleSearch extends AbstractSearch implements CacheableProcessingC
     private static final Message T_filter_authority = message("xmlui.Discovery.SimpleSearch.filter.authority");
     private static final Message T_filter_notauthority = message("xmlui.Discovery.SimpleSearch.filter.notauthority");
     private static final Message T_did_you_mean = message("xmlui.Discovery.SimpleSearch.did_you_mean");
+    private static final Message T_see_statistics_from_query = message("xmlui.Discovery.SimpleSearch.stats_from_query");
 
 
     /**
@@ -220,7 +222,19 @@ public class SimpleSearch extends AbstractSearch implements CacheableProcessingC
 
         }
 
-
+        /**
+         * TODO falta manejar los casos de cuando en la consulta discovery venga un scope fijo (handle/xxx/xxx) o un contexto por parámetro (scope=XXX) en la consulta Discovery. 
+         * Para esto se pueden crear un parámetro adicional, "discoveryScope", cuyo valor puede ser "handle/XX/YY" (scope fijo) o "XX/YY" (scope parametrizado)
+         */
+        //Ahora agregamos una sección para que el usuario pueda ver las estadisticas derivadas de la actual consulta Discovery
+        Division statisticsFromQueryDiv = search.addDivision("discovery-statistics-box", "statisticsFromQuery discovery-box");
+        String url = request.getContextPath() + "/statistics-discover?discovery_query=" + URLEncoder.encode(DiscoveryUIUtils.retrieveParameters(request), "UTF-8");
+        Para goToStatisticsPara = statisticsFromQueryDiv.addPara();
+        goToStatisticsPara.addContent(T_see_statistics_from_query);
+        goToStatisticsPara.addXref(url);
+        
+        
+        
 //        query.addPara(null, "button-list").addButton("submit").setValue(T_go);
 
         // Build the DRI Body

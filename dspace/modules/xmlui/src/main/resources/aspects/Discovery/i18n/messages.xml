@@ -163,6 +163,10 @@
     <message key="xmlui.Discovery.SimpleSearch.filter.from_date">From Date</message>
     <message key="xmlui.Discovery.SimpleSearch.filter.until_date">Until Date</message>
     
+    <message key="xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope">The context of this Statistics-Discovery query are the DSO related to the following Discovery query:</message>
+    <message key="xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope_link">Discovery Query...</message>
+    <message key="xmlui.Discovery.SimpleSearch.stats_from_query">Vea las estadísticas para los objetos resultantes de la consulta actual...</message>
+    
     <message key="xmlui.Discovery.RelatedItems.head">Related items</message>
     <message key="xmlui.Discovery.RelatedItems.help">Showing items related by title, author, creator and subject.</message>
 

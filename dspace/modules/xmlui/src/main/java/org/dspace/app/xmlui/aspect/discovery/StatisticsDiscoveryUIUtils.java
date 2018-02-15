@@ -9,6 +9,7 @@ package org.dspace.app.xmlui.aspect.discovery;
 
 import org.apache.cocoon.environment.Request;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactoryImpl;
 import org.dspace.content.service.CollectionService;
@@ -21,6 +22,12 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -40,8 +47,9 @@ public class StatisticsDiscoveryUIUtils {
         statisticsSearchService = StatisticsSearchUtils.getStatisticsSearchService();
     }
     
+    private static final Logger log = Logger.getLogger(StatisticsDiscoveryUIUtils.class);
+    
     public static String DISCOVERY_QUERY_PARAM = "discovery_query";
-    public static String SCOPE_DSO_UUIDS_PARAM = "scope_dso_uuids";
 
 
 
@@ -75,7 +83,7 @@ public class StatisticsDiscoveryUIUtils {
      * @param context session context.
      * @return an array containing the filter queries
      */
-    public static String[] getFilterQueries(Request request, Context context) {
+    public static String[] getFilterQueries(Request request, Context context, DSpaceObject scope) {
         try {
             List<String> allFilterQueries = new ArrayList<String>();
             List<String> filterTypes = getRepeatableParameters(request, "filtertype");
@@ -92,18 +100,32 @@ public class StatisticsDiscoveryUIUtils {
                 }
             }
             
-            //Verificamos si el contexto que queremos derivar 
+            /**
+             * TODO: ¿Será necesario extrear este if a un método para poder así obtener independientemente los filter queries para el contexto Discovery? 
+             * Solr posee un mecanismo para evitar que las consultas muy largas  degraden la performance. Para solventar esto, existe la propiedad <maxBooleanClauses> que por defecto viene seteada a 1024.
+             * Al pasarse de este límite, SOLR falla y retorna un exit code 400 cuando se hace el request al servidor (ver https://stackoverflow.com/questions/32213657/solr-post-request-returns-400-java-when-size-of-request-is-too-large)
+             * Cuando sucede lo anterior, la consulta al core de 'statistics' retorna resultados vacios...
+             * 
+             * Manejando esto de los filterQueries de los DSO de forma independiente, quizas evite futuros problemas si tengo mas de <maxBooleanClauses> condiciones.
+             * Si se partiera la consulta en muchos pedazos, y se realizaran multiples consultas, unificando luego los resultados, quizás sería mas eficiente.
+             * 
+             */
+            //Verificamos si el contexto o el scope de la consulta es derivado de una resultado de búsqueda de Discovery... 
             if(isDiscoveryDerivedScope(request)) {
-            	String filterQuery;
-            	for (String uuid : getSpecificDiscoveryContext(request)) {
-					DSpaceObject dso = getDSOByUUID(context, uuid);
-					filterQuery = statisticsSearchService.filterQueryForDSO(dso);
-					if(filterQuery != null || !filterQuery.isEmpty()) {
-						allFilterQueries.add(filterQuery);
-					}
+            	StringBuilder filterQuery = new StringBuilder();
+            	List<String> scopeUUIDs = getSpecificDiscoveryContext(request,scope); 
+        		for (Iterator<String> uuids = scopeUUIDs.iterator(); uuids.hasNext();) {
+        			filterQuery.append("(");
+        			DSpaceObject dso = getDSOByUUID(context, uuids.next());
+        			filterQuery.append(statisticsSearchService.filterQueryForDSO(dso));
+        			filterQuery.append(")");
+        			if(uuids.hasNext()) {
+        				filterQuery.append(" OR ");
+        			}
+        		}
+            	if(filterQuery.toString() != null || !filterQuery.toString().isEmpty()) {
+					allFilterQueries.add(filterQuery.toString());
 				}
-            	//TODO terminar, ahora falta conectar desde la vista de SimpleSearch (Discovery) con esta funcionalidad
-            	a;
             }
 
             return allFilterQueries.toArray(new String[allFilterQueries.size()]);
@@ -158,7 +180,6 @@ public class StatisticsDiscoveryUIUtils {
         	matcherOperator= filterOperatorPattern.matcher(url);
         	filterValuePattern = Pattern.compile(filterValuePatternString);
         	matcherValue = filterValuePattern.matcher(url);
-        	StringBuffer sb = new StringBuffer();
         	//Buscamos el operador y valor asociado al índice actual, donde por cada índice debería existir sólo uno unico operador y valor
         	if(matcherOperator.find() && matcherValue.find()) {
         		//Si concuerdan el filterName, el filterOperator y el filterValue, entonces tenemos que borrar explícitimante esos valores
@@ -259,11 +280,15 @@ public class StatisticsDiscoveryUIUtils {
      * @return
      */
     public static boolean isDiscoveryDerivedScope(Request request) {
-    	return (request.getParameter(DISCOVERY_QUERY_PARAM) != null && !request.getParameter(SCOPE_DSO_UUIDS_PARAM).isEmpty() && request.getParameter(SCOPE_DSO_UUIDS_PARAM)!= null && !request.getParameter(SCOPE_DSO_UUIDS_PARAM).isEmpty());
+    	return (request.getParameter(DISCOVERY_QUERY_PARAM) != null && !request.getParameter(DISCOVERY_QUERY_PARAM).isEmpty());
     }
     
+    /**
+     * Get the value of the <code>StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM</code> parameter.
+     * @param request
+     */
     public static String getDiscoveryQueryParam(Request request) {
-    	if(request.getParameter(DISCOVERY_QUERY_PARAM) != null && !request.getParameter(SCOPE_DSO_UUIDS_PARAM).isEmpty()) {
+    	if(isDiscoveryDerivedScope(request)) {
     		return request.getParameter(DISCOVERY_QUERY_PARAM);
     	}
     	return null;
@@ -274,12 +299,15 @@ public class StatisticsDiscoveryUIUtils {
      * @param request
      * @return
      */
-    public static List<String> getSpecificDiscoveryContext(Request request){
+    public static List<String> getSpecificDiscoveryContext(Request request, DSpaceObject scope){
     	List<String> result = new ArrayList<String>();
     	if(isDiscoveryDerivedScope(request)) {
-    		for (String uuid : request.getParameter(SCOPE_DSO_UUIDS_PARAM).split(",")) {
-				result.add(uuid);
-			}
+    		StringBuilder uuids = getUUIDsFromAspect(request,scope);
+    		if(uuids!= null && uuids.length() > 0) {
+    			for (String uuid : uuids.toString().split(",")) {
+    				result.add(uuid);
+    			}
+    		}
     	}
     	return result;
     }
@@ -309,6 +337,38 @@ public class StatisticsDiscoveryUIUtils {
 			return null;
 		} 
 	}
-    
+	
+	/**
+	 * Connect to "discovery/uuids?<discovery_query_string>" and obtain all the UUIDs related to the discovery query.
+	 * @param request
+	 * @return StringBuilder containing the response of "discovery/uuids?<discovery_query_string>"
+	 */
+	private static StringBuilder getUUIDsFromAspect(Request request, DSpaceObject scope) {
+		HttpURLConnection connection;
+		URL url;
+		StringBuilder sb = new StringBuilder();
+		
+		//TODO hay que poner la URL entera para que funcione el new URL...
+		String urlStr = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + 
+						"/discover" + (scope == null ? "" : "/handle/" + scope.getHandle()) + "/uuids?" +  getDiscoveryQueryParam(request);
+		try {
+			url = new URL(urlStr);
+			connection = (HttpURLConnection)url.openConnection(); //this can give 401
+			if (200 <= connection.getResponseCode() && connection.getResponseCode() <= 299) {
+				//CONEXIÓN EXITOSA!!!
+				BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+				String output;
+				while ((output = br.readLine()) != null) {
+					sb.append(output);
+				}
+			}
+		} catch (MalformedURLException e) {
+			log.error("La url '" + urlStr + "' esta mal formada.");
+		} catch (IOException e) {
+			log.error("No me puedo conectar con la URL '" + urlStr + "'.");
+		}
+		return sb;
+	}
+	
 }
 

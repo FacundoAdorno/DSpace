@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -88,7 +89,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
             SolrQuery solrQuery = resolveToSolrQuery(context, discoveryQuery, includeBots);
 
 
-            QueryResponse queryResponse = getSolr().query(solrQuery);
+            QueryResponse queryResponse = getSolr().query(solrQuery, SolrRequest.METHOD.POST);
             return retrieveResult(context, discoveryQuery, queryResponse);
 
         } catch (Exception e)
@@ -458,20 +459,20 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
 	public String filterQueryForDSO(DSpaceObject dso) {
 		if(dso instanceof Item || dso instanceof Collection || dso instanceof Community) {
 			//Un DSO puede o no tener un legacyID, dependiendo de la versión de DSpace en la que fue creado
-			String legacyID = null;
+			Integer legacyID = null;
 			String dsoType = null;
 			StringBuilder fq = new StringBuilder();
 			if(dso instanceof Item) {
 				Item item = (Item) dso;
-				legacyID = item.getLegacyId().toString();
+				legacyID = item.getLegacyId();
 				dsoType = String.valueOf(item.getType());
 			} else if(dso instanceof Collection) {
 				Collection collection = (Collection) dso;
-				legacyID = collection.getLegacyId().toString();
+				legacyID = collection.getLegacyId();
 				dsoType = String.valueOf(collection.getType());
 			} else if(dso instanceof Community) {
 				Community community = (Community) dso;
-				legacyID = community.getLegacyId().toString();
+				legacyID = community.getLegacyId();
 				dsoType = String.valueOf(community.getType());
 			}
 			//TODO sería mejor utilizar una formatter reemplazando los parametros (por ejemplo, format("El item tiene UUID %s", uuid)) 
@@ -480,7 +481,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
 			//Has legacy ID?
 			if(legacyID != null) {
 				fq.append(" OR (id:");
-				fq.append(legacyID);
+				fq.append(legacyID.toString());
 				fq.append(" AND type:");
 				fq.append(dsoType);
 				fq.append(")");

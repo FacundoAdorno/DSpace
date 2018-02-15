@@ -25,22 +25,14 @@ import org.dspace.app.xmlui.wing.element.Select;
 import org.dspace.app.xmlui.wing.element.Table;
 import org.dspace.app.xmlui.wing.element.Text;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.CollectionServiceImpl;
 import org.dspace.content.Community;
-import org.dspace.content.CommunityServiceImpl;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.ItemServiceImpl;
-import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.core.Context;
 import org.dspace.discovery.SearchServiceException;
 import org.dspace.discovery.StatisticsSearchUtils;
-import org.dspace.discovery.StatisticsSolrServiceImpl;
-import org.dspace.discovery.GenericDiscoverResult.SearchDocument;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
-import org.dspace.services.factory.DSpaceServicesFactory;
-import org.dspace.core.Constants;
 import org.xml.sax.SAXException;
 
 public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements CacheableProcessingComponent{
@@ -84,7 +76,9 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     //DATE OPERATORS
     private static final Message T_filter_from_date = message("xmlui.Discovery.SimpleSearch.filter.from_date");
     private static final Message T_filter_until_date = message("xmlui.Discovery.SimpleSearch.filter.until_date");
-    private static final Message T_did_you_mean = message("xmlui.Discovery.SimpleSearch.did_you_mean");
+    
+    private static final Message T_discovery_derived_scope = message("xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope");
+    private static final Message T_discovery_derived_scope_link = message("xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope_link");
 
 	
     private String aspectPath = "statistics-discover";
@@ -150,9 +144,18 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
 //        searchList.setHead(T_search_label);
         if (variableScope())
         {
-            Select scope = searchList.addItem().addSelect("scope");
-            scope.setLabel(T_search_scope);
-            buildScopeList(scope);
+        	if(!StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+        		Select scope = searchList.addItem().addSelect("scope");
+        		scope.setLabel(T_search_scope);
+        		buildScopeList(scope);
+        	} else {
+        		//TODO falta manejar los casos de cuando en la consulta discovery venga un scope fijo (handle/xxx/xxx) o un contexto por parámetro (scope=XXX) en la consulta Discovery
+        		//Si el scope es derivado de una búsqueda de Discovery, entonces mostramos la consulta de Discovery de la que deriva el scope...
+        		searchList.addItem(T_discovery_derived_scope);
+        		String discoveryQuery = StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request);
+        		searchList.addItem().addXref(request.getContextPath() + "/discover?" + discoveryQuery).addContent(T_discovery_derived_scope_link);
+        		searchList.addItem().addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM).setValue(discoveryQuery);
+        	}
         }
 
         Item searchBoxItem = searchList.addItem();
@@ -338,7 +341,14 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
      */
     @Override
     protected String[] getFilterQueries() {
-        return StatisticsDiscoveryUIUtils.getFilterQueries(ObjectModelHelper.getRequest(objectModel), context);
+    	DSpaceObject dso;
+		try {
+			dso = HandleUtil.obtainHandle(objectModel);
+			return StatisticsDiscoveryUIUtils.getFilterQueries(ObjectModelHelper.getRequest(objectModel), context,dso);
+		} catch (SQLException e) {
+			// TODO mal manejo de excepción...
+			return null;
+		}
     }
 
 
