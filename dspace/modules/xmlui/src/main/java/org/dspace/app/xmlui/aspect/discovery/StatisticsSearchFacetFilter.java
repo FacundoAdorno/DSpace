@@ -448,7 +448,8 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
     }
 
     private void renderFacetField(SearchFilterParam browseParams, DSpaceObject dso, String facetField, Table singleTable, List<String> filterQueries, StatisticsDiscoverResult.FacetResult value) throws SQLException, WingException, UnsupportedEncodingException {
-        String displayedValue = value.getDisplayedValue();
+    	Request request = ObjectModelHelper.getRequest(objectModel);
+    	String displayedValue = value.getDisplayedValue();
 //        if(field.getGap() != null){
 //            //We have a date get the year so we can display it
 //            DateFormat simpleDateformat = new SimpleDateFormat("yyyy");
@@ -468,6 +469,10 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
             String xrefURL = generateURL(contextPath + (dso == null ? "" : "/handle/" + dso.getHandle()) + "/" + statisticsDiscoveryAspectPath, urlParams);
             //Add already existing filter queries
             xrefURL = addFilterQueriesToUrl(xrefURL);
+           //Add the Discovery Derived Context/Scope, if apply and only if the scope is not fixed or dynamic (handle/XX/YY/statistics-discover or scope=XX/YY, respectively)
+            if (getScope() == null) {
+            	xrefURL = xrefURL + "&" + StatisticsDiscoveryUIUtils.getAllDiscoveryQueryParams(request);
+            }
             //Last add the current filter query
             xrefURL += "&filtertype=" + facetField;
             xrefURL += "&filter_relational_operator="+value.getFilterType();
@@ -640,9 +645,10 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
      * @param div
      * @param params
      * @throws WingException
+     * @throws SQLException 
      */
     private void addBrowseControls(Division div, SearchFilterParam params)
-            throws WingException
+            throws WingException, SQLException
     {
         // Prepare a Map of query parameters required for all links
         Map<String, String> queryParams = new HashMap<>();
@@ -670,6 +676,17 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
         {
             rppSelect.addOption((i == getPageSize()), i, Integer.toString(i));
         }
+        
+        //Add hidden fields for the Discovery Derived Context/Scope, if apply and only if the scope is not fixed or dynamic (handle/XX/YY/statistics-discover or scope=XX/YY, respectively)
+        if (getScope() == null) {
+        	if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+        		controlsForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request));
+        		if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
+        			controlsForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request));
+        		}
+        	}
+        }
+        
         controlsForm.addButton("update").setValue("update");
     }
     
