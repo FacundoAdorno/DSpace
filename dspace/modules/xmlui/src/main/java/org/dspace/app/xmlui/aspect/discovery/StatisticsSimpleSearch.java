@@ -1,6 +1,7 @@
 package org.dspace.app.xmlui.aspect.discovery;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -136,27 +137,43 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
 
         Division searchBoxDivision = search.addDivision("discovery-search-box", "discoverySearchBox");
 
+        //TODO el action del form pierde los parametros, asi que voy a tener que agregar 2 campos ocultos con los valores de Discovery...
         Division mainSearchDiv = searchBoxDivision.addInteractiveDivision("general-query",
         		aspectPath, Division.METHOD_GET, "discover-search-box");
-
+        
         List searchList = mainSearchDiv.addList("primary-search", List.TYPE_FORM);
 
 //        searchList.setHead(T_search_label);
-        if (variableScope())
-        {
-        	if(!StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+
+        //Por una decisión de implementación, tiene mayor prioridad el uso de scopes fijos o dinámicos, en segundo lugar queda el contexto o scope derivado de una consulta Discovery...
+        if (getScope() != null) {
+        	if (variableScope())
+            {
         		Select scope = searchList.addItem().addSelect("scope");
         		scope.setLabel(T_search_scope);
         		buildScopeList(scope);
-        	} else {
-        		//TODO falta manejar los casos de cuando en la consulta discovery venga un scope fijo (handle/xxx/xxx) o un contexto por parámetro (scope=XXX) en la consulta Discovery
-        		//Si el scope es derivado de una búsqueda de Discovery, entonces mostramos la consulta de Discovery de la que deriva el scope...
-        		searchList.addItem(T_discovery_derived_scope);
-        		String discoveryQuery = StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request);
-        		searchList.addItem().addXref(request.getContextPath() + "/discover?" + discoveryQuery).addContent(T_discovery_derived_scope_link);
-        		searchList.addItem().addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM).setValue(discoveryQuery);
-        	}
+            }
+        } else if (StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+    		//Si el scope es derivado de una búsqueda de Discovery, entonces mostramos la consulta de Discovery de la que deriva el scope...
+    		searchList.addItem(T_discovery_derived_scope);
+    		String discoveryQueryParams = StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request);
+    		String discoveryQueryPath = request.getContextPath();
+    		if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
+    			String handleScopeParam = StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request);
+    			//Add hidden field with the original StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM...
+    			searchList.addItem().addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM).setValue(handleScopeParam);
+    			if(StatisticsDiscoveryUIUtils.isFixedDiscoverScope(request)) {
+    				discoveryQueryPath +=  (!handleScopeParam.startsWith("/")? "/": "") + handleScopeParam + "/discover?";
+    			} else {
+    				discoveryQueryPath += "/discover?";
+    				discoveryQueryParams += "&scope=" + handleScopeParam;
+    			}
+    		} else {
+    			discoveryQueryPath += "/discover?";
+    		}
+    		searchList.addItem().addXref(discoveryQueryPath + discoveryQueryParams).addContent(T_discovery_derived_scope_link);
         }
+        
 
         Item searchBoxItem = searchList.addItem();
         Text text = searchBoxItem.addText("query");
@@ -343,7 +360,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     protected String[] getFilterQueries() {
     	DSpaceObject dso;
 		try {
-			dso = HandleUtil.obtainHandle(objectModel);
+			dso = getScope();
 			return StatisticsDiscoveryUIUtils.getFilterQueries(ObjectModelHelper.getRequest(objectModel), context,dso);
 		} catch (SQLException e) {
 			// TODO mal manejo de excepción...
@@ -430,8 +447,9 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
      * @param fqs the filter queries
      * @param division the division that requires the hidden fields
      * @throws WingException will never occur
+     * @throws SQLException
      */
-    private void addHiddenFormFields(String type, Request request, Map<String, String[]> fqs, Division division) throws WingException {
+    private void addHiddenFormFields(String type, Request request, Map<String, String[]> fqs, Division division) throws WingException, SQLException {
         if(type.equals("filter") || type.equals("sort")){
             if(request.getParameter("query") != null){
                 division.addHidden("query").setValue(request.getParameter("query"));
@@ -464,6 +482,16 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
                 division.addHidden("order").setValue(request.getParameter("order"));
             }
         }
+        
+        //Add hidden fields for the Discovery Derived Context/Scope, if apply and only if the scope is not fixed or dynamic (handle/XX/YY/statistics-discover or scope=XX/YY, respectively)
+        if (getScope() == null) {
+        	if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+        		division.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request));
+        		if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
+        			division.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request));
+        		}
+        	}
+        }
     }
 
     protected String getSuggestUrl(String newQuery) throws UIException {
@@ -488,16 +516,4 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     	return null;
     }
     
-    /**
-     * Retornamos el scope relativo al parámetro "scope", a menos el scope de la actual consulta es derivado de "/discover".
-     */
-    protected DSpaceObject getScope() throws SQLException {
-    	Request request = ObjectModelHelper.getRequest(objectModel);
-    	if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
-    		return null;
-    	}
-    	return super.getScope();
-    	
-    }
-	
 }

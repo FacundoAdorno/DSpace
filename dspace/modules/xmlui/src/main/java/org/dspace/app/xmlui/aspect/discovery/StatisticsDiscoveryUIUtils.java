@@ -25,9 +25,11 @@ import org.joda.time.DateTimeZone;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -49,7 +51,15 @@ public class StatisticsDiscoveryUIUtils {
     
     private static final Logger log = Logger.getLogger(StatisticsDiscoveryUIUtils.class);
     
+    /**
+     * Este parámetro representa la consulta Discovery en el caso de que el contexto de la estadística sean los DSO de una consulta Discovery
+     */
     public static String DISCOVERY_QUERY_PARAM = "discovery_query";
+    /**
+     * Este parámetro representa el scope de una consulta Discovery (fijo ó variable, es decir, 'handle/xx/yy/discover' ó 'scope=xx/yy') en el caso de 
+     * que el contexto de la estadística sean los DSO de una consulta Discovery.
+     */
+    public static String DISCOVERY_SCOPE_PARAM = "discovery_scope";
 
 
 
@@ -81,6 +91,7 @@ public class StatisticsDiscoveryUIUtils {
      * Returns all the filter queries for use by discovery
      * @param request user's request.
      * @param context session context.
+     * @param scope is the scope (fixed or dynamic) of the current statistics-discovery query
      * @return an array containing the filter queries
      */
     public static String[] getFilterQueries(Request request, Context context, DSpaceObject scope) {
@@ -110,22 +121,24 @@ public class StatisticsDiscoveryUIUtils {
              * Si se partiera la consulta en muchos pedazos, y se realizaran multiples consultas, unificando luego los resultados, quizás sería mas eficiente.
              * 
              */
-            //Verificamos si el contexto o el scope de la consulta es derivado de una resultado de búsqueda de Discovery... 
-            if(isDiscoveryDerivedScope(request)) {
-            	StringBuilder filterQuery = new StringBuilder();
-            	List<String> scopeUUIDs = getSpecificDiscoveryContext(request,scope); 
-        		for (Iterator<String> uuids = scopeUUIDs.iterator(); uuids.hasNext();) {
-        			filterQuery.append("(");
-        			DSpaceObject dso = getDSOByUUID(context, uuids.next());
-        			filterQuery.append(statisticsSearchService.filterQueryForDSO(dso));
-        			filterQuery.append(")");
-        			if(uuids.hasNext()) {
-        				filterQuery.append(" OR ");
-        			}
-        		}
-            	if(filterQuery.toString() != null || !filterQuery.toString().isEmpty()) {
-					allFilterQueries.add(filterQuery.toString());
-				}
+            //Verificamos si el contexto o el scope de la consulta es derivado de una resultado de búsqueda de Discovery, aunque sólamente es válido si no existe un scope fijo o dinámico (handle/XX/YY/statistics-discover ó scope=XX/YY, respectivamente)... 
+            if(scope == null) {
+            	if(isDiscoveryDerivedScope(request)) {
+            		StringBuilder filterQuery = new StringBuilder();
+            		List<String> scopeUUIDs = getSpecificDiscoveryContext(request); 
+            		for (Iterator<String> uuids = scopeUUIDs.iterator(); uuids.hasNext();) {
+            			filterQuery.append("(");
+            			DSpaceObject dso = getDSOByUUID(context, uuids.next());
+            			filterQuery.append(statisticsSearchService.filterQueryForDSO(dso));
+            			filterQuery.append(")");
+            			if(uuids.hasNext()) {
+            				filterQuery.append(" OR ");
+            			}
+            		}
+            		if(filterQuery.toString() != null || !filterQuery.toString().isEmpty()) {
+            			allFilterQueries.add(filterQuery.toString());
+            		}
+            	}
             }
 
             return allFilterQueries.toArray(new String[allFilterQueries.size()]);
@@ -299,10 +312,10 @@ public class StatisticsDiscoveryUIUtils {
      * @param request
      * @return
      */
-    public static List<String> getSpecificDiscoveryContext(Request request, DSpaceObject scope){
+    public static List<String> getSpecificDiscoveryContext(Request request){
     	List<String> result = new ArrayList<String>();
     	if(isDiscoveryDerivedScope(request)) {
-    		StringBuilder uuids = getUUIDsFromAspect(request,scope);
+    		StringBuilder uuids = getUUIDsFromAspect(request);
     		if(uuids!= null && uuids.length() > 0) {
     			for (String uuid : uuids.toString().split(",")) {
     				result.add(uuid);
@@ -343,14 +356,27 @@ public class StatisticsDiscoveryUIUtils {
 	 * @param request
 	 * @return StringBuilder containing the response of "discovery/uuids?<discovery_query_string>"
 	 */
-	private static StringBuilder getUUIDsFromAspect(Request request, DSpaceObject scope) {
+	private static StringBuilder getUUIDsFromAspect(Request request) {
 		HttpURLConnection connection;
 		URL url;
 		StringBuilder sb = new StringBuilder();
 		
-		//TODO hay que poner la URL entera para que funcione el new URL...
-		String urlStr = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + 
-						"/discover" + (scope == null ? "" : "/handle/" + scope.getHandle()) + "/uuids?" +  getDiscoveryQueryParam(request);
+		//TODO revisar que esté bien esta nueva lógica!
+		String scopeHandle = getDiscoveryScopeParam(request);
+		String urlStr;
+		if(scopeHandle != null && !scopeHandle.isEmpty()) {
+			if(scopeHandle.startsWith("/handle/") || scopeHandle.startsWith("handle/")) {
+				scopeHandle = scopeHandle.replaceFirst("/?handle/", "");
+			}
+			urlStr = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + 
+					(isFixedDiscoverScope(request)? ("/handle/" + scopeHandle):"") + "/discover/uuids?" +  getDiscoveryQueryParam(request) + (isVariableDiscoveryScope(request)?("&scope=" + scopeHandle):"");
+		} else {
+			urlStr = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + "/discover/uuids?" +  getDiscoveryQueryParam(request);
+		}
+		
+//		String urlStr = DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + 
+//				"/discover" + (isFixedDiscoverScope(request)? ("/handle/" + scope.getHandle()):"") + "/uuids?" +  getDiscoveryQueryParam(request);
+		
 		try {
 			url = new URL(urlStr);
 			connection = (HttpURLConnection)url.openConnection(); //this can give 401
@@ -368,6 +394,44 @@ public class StatisticsDiscoveryUIUtils {
 			log.error("No me puedo conectar con la URL '" + urlStr + "'.");
 		}
 		return sb;
+	}
+	
+	public static boolean existDiscoveryScopeParam(Request request) {
+		return (request.getParameter(DISCOVERY_SCOPE_PARAM) != null && !request.getParameter(DISCOVERY_SCOPE_PARAM).isEmpty());
+	}
+	
+	public static boolean isFixedDiscoverScope(Request request) {
+		return (existDiscoveryScopeParam(request) && request.getParameter(DISCOVERY_SCOPE_PARAM).startsWith("handle/"));
+	}
+	
+	public static boolean isVariableDiscoveryScope(Request request) {
+		return (existDiscoveryScopeParam(request) && !request.getParameter(DISCOVERY_SCOPE_PARAM).startsWith("handle/"));
+	}
+	
+	public static String getDiscoveryScopeParam(Request request) {
+		return request.getParameter(DISCOVERY_SCOPE_PARAM);
+	}
+	
+	//TODO borrar si no se utiliza...
+	/**
+	 * Retorna una construcción de los parámetros propios de Discovery en el caso de que el contexto de las estadísticas sean los DSO derivados de una consulta en Discovery.
+	 * Por ejemplo, retorna 'discovery_query=&lt;query&gt;&discovery_scope=&lt;scope&gt;'.
+	 * @throws UnsupportedEncodingException 
+	 */
+	public static String getAllDiscoveryQueryParams(Request request) throws UnsupportedEncodingException {
+		StringBuilder discoveryQueryScopeParams = new StringBuilder();
+		if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+        	discoveryQueryScopeParams.append(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM);
+        	discoveryQueryScopeParams.append("=");
+        	discoveryQueryScopeParams.append(URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request), "UTF-8"));
+        	if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
+        		discoveryQueryScopeParams.append("&");
+        		discoveryQueryScopeParams.append(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM);
+        		discoveryQueryScopeParams.append("=");
+        		discoveryQueryScopeParams.append(URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request), "UTF-8"));
+        	}
+        }
+		return discoveryQueryScopeParams.toString();
 	}
 	
 }

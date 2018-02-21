@@ -277,8 +277,9 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
      * Returns the parameters used so it can be used in a url
      * @param request the cocoon request
      * @return the parameters used on this page
+     * @throws SQLException 
      */
-    private String retrieveParameters(Request request) throws UnsupportedEncodingException, UIException {
+    private String retrieveParameters(Request request) throws UnsupportedEncodingException, UIException, SQLException {
         java.util.List<String> parameters = new ArrayList<String>();
         if(StringUtils.isNotBlank(request.getParameter("query"))){
             parameters.add("query=" + encodeForURL(request.getParameter("query")));
@@ -296,11 +297,15 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
         if(StringUtils.isNotBlank(request.getParameter("rpp"))){
             parameters.add("rpp=" + request.getParameter("rpp"));
         }
-        //TODO falta manejar los casos de cuando en la consulta discovery venga un scope fijo (handle/xxx/xxx) o un contexto por parámetro (scope=XXX) en la consulta Discovery
-        if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)){
-        	parameters.add(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM + "=" + URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request), "UTF-8"));
+      //Add hidden fields for the Discovery Derived Context/Scope, if apply and only if the scope is not fixed or dynamic (handle/XX/YY/statistics-discover or scope=XX/YY, respectively)
+        if (getScope() == null) {
+	        if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)){
+	        	parameters.add(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM + "=" + URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request), "UTF-8"));
+	        	if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)){
+	        		parameters.add(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM + "=" + URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request), "UTF-8"));
+	        	}
+	        }
         }
-        
         Map<String, String[]> parameterFilterQueries = StatisticsDiscoveryUIUtils.getParameterFilterQueries(request);
         for(String parameter : parameterFilterQueries.keySet()){
             for (int i = 0; i < parameterFilterQueries.get(parameter).length; i++) {
@@ -318,7 +323,7 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
     }
 
     
-    private void addViewMoreUrl(List facet, DSpaceObject dso, Request request, DiscoverySearchFilterFacet field) throws WingException, UnsupportedEncodingException {
+    private void addViewMoreUrl(List facet, DSpaceObject dso, Request request, DiscoverySearchFilterFacet field) throws WingException, UnsupportedEncodingException, SQLException {
         String parameters = retrieveParameters(request);
         facet.addItem().addXref(
                 contextPath +
