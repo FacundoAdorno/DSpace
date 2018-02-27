@@ -45,6 +45,7 @@ import org.dspace.discovery.StatisticsSolrServiceImpl;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
+import org.dspace.discovery.configuration.StatisticsDiscoveryCombinedFilterFacet;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -198,7 +199,12 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
 
                 for (DiscoverySearchFilterFacet field : facets) {
                     //Retrieve our values
-                    java.util.List<StatisticsDiscoverResult.FacetResult> facetValues = queryResults.getFacetResult(field.getIndexFieldName());
+                	java.util.List<StatisticsDiscoverResult.FacetResult> facetValues = new ArrayList<StatisticsDiscoverResult.FacetResult>();
+                	if(field.getFilterType().equals(StatisticsDiscoveryCombinedFilterFacet.FILTER_TYPE_COMBINED_FACET)) {
+                		facetValues.addAll(StatisticsDiscoverResult.getCombinedFacetValues(queryResults, (StatisticsDiscoveryCombinedFilterFacet)field));
+                	}else {
+                		facetValues.addAll(queryResults.getFacetResult(field.getIndexFieldName()));
+                	}
                     //Check if we are dealing with a date, sometimes the facet values arrive as dates !
                     if(facetValues.size() == 0 && field.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)){
                         facetValues = queryResults.getFacetResult(field.getIndexFieldName() + ".year");
@@ -485,7 +491,14 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                     int facetLimit = facet.getFacetLimit();
                     //Add one to our facet limit to make sure that if we have more then the shown facets that we show our "show more" url
                     facetLimit++;
-                    queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(), facet.getType(), facetLimit, facet.getSortOrderSidebar()));
+                    if(facet.getFilterType().equals(StatisticsDiscoveryCombinedFilterFacet.FILTER_TYPE_COMBINED_FACET)){
+                    	//Si el facet es combinado, entonces agregamos dos o mas facets, uno por campo dentro de la configuración del facet
+                    	for (String metadataField: facet.getMetadataFields()) {
+                    		queryArgs.addFacetField(new DiscoverFacetField(metadataField, facet.getType(), facetLimit, facet.getSortOrderSidebar()));
+    					}
+                    }else {
+                    	queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(), facet.getType(), facetLimit, facet.getSortOrderSidebar()));
+                    }
                 }
             }
         }

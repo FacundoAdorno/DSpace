@@ -2,6 +2,7 @@ package org.dspace.discovery;
 
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.CollectionServiceImpl;
@@ -15,6 +16,7 @@ import org.dspace.discovery.GenericDiscoverResult.SearchDocument;
 import org.dspace.discovery.StatisticsDiscoverResult.STAT_TYPES;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationService;
+import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.ExtendedDiscoveryConfiguration;
 import org.dspace.kernel.ServiceManager;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -132,6 +134,16 @@ public class StatisticsSearchUtils extends SearchUtils {
 			}
     	}
     	return result;
+	}
+	
+	public static DiscoverySearchFilter getDiscoveryFilterByName(String filterName, DSpaceObject scope) {
+		List<DiscoverySearchFilter> filters = getDiscoveryConfiguration(scope).getSearchFilters();
+		for (DiscoverySearchFilter discoverySearchFilter : filters) {
+			if(discoverySearchFilter.getIndexFieldName().equals(filterName)) {
+				return discoverySearchFilter;
+			}
+		}
+		return null;
 	}
     
 }

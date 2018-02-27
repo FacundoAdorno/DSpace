@@ -1,10 +1,13 @@
 package org.dspace.discovery;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.discovery.GenericDiscoverResult.SearchDocument;
+import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
+import org.dspace.discovery.configuration.StatisticsDiscoveryCombinedFilterFacet;
 
 public class StatisticsDiscoverResult extends GenericDiscoverResult{
 
@@ -52,6 +55,35 @@ public class StatisticsDiscoverResult extends GenericDiscoverResult{
 			result.addAll(searchDocuments.get(type.text()));
 		}
 		return result;
+	}
+	
+	/**
+	 * Retorna una lista combinada a partir de los resultados de una consulta Discovery y un filtro del tipo "combined", es decir, unifica en una única
+	 * lista (sin repetidos) distintos resultados de los facets vinculados al filtro del tipo "combined".
+	 * 
+	 * @param queryResults	es el objeto que contiene los resultados de la consulta Discovery
+	 * @param facetField	es el filtro del tipo "combined"
+	 * @return una lista combinada de resultados de facets.
+	 */
+	public static java.util.List<FacetResult> getCombinedFacetValues(StatisticsDiscoverResult queryResults, StatisticsDiscoveryCombinedFilterFacet facetField){
+		java.util.HashMap<String,StatisticsDiscoverResult.FacetResult> uniqueListOfValues = new HashMap<String,StatisticsDiscoverResult.FacetResult>();
+		for (String metadataField : facetField.getMetadataFields()) {
+			for (FacetResult facetResult : queryResults.getFacetResult(metadataField)) {
+				String facetValue = facetResult.getDisplayedValue();
+				//Combinamos los resultados de facet en uno nuevo, ya que no puedo modificar el existente...
+				if(uniqueListOfValues.containsKey(facetValue)){
+					FacetResult inListFacet = uniqueListOfValues.get(facetValue);
+					uniqueListOfValues.remove(facetValue);
+					uniqueListOfValues.put(facetValue, 
+							new FacetResult(inListFacet.getAsFilterQuery(), inListFacet.getDisplayedValue(), inListFacet.getAuthorityKey(), inListFacet.getSortValue(), (inListFacet.getCount() + facetResult.getCount())));
+				} else {
+					uniqueListOfValues.put(facetValue, facetResult);
+				}
+			} 
+		}
+		
+		return new ArrayList<FacetResult>(uniqueListOfValues.values());
+		
 	}
 	
 }

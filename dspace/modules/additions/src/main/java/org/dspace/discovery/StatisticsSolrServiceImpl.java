@@ -34,6 +34,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
 	private HttpSolrServer solr;
 	protected static String STATISTICS_TYPE_FIELD = "statistics_type";
 	protected static String DSO_TYPE_FIELD = "type";
+	protected static String SCOPE_TYPE_FIELD = "scopeType";
 	protected static String IS_BOT_FIELD = "isBot";
 	
 	@Override
@@ -56,8 +57,6 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
             	//Incluimos este objeto al contexto también...
             	String commFilter = "id:(" + comm.getID() + " OR (" + comm.getLegacyId() + "AND type:" + Constants.COMMUNITY + "))";
                 discoveryQuery.addFilterQueries(owningCommFilter + " OR " + commFilter);
-//            	String commFilter = "id:(" + comm.getID() + " OR " + comm.getLegacyId() + ")";
-//                discoveryQuery.addFilterQueries("type:(" + Constants.COMMUNITY + ")");
             } else if (dso instanceof Collection)
             {
             	Collection coll = (Collection)dso;
@@ -65,14 +64,10 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
             	//Incluimos este objeto al contexto también...
             	String collFilter = "id:(" + coll.getID() + " OR (" + coll.getLegacyId() + "AND type:" + Constants.COLLECTION + "))";
                 discoveryQuery.addFilterQueries(owningCollFilter + " OR " + collFilter);
-//            	String collFilter = "id:(" + coll.getID() + " OR " + coll.getLegacyId() + ")";
-//                discoveryQuery.addFilterQueries("type:(" + Constants.COLLECTION + ")");
             } else if (dso instanceof Item)
             {
             	Item item = (Item)dso;
             	discoveryQuery.addFilterQueries("id:(" + item.getID() + " OR (" + item.getLegacyId() + "AND type:" + Constants.ITEM + "))");
-//                discoveryQuery.addFilterQueries("id:(" + item.getID() + " OR " + item.getLegacyId() + ")");
-//                discoveryQuery.addFilterQueries("type:(" + Constants.ITEM + ")");
             }
         }
 		
@@ -310,7 +305,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
                             String field = facetField.getName();
                             String authorityValue = null;
                             String sortValue = facetValue.getName();
-                            String filterValue = displayedValue;
+                            String filterValue = facetValue.getName();
                             if (StringUtils.isNotBlank(authorityValue))
                             {
                                 filterValue = authorityValue;
@@ -362,7 +357,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
     }
 
 	protected String transformDisplayedValue(Context context, String field, String value) {
-		if(field.equals(DSO_TYPE_FIELD)) {
+		if(field.equals(DSO_TYPE_FIELD) || field.equals(SCOPE_TYPE_FIELD)) {
 			int dsoType = Integer.parseInt(value);
 			ArrayList<String> constants = new ArrayList<String>(Arrays.asList(Constants.typeText));
 			//chequeamos si el DSO_TYPE_FIELD está dentro de los valores de constantes por las dudas

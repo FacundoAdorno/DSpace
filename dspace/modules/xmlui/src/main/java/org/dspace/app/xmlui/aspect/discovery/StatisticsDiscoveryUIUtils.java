@@ -18,6 +18,8 @@ import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.StatisticsSearchService;
 import org.dspace.discovery.StatisticsSearchUtils;
+import org.dspace.discovery.configuration.DiscoverySearchFilter;
+import org.dspace.discovery.configuration.StatisticsDiscoveryCombinedFilterFacet;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -107,7 +109,20 @@ public class StatisticsDiscoveryUIUtils {
                 String filterValue = filterValues.get(i);
 
                 if(StringUtils.isNotBlank(filterValue)){
-                    allFilterQueries.add(statisticsSearchService.toFilterQuery(context, (filterType.equals("*") ? "" : filterType), filterOperator, filterValue).getFilterQuery());
+                	DiscoverySearchFilter discoveryFilter = StatisticsSearchUtils.getDiscoveryFilterByName(filterType, scope);
+                	if(discoveryFilter != null && discoveryFilter.getFilterType().equals(StatisticsDiscoveryCombinedFilterFacet.FILTER_TYPE_COMBINED_FACET)) {
+                		//Formamos el 'fq' de la forma '(combinedField_1:XXX OR combinedField_2:XXX OR ...)'
+                		StringBuilder combinedFilterQuery = new StringBuilder();
+                		for (Iterator<String> metadataFields = discoveryFilter.getMetadataFields().iterator(); metadataFields.hasNext();) {
+                			combinedFilterQuery.append(statisticsSearchService.toFilterQuery(context, metadataFields.next(), filterOperator, filterValue).getFilterQuery());
+                			if(metadataFields.hasNext()) {
+                				combinedFilterQuery.append(" OR ");
+                			}
+                		}
+                		allFilterQueries.add(combinedFilterQuery.toString());
+                	} else {
+                		allFilterQueries.add(statisticsSearchService.toFilterQuery(context, (filterType.equals("*") ? "" : filterType), filterOperator, filterValue).getFilterQuery());
+                	}
                 }
             }
             
@@ -412,7 +427,6 @@ public class StatisticsDiscoveryUIUtils {
 		return request.getParameter(DISCOVERY_SCOPE_PARAM);
 	}
 	
-	//TODO borrar si no se utiliza...
 	/**
 	 * Retorna una construcción de los parámetros propios de Discovery en el caso de que el contexto de las estadísticas sean los DSO derivados de una consulta en Discovery.
 	 * Por ejemplo, retorna 'discovery_query=&lt;query&gt;&discovery_scope=&lt;scope&gt;'.

@@ -30,6 +30,9 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.discovery.*;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
+import org.dspace.discovery.configuration.DiscoverySearchFilter;
+import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
+import org.dspace.discovery.configuration.StatisticsDiscoveryCombinedFilterFacet;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
 import org.xml.sax.SAXException;
@@ -227,18 +230,10 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
             //We add +1 so we can use the extra one to make sure that we need to show the next page
 //        queryArgs.setFacetLimit();
 
-        String facetField = request.getParameter(SearchFilterParam.FACET_FIELD);
-        DiscoverFacetField discoverFacetField;
-        // Enumerations don't handle mixed cases, setting to uppercase to match convention
-        SORT requestSortOrder = getSortOrder(request);
-        if(request.getParameter(SearchFilterParam.STARTS_WITH) != null)
-        {
-            discoverFacetField = new DiscoverFacetField(facetField, DiscoveryConfigurationParameters.TYPE_TEXT, getPageSize() + 1, requestSortOrder, request.getParameter(SearchFilterParam.STARTS_WITH).toLowerCase());
-        }else{
-            discoverFacetField = new DiscoverFacetField(facetField, DiscoveryConfigurationParameters.TYPE_TEXT, getPageSize() + 1, requestSortOrder);
-        }
-
-        queryArgs.addFacetField(discoverFacetField);
+        ArrayList<DiscoverFacetField> discoverFacetFields = generateFacetByFieldParam(request, scope);
+        for (DiscoverFacetField discoverFacetField : discoverFacetFields) {
+        	queryArgs.addFacetField(discoverFacetField);
+		}
 
         try {
             queryResults = statisticsSearchService.search(context, scope, queryArgs);
@@ -248,6 +243,40 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
 
         return queryResults;
     }
+
+    /**
+     * Retorna un o mas facets, según el tipo de filtro asociado al parámetro "field" que llega en el request...
+     * @param request 	son los datos asociados a la petición
+     * @param scope 	es el DSO utilizado como scope de la consulta actual
+     * @return una lista de campos de facets asociados al parametro "field"
+     */
+	private ArrayList<DiscoverFacetField> generateFacetByFieldParam(Request request, DSpaceObject scope) {
+		String facetField = request.getParameter(SearchFilterParam.FACET_FIELD);
+        ArrayList<DiscoverFacetField> facets = new ArrayList<DiscoverFacetField>();
+        ArrayList<String> fields = new ArrayList<>();
+        
+        DiscoverySearchFilter discoveryFilter = StatisticsSearchUtils.getDiscoveryFilterByName(facetField, scope);
+    	if(discoveryFilter != null && discoveryFilter.getFilterType().equals(StatisticsDiscoveryCombinedFilterFacet.FILTER_TYPE_COMBINED_FACET)) {
+    		//En el caso de los filtros combinados, los campos por los cuales realizar el facet son los configurados como "metadataFields"
+    		fields.addAll(discoveryFilter.getMetadataFields());
+    	} else {
+    		fields.add(facetField);
+    	}
+        
+    	for (String field : fields) {
+    		DiscoverFacetField discoverFacetField;
+            // Enumerations don't handle mixed cases, setting to uppercase to match convention
+            SORT requestSortOrder = getSortOrder(request);
+            if(request.getParameter(SearchFilterParam.STARTS_WITH) != null)
+            {
+            	facets.add(new DiscoverFacetField(field, DiscoveryConfigurationParameters.TYPE_TEXT, getPageSize() + 1, requestSortOrder, request.getParameter(SearchFilterParam.STARTS_WITH).toLowerCase()));
+            }else{
+                facets.add(new DiscoverFacetField(field, DiscoveryConfigurationParameters.TYPE_TEXT, getPageSize() + 1, requestSortOrder));
+            }
+		}
+    	
+		return facets;
+	}
 
     private SORT getSortOrder(Request request) {
         String sortOrderString = request.getParameter(BrowseFacet.ORDER);
@@ -322,8 +351,8 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
 
 
             if (facetFields.size() > 0) {
-                String facetField = facetFields.keySet().toArray(new String[facetFields.size()])[0];
-                java.util.List<StatisticsDiscoverResult.FacetResult> values = facetFields.get(facetField);
+            	String facetField = request.getParameter(SearchFilterParam.FACET_FIELD);
+                java.util.List<StatisticsDiscoverResult.FacetResult> values = getFacetFieldResults(request, dso);
 
                 Division results = body.addDivision("browse-by-" + facetField + "-results", "primary");
 
@@ -375,6 +404,22 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
                 }
             }
         }
+    }
+    
+    private ArrayList<StatisticsDiscoverResult.FacetResult> getFacetFieldResults(Request request, DSpaceObject scope) {
+    	String facetField = request.getParameter(SearchFilterParam.FACET_FIELD);
+    	ArrayList<StatisticsDiscoverResult.FacetResult> facetResults = new ArrayList<StatisticsDiscoverResult.FacetResult>();
+    	Map<String, List<StatisticsDiscoverResult.FacetResult>> facetFields = this.queryResults.getFacetResults();
+        if (facetFields != null) {
+        	
+        	DiscoverySearchFilter discoveryFilter = StatisticsSearchUtils.getDiscoveryFilterByName(facetField, scope);
+        	if(discoveryFilter != null && discoveryFilter.getFilterType().equals(StatisticsDiscoveryCombinedFilterFacet.FILTER_TYPE_COMBINED_FACET)) {
+        		facetResults.addAll(StatisticsDiscoverResult.getCombinedFacetValues(queryResults, (StatisticsDiscoveryCombinedFilterFacet)discoveryFilter));
+        	}else if(facetFields.containsKey(facetField)) {
+        		facetResults.addAll(facetFields.get(facetField));
+        	}
+        }
+        return facetResults;
     }
 
     private void updateQueryResultsAndOffset(Request request, DSpaceObject dso) throws SQLException {
@@ -690,6 +735,7 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
         controlsForm.addButton("update").setValue("update");
     }
     
+    
     /**
      * Given a facetField name, return the total count of facets options.
      *
@@ -699,26 +745,46 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
      * @throws ProccessingException
      */
     private int getTotalFacetCount(String facetField) throws SQLException, ProcessingException{
-    	DiscoverFacetField dff = null;
-    	for(DiscoverFacetField field:  queryArgs.getFacetFields()){
-    		if(facetField.equals(field.getField())){
-    			dff = field;
-    			break;
+    	ArrayList<DiscoverFacetField> dffs = new ArrayList<DiscoverFacetField>();
+    	ArrayList<DiscoverFacetField> tmpDffs = new ArrayList<DiscoverFacetField>();
+    	DSpaceObject scope = HandleUtil.obtainHandle(objectModel);
+    	Request request = ObjectModelHelper.getRequest(objectModel);
+    	
+    	//Inicializamos la lista 'dffs' de facets
+    	DiscoverySearchFilter discoveryFilter = StatisticsSearchUtils.getDiscoveryFilterByName(facetField, scope);
+    	if(discoveryFilter != null && discoveryFilter.getFilterType().equals(StatisticsDiscoveryCombinedFilterFacet.FILTER_TYPE_COMBINED_FACET)) {
+    		//Si es un filtro combinado, entonces puede tener dos o más facets asociados
+    		dffs = generateFacetByFieldParam(request, scope);
+    	} else {
+    		//Si no es un filtro combinado, entonces tenemos un solo facet asociado al filtro en los resultados
+    		for(DiscoverFacetField field:  queryArgs.getFacetFields()){
+    			if(facetField.equals(field.getField())){
+    				dffs.add(field);
+    				break;
+    			}
     		}
     	}
-    	// Remove the original facet from queryArgs, then add the temporal facet to get the total count
-    	queryArgs.getFacetFields().remove(dff);
-    	DiscoverFacetField tmpDff = new DiscoverFacetField(facetField, DiscoveryConfigurationParameters.TYPE_TEXT, -1, sortOrder,0);
-    	queryArgs.addFacetField(tmpDff);
+    	for (int index = 0; index <= dffs.size() - 1; index++) {
+    		DiscoverFacetField dff = dffs.get(index);
+    		// Remove the original facet from queryArgs, then add the temporal facet to get the total count
+    		queryArgs.getFacetFields().remove(dff);
+    		DiscoverFacetField tmpDff = new DiscoverFacetField(dff.getField(), DiscoveryConfigurationParameters.TYPE_TEXT, -1, sortOrder,0);
+    		tmpDffs.add(tmpDff);
+    		queryArgs.addFacetField(tmpDff);
+		}
 		StatisticsDiscoverResult result;
 		try {
 			result = statisticsSearchService.search(context, getScope(), queryArgs);
 		} catch (StatisticsSearchServiceException e) {
 			throw new ProcessingException(e.getMessage(), e);
 		}
-		// Remove the temporal facet and add the original facet to queryArgs
-    	queryArgs.getFacetFields().remove(tmpDff);
-    	queryArgs.addFacetField(dff);
+		for (int index = 0; index <= dffs.size() - 1; index++) {
+    		DiscoverFacetField tmpDff = tmpDffs.get(index);
+			// Remove the temporal facets and add the original facets to queryArgs
+			queryArgs.getFacetFields().remove(tmpDff);
+			DiscoverFacetField dff = dffs.get(index);
+			queryArgs.addFacetField(dff);
+		}
     	
     	return result.getFacetResult(facetField).size();
     }
