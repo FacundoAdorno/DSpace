@@ -446,29 +446,42 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
         return result;
     }
 	
-	/**
-	 * Creamos un filtro correspondiente al DSO (Item, Colección, Comunidad) pasado como parámetro
-	 * @param dso
-	 * @return un string representando el filtro relacionado a ese DSO, o NULL en caso de que el DSO no sea un Item, Colección o Comunidad.
-	 */
 	public String filterQueryForDSO(DSpaceObject dso) {
+		return filterQueryForDSO(dso, false);
+	}
+	
+	public String filterQueryForDSOInHierarchy(DSpaceObject dso) {
+		return filterQueryForDSO(dso, true);
+	}
+	
+	/**
+	 * 
+	 * @param dso es el objeto principal relacionado al filtro
+	 * @param isHierarchicalQuery	si es 'true' determina si el filtro a retornar debe incluir a los sucesores del DSO pasado como parámetro (owningComm, owningColl, owningItem).
+	 * @return
+	 */
+	private String filterQueryForDSO(DSpaceObject dso, boolean isHierarchicalQuery) {
 		if(dso instanceof Item || dso instanceof Collection || dso instanceof Community) {
 			//Un DSO puede o no tener un legacyID, dependiendo de la versión de DSpace en la que fue creado
 			Integer legacyID = null;
 			String dsoType = null;
+			String hierarchicalFilterField = null;
 			StringBuilder fq = new StringBuilder();
 			if(dso instanceof Item) {
 				Item item = (Item) dso;
 				legacyID = item.getLegacyId();
 				dsoType = String.valueOf(item.getType());
+				hierarchicalFilterField = "owningItem";
 			} else if(dso instanceof Collection) {
 				Collection collection = (Collection) dso;
 				legacyID = collection.getLegacyId();
 				dsoType = String.valueOf(collection.getType());
+				hierarchicalFilterField = "owningColl";
 			} else if(dso instanceof Community) {
 				Community community = (Community) dso;
 				legacyID = community.getLegacyId();
 				dsoType = String.valueOf(community.getType());
+				hierarchicalFilterField = "owningComm";
 			}
 			//TODO sería mejor utilizar una formatter reemplazando los parametros (por ejemplo, format("El item tiene UUID %s", uuid)) 
 			fq.append("id:"); 
@@ -480,6 +493,18 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
 				fq.append(" AND type:");
 				fq.append(dsoType);
 				fq.append(")");
+			}
+			
+			if(isHierarchicalQuery) {
+				fq.append(" OR (");
+				fq.append(hierarchicalFilterField);
+				fq.append(":(");
+				fq.append(dso.getID().toString());
+				if(legacyID != null) {
+					fq.append(" OR ");
+					fq.append(legacyID.toString());
+				}
+				fq.append("))");
 			}
 			
 			return fq.toString();

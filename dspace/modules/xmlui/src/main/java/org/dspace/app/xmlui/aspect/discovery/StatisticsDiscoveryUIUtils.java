@@ -7,14 +7,17 @@
  */
 package org.dspace.app.xmlui.aspect.discovery;
 
+import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Request;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.factory.ContentServiceFactoryImpl;
 import org.dspace.content.service.CollectionService;
 import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.discovery.StatisticsSearchService;
 import org.dspace.discovery.StatisticsSearchUtils;
@@ -62,6 +65,12 @@ public class StatisticsDiscoveryUIUtils {
      * que el contexto de la estadística sean los DSO de una consulta Discovery.
      */
     public static String DISCOVERY_SCOPE_PARAM = "discovery_scope";
+    
+    /**
+     * Este parámetro se utiliza para determinar si el scope de la consulta Discovery es plano (sólo se utiliza como contexto los objetos derivados de la consulta)
+     * o si es jerárquico (es decir, que se utilizan como parámetro los DSO derivados de la consulta y además sus hijos).
+     */
+    public static String DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM = "discovery_scope_no_hierarchical";
 
 
 
@@ -70,7 +79,7 @@ public class StatisticsDiscoveryUIUtils {
      * @param request user's request.
      * @return an array containing the filter queries
      */
-    public static Map<String, String[]> getParameterFilterQueries(Request request) {
+    public static Map<String, String[]> getParameterFilterQueries(Request request){
         Map<String, String[]> fqs = new HashMap<String, String[]>();
 
         List<String> filterTypes = getRepeatableParameters(request, "filtertype");
@@ -86,6 +95,7 @@ public class StatisticsDiscoveryUIUtils {
             fqs.put("filter_relational_operator_" + i, new String[]{filterOperator});
             fqs.put("filter_" + i, new String[]{filterValue});
         }
+        
         return fqs;
     }
 
@@ -144,7 +154,11 @@ public class StatisticsDiscoveryUIUtils {
             		for (Iterator<String> uuids = scopeUUIDs.iterator(); uuids.hasNext();) {
             			filterQuery.append("(");
             			DSpaceObject dso = getDSOByUUID(context, uuids.next());
-            			filterQuery.append(statisticsSearchService.filterQueryForDSO(dso));
+            			if(isHierarchicalDiscoveryScope(request)) {
+            				filterQuery.append(statisticsSearchService.filterQueryForDSOInHierarchy(dso));
+            			} else {
+            				filterQuery.append(statisticsSearchService.filterQueryForDSO(dso));
+            			}
             			filterQuery.append(")");
             			if(uuids.hasNext()) {
             				filterQuery.append(" OR ");
@@ -426,27 +440,90 @@ public class StatisticsDiscoveryUIUtils {
 	public static String getDiscoveryScopeParam(Request request) {
 		return request.getParameter(DISCOVERY_SCOPE_PARAM);
 	}
+	/**
+	 * Determina si el scope derivado de Discovery es jerárquico o no
+	 * @param request
+	 * @return 'false' si el parámetro {@link StatisticsDiscoveryUIUtils#DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM} existe y es distinto de 0.
+	 */
+	public static boolean isHierarchicalDiscoveryScope(Request request) {
+		//Si viene con un 0 podria decirse que se lo quiere "desactivar"...
+		return (request.getParameter(DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM) == null || request.getParameter(DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM).equals("0"));
+	}
 	
+	public static String getDiscoveryHierarchicalScopeParam(Request request) {
+		return request.getParameter(DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM);
+	}
+	
+	//TODO eliminar método!!! Chequear antes que no se lo utilice desde ninguna parte...
 	/**
 	 * Retorna una construcción de los parámetros propios de Discovery en el caso de que el contexto de las estadísticas sean los DSO derivados de una consulta en Discovery.
 	 * Por ejemplo, retorna 'discovery_query=&lt;query&gt;&discovery_scope=&lt;scope&gt;'.
-	 * @throws UnsupportedEncodingException 
+	 * @throws UIException 
 	 */
-	public static String getAllDiscoveryQueryParams(Request request) throws UnsupportedEncodingException {
+	public static String getAllDiscoveryQueryParams(Request request) throws UIException {
 		StringBuilder discoveryQueryScopeParams = new StringBuilder();
-		if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
-        	discoveryQueryScopeParams.append(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM);
-        	discoveryQueryScopeParams.append("=");
-        	discoveryQueryScopeParams.append(URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request), "UTF-8"));
-        	if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
-        		discoveryQueryScopeParams.append("&");
-        		discoveryQueryScopeParams.append(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM);
-        		discoveryQueryScopeParams.append("=");
-        		discoveryQueryScopeParams.append(URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request), "UTF-8"));
-        	}
-        }
+		Map<String, String[]> discoveryQueryParams = StatisticsDiscoveryUIUtils.getDiscoveryQueryParams(request);
+		for (Iterator<String> paramsNames = discoveryQueryParams.keySet().iterator(); paramsNames.hasNext();) {
+			String paramName = paramsNames.next();
+			String[] paramValues = discoveryQueryParams.get(paramName);
+			for (int i = 0; i <= paramValues.length-1; i++ ) {
+				discoveryQueryScopeParams.append(paramName);
+				discoveryQueryScopeParams.append("=");
+				discoveryQueryScopeParams.append(discoveryQueryParams.get(paramValues[i]));
+				if(i < paramValues.length-1) {
+					discoveryQueryScopeParams.append("&");
+				}
+			}
+			if(paramsNames.hasNext()) {
+				discoveryQueryScopeParams.append("&");
+			}
+		}
 		return discoveryQueryScopeParams.toString();
 	}
+	
+	/**
+	 * Retorna una colección con parámetros propios de Discovery en el caso de que el contexto de las estadísticas sean los DSO derivados de una consulta en Discovery.
+	 * @throws UnsupportedEncodingException 
+	 */
+	public static Map<String, String[]> getDiscoveryQueryParams(Request request) {
+		Map<String, String[]> discoveryQueryScopeParams = new HashMap<String, String[]>();
+		if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+			discoveryQueryScopeParams.put(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM, new String[]{StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request)});
+			if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
+				discoveryQueryScopeParams.put(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM, new String[]{StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request)});
+			}
+			if(!StatisticsDiscoveryUIUtils.isHierarchicalDiscoveryScope(request)) {
+				discoveryQueryScopeParams.put(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM, new String[]{StatisticsDiscoveryUIUtils.getDiscoveryHierarchicalScopeParam(request)});
+			}
+		}
+		return discoveryQueryScopeParams;
+	}
+	
+	 /**
+     * Encode the given string for URL transmission.
+     * 
+     * @param unencodedString
+     *            The unencoded string.
+     * @return The encoded string
+     * @throws org.dspace.app.xmlui.utils.UIException if the encoding is unsupported.
+     */
+    public static String encodeForURL(String unencodedString) throws UIException
+    {
+    	if (unencodedString == null)
+        {
+            return "";
+        }
+
+        try
+        {
+            return URLEncoder.encode(unencodedString,Constants.DEFAULT_ENCODING);
+        }
+        catch (UnsupportedEncodingException uee)
+        {
+            throw new UIException(uee);
+        }
+
+    }
 	
 }
 

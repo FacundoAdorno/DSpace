@@ -83,4 +83,12 @@ public interface StatisticsSearchService {
 	 * @return un string representando el filtro relacionado a ese DSO, o NULL en caso de que el DSO no sea un Item, Colección o Comunidad.
 	 */
     String filterQueryForDSO(DSpaceObject dso);
+    
+    /**
+	 * Creamos un filtro correspondiente al DSO (Item, Colección, Comunidad) pasado como parámetro y sus 'sucesores' (owningComm, owningColl, owningItem).
+	 * @param dso
+	 * @param isHierarchicalQuery	si es 'true' determina si el filtro a retornar debe incluir a los sucesores del DSO pasado como parámetro (owningComm, owningColl, owningItem). 
+	 * @return un string representando el filtro relacionado a ese DSO y para la obtención de sus sucesores, o NULL en caso de que el DSO no sea un Item, Colección o Comunidad.
+	 */
+    String filterQueryForDSOInHierarchy(DSpaceObject dso);
 }

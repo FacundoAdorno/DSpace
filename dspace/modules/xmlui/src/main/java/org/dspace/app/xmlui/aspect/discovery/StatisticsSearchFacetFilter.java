@@ -492,8 +492,7 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
         }
     }
 
-    private void renderFacetField(SearchFilterParam browseParams, DSpaceObject dso, String facetField, Table singleTable, List<String> filterQueries, StatisticsDiscoverResult.FacetResult value) throws SQLException, WingException, UnsupportedEncodingException {
-    	Request request = ObjectModelHelper.getRequest(objectModel);
+    private void renderFacetField(SearchFilterParam browseParams, DSpaceObject dso, String facetField, Table singleTable, List<String> filterQueries, StatisticsDiscoverResult.FacetResult value) throws SQLException, WingException {
     	String displayedValue = value.getDisplayedValue();
 //        if(field.getGap() != null){
 //            //We have a date get the year so we can display it
@@ -514,14 +513,10 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
             String xrefURL = generateURL(contextPath + (dso == null ? "" : "/handle/" + dso.getHandle()) + "/" + statisticsDiscoveryAspectPath, urlParams);
             //Add already existing filter queries
             xrefURL = addFilterQueriesToUrl(xrefURL);
-           //Add the Discovery Derived Context/Scope, if apply and only if the scope is not fixed or dynamic (handle/XX/YY/statistics-discover or scope=XX/YY, respectively)
-            if (getScope() == null) {
-            	xrefURL = xrefURL + "&" + StatisticsDiscoveryUIUtils.getAllDiscoveryQueryParams(request);
-            }
             //Last add the current filter query
             xrefURL += "&filtertype=" + facetField;
             xrefURL += "&filter_relational_operator="+value.getFilterType();
-            xrefURL += "&filter=" + URLEncoder.encode(value.getAsFilterQuery(), "UTF-8");
+            xrefURL += "&filter=" + value.getAsFilterQuery();
             cell.addXref(xrefURL, displayedValue + " (" + value.getCount() + ")"
             );
         }
@@ -585,6 +580,10 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
 
     public String addFilterQueriesToUrl(String url) throws UIException {
         Map<String, String[]> fqs = StatisticsDiscoveryUIUtils.getParameterFilterQueries(ObjectModelHelper.getRequest(objectModel));
+        Map<String, String[]> discoveryScopeParams = StatisticsDiscoveryUIUtils.getDiscoveryQueryParams(ObjectModelHelper.getRequest(objectModel));
+		for (String paramName : discoveryScopeParams.keySet()) {
+			fqs.put(paramName, discoveryScopeParams.get(paramName));
+		}
         if (fqs != null)
         {
             StringBuilder urlBuilder = new StringBuilder(url);
@@ -728,6 +727,9 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
         		controlsForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request));
         		if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
         			controlsForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request));
+        		}
+        		if(!StatisticsDiscoveryUIUtils.isHierarchicalDiscoveryScope(request)) {
+        			controlsForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryHierarchicalScopeParam(request));
         		}
         	}
         }

@@ -490,6 +490,9 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         		if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
         			division.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request));
         		}
+        		if(!StatisticsDiscoveryUIUtils.isHierarchicalDiscoveryScope(request)) {
+        			division.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryHierarchicalScopeParam(request));
+        		}
         	}
         }
     }

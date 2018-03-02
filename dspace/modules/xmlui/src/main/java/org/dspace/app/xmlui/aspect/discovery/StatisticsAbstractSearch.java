@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
@@ -486,8 +487,13 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
 
 	protected String addFilterQueriesToUrl(String pageURLMask) throws UIException {
         Map<String, String[]> filterQueryParams = StatisticsDiscoveryUIUtils.getParameterFilterQueries(ObjectModelHelper.getRequest(objectModel));
+		Map<String, String[]> discoveryScopeParams = StatisticsDiscoveryUIUtils.getDiscoveryQueryParams(ObjectModelHelper.getRequest(objectModel));
+		for (String paramName : discoveryScopeParams.keySet()) {
+			filterQueryParams.put(paramName, discoveryScopeParams.get(paramName));
+		}
         if(filterQueryParams != null)
         {
+        	//TODO corregir se genera mal la URL!!!
             StringBuilder maskBuilder = new StringBuilder(pageURLMask);
             for (String filterQueryParam : filterQueryParams.keySet())
             {
@@ -496,7 +502,7 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
                 {
                     for (String filterQueryValue : filterQueryValues)
                     {
-                        maskBuilder.append("&").append(filterQueryParam).append("=").append(filterQueryValue);
+                        maskBuilder.append("&").append(filterQueryParam).append("=").append(encodeForURL(filterQueryValue));
                     }
                 }
             }

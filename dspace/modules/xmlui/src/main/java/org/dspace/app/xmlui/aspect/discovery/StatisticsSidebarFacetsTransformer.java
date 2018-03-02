@@ -310,6 +310,9 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
 	        	if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)){
 	        		parameters.add(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM + "=" + URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request), "UTF-8"));
 	        	}
+	        	if(!StatisticsDiscoveryUIUtils.isHierarchicalDiscoveryScope(request)){
+	        		parameters.add(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM + "=" + URLEncoder.encode(StatisticsDiscoveryUIUtils.getDiscoveryHierarchicalScopeParam(request), "UTF-8"));
+	        	}
 	        }
         }
         Map<String, String[]> parameterFilterQueries = StatisticsDiscoveryUIUtils.getParameterFilterQueries(request);

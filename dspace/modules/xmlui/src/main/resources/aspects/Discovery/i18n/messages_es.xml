@@ -181,7 +181,10 @@
 
 	<message key="xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope">El contexto de esta consulta en Statistics-Discovery son los DSO de la siguiente consulta realizada en Discovery:</message>
 	<message key="xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope_link">Consulta Discovery...</message>
+	<message key="xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope.go">IR A ESTADÍSTICAS...</message>
 	<message key="xmlui.Discovery.SimpleSearch.stats_from_query">Vea las estadísticas para los objetos resultantes de la consulta actual...</message>
+	<message key="xmlui.Discovery.SimpleSearch.stats_from_query.no_hierarchy_results">Resultados no jerárquicos</message>
+	<message key="xmlui.Discovery.SimpleSearch.stats_from_query.no_hierarchy_results_help">Ver estadísticas sólo para los objetos determinados por esta consulta discovery y no incluir a sus hijos o sucesores</message>
 
 	<message key="xmlui.Discovery.RelatedItems.head">Ítems relacionados</message>
 	<message key="xmlui.Discovery.RelatedItems.help">Mostrando ítems relacionados por Título, autor o
