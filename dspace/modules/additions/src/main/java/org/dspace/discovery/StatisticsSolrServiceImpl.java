@@ -1,11 +1,14 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -36,6 +39,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
 	protected static String DSO_TYPE_FIELD = "type";
 	protected static String SCOPE_TYPE_FIELD = "scopeType";
 	protected static String IS_BOT_FIELD = "isBot";
+	protected static String ACCESS_TIME_FIELD = "time";
 	
 	@Override
 	public StatisticsDiscoverResult search(Context context, DiscoverQuery query)
@@ -267,6 +271,11 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
             	//Chequeamos si no hay ningun campo que se quiere mostrar específicamente, entonces mostramos todos los campos por ahora...
             	if(query.getSearchFields().isEmpty()) {
                 	searchFields = new ArrayList<String>(doc.getFieldNames());
+                } else {
+                	//Si hay campos que se espcificaron para retornar en el atributo 'fl', agregamos ademas el campo obligatorio que siempre debe estar...
+                	for (String mandatoryField : getMandatoriesFields()) {
+                		searchFields.add(mandatoryField);
+					}
                 }
                 DiscoverResult.SearchDocument resultDoc = new DiscoverResult.SearchDocument();
                 //Add information about our search fields
@@ -336,10 +345,10 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
                     String filter = "";
                     if (facetQuery.indexOf('[') > -1 && facetQuery.lastIndexOf(']') > -1)
                     {
-                        name = facetQuery.substring(facetQuery.indexOf('[') + 1);
-                        name = name.substring(0, name.lastIndexOf(']')).replaceAll("TO", "-");
-                        filter = facetQuery.substring(facetQuery.indexOf('['));
-                        filter = filter.substring(0, filter.lastIndexOf(']') + 1);
+                    	//Acortamos el valor dejando los corchetes "[" y "]"
+                    	filter = facetQuery.substring(facetQuery.indexOf('['));
+                    	//Los corchetes son quitados en el metodo del transformDisplayedValue
+                        name = transformDisplayedValue(context, facetField, filter).replaceAll("TO", "-");
                     }
 
                     Integer count = sortedFacetQueries.get(facetQuery);
@@ -363,6 +372,28 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
 			//chequeamos si el DSO_TYPE_FIELD está dentro de los valores de constantes por las dudas
 			if(constants.size() >= dsoType) {
 				return constants.get(dsoType);
+			}
+		}
+		if(field.equals(ACCESS_TIME_FIELD)) {
+			String dateValue;
+			try {
+				 Pattern pattern = Pattern.compile("\\[(.*? TO .*?)\\]");
+                 Matcher matcher = pattern.matcher(value);
+                 boolean hasPattern = matcher.find();
+                 //Si tenemos un rango de fecha (p.e. [2018-01-01T00:00:00.000Z TO 2019-01-01T00:00:00.000Z]), entonces mostramos el filtro mas bonito, con solo el año...
+                 if(hasPattern){
+                	 dateValue = matcher.group(0);
+                     String startYearFilterStr = StatisticsSearchUtils.getYearFromDate(dateValue.split(" TO ")[0].replace("[", "").trim());
+                     String endYearFilterStr = StatisticsSearchUtils.getYearFromDate(dateValue.split(" TO ")[1].replace("]", "").trim());
+                     return "[" + startYearFilterStr + " TO " + endYearFilterStr + "]";
+                 } else {
+                	 dateValue = StatisticsSearchUtils.getDateTimeStringFromDate(value);
+                	 if(dateValue != null) {
+                		 return dateValue;
+                	 }
+                 }
+			} catch (ParseException e) {
+				// Si falla no hacemos nada y seguimos con el comportamiento por defecto
 			}
 		}
 		
@@ -514,7 +545,14 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
 		}
 	}
 	
-	
-	
+	/**
+	 * Hasta ahora, el único campo obligatorio que debe estar es el "statistics_type"...
+	 * @return una lista de los fields obligatorios en cada documento solr
+	 */
+	private ArrayList<String> getMandatoriesFields(){
+		ArrayList<String> mandatoryFields = new ArrayList<String>();
+		mandatoryFields.add(STATISTICS_TYPE_FIELD);
+		return mandatoryFields;
+	}
 
 }

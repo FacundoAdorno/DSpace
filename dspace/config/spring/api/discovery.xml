@@ -548,6 +548,7 @@
                 <ref bean="searchCountryCodeStatistics" />
                 <ref bean="searchStatisticsTypeStatistics" />
                 <ref bean="searchDSOTypeStatistics" />
+                <ref bean="statisticsTimeFilter" />
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
@@ -688,7 +689,7 @@
         <property name="sortOrderFilterPage" value="COUNT"/> -->
     </bean>
     
-    <bean id="statisticsTimeFilter" class="org.dspace.discovery.configuration.DiscoverySearchFilter">
+    <bean id="statisticsTimeFilter" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
         <property name="indexFieldName" value="time"/>
         <property name="metadataFields">
             <list>

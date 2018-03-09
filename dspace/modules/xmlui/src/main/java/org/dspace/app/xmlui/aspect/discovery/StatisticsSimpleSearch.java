@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.cocoon.caching.CacheableProcessingComponent;
 import org.apache.cocoon.environment.ObjectModelHelper;
@@ -137,7 +139,6 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
 
         Division searchBoxDivision = search.addDivision("discovery-search-box", "discoverySearchBox");
 
-        //TODO el action del form pierde los parametros, asi que voy a tener que agregar 2 campos ocultos con los valores de Discovery...
         Division mainSearchDiv = searchBoxDivision.addInteractiveDivision("general-query",
         		aspectPath, Division.METHOD_GET, "discover-search-box");
         
@@ -230,8 +231,24 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
                     //TODO verificar si es un campo del tipo 'DATE' que sea una fecha válida, sino no imprimir el filtro...
                     if(StringUtils.isNotBlank(filterValue) && StringUtils.isNotBlank(filterConfigurationType))
                     {
-                    	if(filterConfigurationType.equals(DiscoveryConfigurationParameters.TYPE_DATE) && !StatisticsDiscoveryUIUtils.isValidDate(filterValue)) {
-                    		continue;
+                    	if(filterConfigurationType.equals(DiscoveryConfigurationParameters.TYPE_DATE)){
+                    		//Verificamos si el DATE que viene es un rango, es decir, [2018-01-01T00:00:00.000Z TO 2019-01-01T00:00:00.000Z] por ejemplo
+                    		Pattern pattern = Pattern.compile("\\[(.*? TO .*?)\\]");
+                            Matcher matcher = pattern.matcher(filterValue);
+                            boolean hasPattern = matcher.find();
+                            if(hasPattern) {
+                            	String dateValue = matcher.group(0);
+                                String startDateStr = dateValue.split(" TO ")[0].replace("[", "").trim();
+                                String endDateStr = dateValue.split(" TO ")[1].replace("]", "").trim();
+                                if(!StatisticsSearchUtils.isValidDate(startDateStr) || !StatisticsSearchUtils.isValidDate(endDateStr)) {
+                                	continue;
+                                }
+                            } else {
+                            	//Si no tenemos un rango, entonces tendría que haber una fecha sencilla
+                            	if(!StatisticsSearchUtils.isValidDate(filterValue)) {
+                            		continue;
+                            	}
+                            }
                     	}
                         Row row = filtersTable.addRow("used-filters-" + i+1, Row.ROLE_DATA, "search-filter used-filter");
                         addFilterRow(filterFields, i+1, row, filterType, filterOperator, filterValue, filterConfigurationType);
@@ -326,6 +343,8 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
             Select typeSelect = row.addCell("date-filter_operators_" + index, Cell.ROLE_DATA, "selection").addSelect("filter_relational_operator_" + index);
             typeSelect.addOption(StringUtils.equals(relationalOperator, "fromDate"), "fromDate", T_filter_from_date);
             typeSelect.addOption(StringUtils.equals(relationalOperator, "untilDate"), "untilDate", T_filter_until_date);
+            //Agregamos este campo en el filtro para las fechas para poder realizar búsquedas por rango (p.e., '[2016-01-01T00:00:00Z TO 2017-01-01T00:00:00Z]') o exactas, al estilo Discovery
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "equals"), "equals", T_filter_equals);
             
           //Add a box so we can search for our value
           row.addCell("date-filter_value_" + index, Cell.ROLE_DATA, "discovery-filter-input-cell").addText("filter_" + index, "discovery-filter-input date-input").setValue(value == null ? "" : value);

@@ -27,17 +27,14 @@ import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.Options;
-import org.dspace.app.xmlui.wing.element.Select;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.discovery.DiscoverFacetField;
 import org.dspace.discovery.DiscoverQuery;
-import org.dspace.discovery.StatisticsDiscoverResult;
-import org.dspace.discovery.SearchService;
-import org.dspace.discovery.SearchServiceException;
-import org.dspace.discovery.SearchUtils;
+import org.dspace.discovery.DiscoveryDateFacetField;
+import org.dspace.discovery.GenericDiscoverResult.SearchDocument;
 import org.dspace.discovery.StatisticsDiscoverResult;
 import org.dspace.discovery.StatisticsSearchServiceException;
 import org.dspace.discovery.StatisticsSearchUtils;
@@ -48,7 +45,7 @@ import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.discovery.configuration.StatisticsDiscoveryCombinedFilterFacet;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.handle.service.HandleService;
-import org.dspace.services.factory.DSpaceServicesFactory;
+import org.joda.time.DateTime;
 import org.xml.sax.SAXException;
 
 public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransformer implements CacheableProcessingComponent{
@@ -205,9 +202,10 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                 	}else {
                 		facetValues.addAll(queryResults.getFacetResult(field.getIndexFieldName()));
                 	}
+                	//TODO eliminar condicion ya que quedó de más....
                     //Check if we are dealing with a date, sometimes the facet values arrive as dates !
                     if(facetValues.size() == 0 && field.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)){
-                        facetValues = queryResults.getFacetResult(field.getIndexFieldName() + ".year");
+                        facetValues = queryResults.getFacetResult(field.getIndexFieldName());
                     }
 
                     int shownFacets = field.getFacetLimit()+1;
@@ -249,8 +247,15 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                                 if (fqs.contains(getSearchService().toFilterQuery(context, field.getIndexFieldName(), value.getFilterType(), value.getAsFilterQuery()).getFilterQuery())) {
                                 	org.dspace.app.xmlui.wing.element.Item item = filterValsList.addItem(Math.random() + "", "selected");
                                 	item.addContent(displayedValue + " (" + value.getCount() + ")");
+                                	String escapedFilterQuery = filterQuery; 
+                                	//Si el parámetro es de tipo fecha, entonces conseguimos el string con la fecha 
+                                	if(field.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
+                                		//reemplazamos el simbolo "[" por "\[" para que lo tome la expresión regular dentro del getUrlWithoutFilter...
+                                		//TODO esto habria que hacerlo dentro del metodo getUrlWithoutFilter
+                                		escapedFilterQuery = filterQuery.replace("[","\\[").replace("]", "\\]");
+                                	}
                                 	String urlWithoutFilter = StatisticsDiscoveryUIUtils.getUrlWithoutFilter(contextPath + (dso == null ? "" : "/handle/" + dso.getHandle()) + 
-                                			"/statistics-discover?" + paramsQuery, field.getIndexFieldName(), value.getFilterType(), value.getAsFilterQuery());
+                                			"/statistics-discover?" + paramsQuery, field.getIndexFieldName(), value.getFilterType(), escapedFilterQuery);
                                 	item.addXref(urlWithoutFilter,"", null, "removeFacet");
                                 	
                                 } else {
@@ -366,7 +371,7 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
         if (facets != null){
             for (DiscoverySearchFilterFacet facet : facets) {
                 if(facet.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)){
-                    String dateFacet = facet.getIndexFieldName() + ".year";
+                    String dateFacet = facet.getIndexFieldName();
                     try{
                         //Get a range query so we can create facet queries ranging from our first to our last date
                         //Attempt to determine our oldest & newest year by checking for previously selected filters
@@ -381,14 +386,18 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                                 if(hasPattern){
                                     filterQuery = matcher.group(0);
                                     //We have a range
-                                    //Resolve our range to a first & last year
-                                    int tempOldYear = Integer.parseInt(filterQuery.split(" TO ")[0].replace("[", "").trim());
-                                    int tempNewYear = Integer.parseInt(filterQuery.split(" TO ")[1].replace("]", "").trim());
+                                    String tmpOldYearStr = StatisticsSearchUtils.getYearFromDate(filterQuery.split(" TO ")[0].replace("[", "").trim());
+                                    String tmpNewYearStr = StatisticsSearchUtils.getYearFromDate(filterQuery.split(" TO ")[1].replace("]", "").trim());
 
-                                    //Check if we have a further filter (or a first one found)
-                                    if(tempNewYear < newestYear || oldestYear < tempOldYear || newestYear == -1){
-                                        oldestYear = tempOldYear;
-                                        newestYear = tempNewYear;
+                                    if(tmpOldYearStr != null && tmpNewYearStr != null) {
+                                    	//Resolve our range to a first & last year
+                                    	int tempOldYear = Integer.parseInt(tmpOldYearStr);
+                                    	int tempNewYear = Integer.parseInt(tmpNewYearStr);
+                                    	//Check if we have a further filter (or a first one found)
+                                    	if(tempNewYear < newestYear || oldestYear < tempOldYear || newestYear == -1){
+	                                        oldestYear = tempOldYear;
+	                                        newestYear = tempNewYear;
+                                    	}
                                     }
 
                                 }else{
@@ -396,11 +405,14 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                                         //Should always be the case
                                         filterQuery = filterQuery.split(" OR ")[0];
                                     }
+                                    String tmpOldYearStr1 = StatisticsSearchUtils.getYearFromDate(filterQuery.split(":")[1].trim());
                                     //We should have a single date
-                                    oldestYear = Integer.parseInt(filterQuery.split(":")[1].trim());
-                                    newestYear = oldestYear;
-                                    //No need to look further
-                                    break;
+                                    if(tmpOldYearStr1 != null) {
+                                    	oldestYear = Integer.parseInt(tmpOldYearStr1);
+                                    	newestYear = oldestYear;
+                                    	//No need to look further
+                                    	break;
+                                    }
                                 }
                             }
                         }
@@ -412,27 +424,30 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                             //Set our query to anything that has this value
                             yearRangeQuery.addFieldPresentQueries(dateFacet);
                             //Set sorting so our last value will appear on top
-                            yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.asc);
+                            yearRangeQuery.setSortField(dateFacet, DiscoverQuery.SORT_ORDER.asc);
                             yearRangeQuery.addFilterQueries(filterQueries);
                             yearRangeQuery.addSearchField(dateFacet);
                             StatisticsDiscoverResult lastYearResult = getSearchService().search(context, scope, yearRangeQuery);
 
-
-//                            if(0 < lastYearResult.getDspaceObjects().size()){
-//                                java.util.List<StatisticsDiscoverResult.SearchDocument> searchDocuments = lastYearResult.getSearchDocument(lastYearResult.getDspaceObjects().get(0));
-//                                if(0 < searchDocuments.size() && 0 < searchDocuments.get(0).getSearchFieldValues(dateFacet).size()){
-//                                    oldestYear = Integer.parseInt(searchDocuments.get(0).getSearchFieldValues(dateFacet).get(0));
-//                                }
-//                            }
+                            if(0 < lastYearResult.getAllResults().size()){
+                            	SearchDocument searchDocument = lastYearResult.getAllResults().get(0);
+                            	if(searchDocument != null && 0 < searchDocument.getSearchFieldValues(dateFacet).size()){
+                            		//Las fechas retornadas por solr tienen el formato de Date.toString()...
+                            		String yearForDate = StatisticsSearchUtils.getYearFromCompleteDate(searchDocument.getSearchFieldValues(dateFacet).get(0));
+                            		oldestYear = Integer.parseInt(yearForDate);
+                            	}
+                            }
                             //Now get the first year
-                            yearRangeQuery.setSortField(dateFacet + "_sort", DiscoverQuery.SORT_ORDER.desc);
-//                            StatisticsDiscoverResult firstYearResult = getSearchService().search(context, scope, yearRangeQuery);
-//                            if( 0 < firstYearResult.getDspaceObjects().size()){
-//                                java.util.List<StatisticsDiscoverResult.SearchDocument> searchDocuments = firstYearResult.getSearchDocument(firstYearResult.getDspaceObjects().get(0));
-//                                if(0 < searchDocuments.size() && 0 < searchDocuments.get(0).getSearchFieldValues(dateFacet).size()){
-//                                    newestYear = Integer.parseInt(searchDocuments.get(0).getSearchFieldValues(dateFacet).get(0));
-//                                }
-//                            }
+                            yearRangeQuery.setSortField(dateFacet, DiscoverQuery.SORT_ORDER.desc);
+                            StatisticsDiscoverResult firstYearResult = getSearchService().search(context, scope, yearRangeQuery);
+                            if( 0 < lastYearResult.getAllResults().size()){
+                            	SearchDocument searchDocument = firstYearResult.getAllResults().get(0);
+                            	if(searchDocument != null && 0 < searchDocument.getSearchFieldValues(dateFacet).size()){
+                            		//Las fechas retornadas por solr tienen el formato de Date.toString()...
+                            		String yearForDate = StatisticsSearchUtils.getYearFromCompleteDate(searchDocument.getSearchFieldValues(dateFacet).get(0));
+                            		newestYear = Integer.parseInt(yearForDate);
+                            	}
+                            }
                             //No values found!
                             if(newestYear == -1 || oldestYear == -1)
                             {
@@ -442,6 +457,8 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                         }
 
                         int gap = 1;
+                        //TODO acomodar este algoritmo para que un facet con rango cada 5 y 2 años (array [5,2,1] son los posibles rango aceptados)
+                        /**
                         //Attempt to retrieve our gap using the algorithm below
                         int yearDifference = newestYear - oldestYear;
                         if(yearDifference != 0){
@@ -449,43 +466,43 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                                 gap *= 10;
                             }
                         }
+                        **/
                         // We need to determine our top year so we can start our count from a clean year
                         // Example: 2001 and a gap from 10 we need the following result: 2010 - 2000 ; 2000 - 1990 hence the top year
                         int topYear = (int) (Math.ceil((float) (newestYear)/gap)*gap);
 
                         if(gap == 1){
-                            //We need a list of our years
-                            //We have a date range add faceting for our field
-                            //The faceting will automatically be limited to the 10 years in our span due to our filterquery
-                            queryArgs.addFacetField(new DiscoverFacetField(facet.getIndexFieldName(), facet.getType(), 10, facet.getSortOrderSidebar()));
-                        }else{
-                            java.util.List<String> facetQueries = new ArrayList<String>();
-                            //Create facet queries but limit them to 11 (11 == when we need to show a "show more" url)
-                            for(int year = topYear; year > oldestYear && (facetQueries.size() < 11); year-=gap){
-                                //Add a filter to remove the last year only if we aren't the last year
-                                int bottomYear = year - gap;
-                                //Make sure we don't go below our last year found
-                                if(bottomYear < oldestYear)
-                                {
-                                    bottomYear = oldestYear;
-                                }
+                        	//Sumamos en 1 el año máximo (el 'newestYear') para que incluya las fechas entre este año y el siguiente, p.e. si el año máximo es 2018 entonces nos interesa las fechas entre 2018 y el 2019=(2018+1)...
+                        	topYear++;
+                        }
+                        java.util.List<String> facetQueries = new ArrayList<String>();
+                        //Create facet queries but limit them to 11 (11 == when we need to show a "show more" url)
+                        for(int year = topYear; year > oldestYear && (facetQueries.size() < 11); year-=gap){
+                            //Add a filter to remove the last year only if we aren't the last year
+                            int bottomYear = year - gap;
+                            //Make sure we don't go below our last year found
+                            if(bottomYear < oldestYear)
+                            {
+                                bottomYear = oldestYear;
+                            }
 
-                                //Also make sure we don't go above our newest year
-                                int currentTop = year;
-                                if((year == topYear))
-                                {
-                                    currentTop = newestYear;
-                                }
-                                else
-                                {
-                                    //We need to do -1 on this one to get a better result
-                                    currentTop--;
-                                }
-                                facetQueries.add(dateFacet + ":[" + bottomYear + " TO " + currentTop + "]");
-                            }
-                            for (String facetQuery : facetQueries) {
-                                queryArgs.addFacetQuery(facetQuery);
-                            }
+                            //Also make sure we don't go above our newest year
+                            int currentTop = year;
+//                            if((year == topYear))
+//                            {
+//                                currentTop = newestYear;
+//                            }
+//                            else
+//                            {
+//                                //We need to do -1 on this one to get a better result
+//                                currentTop--;
+//                            }
+                            String completeBottomYearUTCDateTime = StatisticsSearchUtils.getDateTimeStringFromDate(String.valueOf(bottomYear));
+                            String completeCurrentTopYearUTCDateTime = StatisticsSearchUtils.getDateTimeStringFromDate(String.valueOf(currentTop));
+                            facetQueries.add(dateFacet + ":[" + completeBottomYearUTCDateTime + " TO " + completeCurrentTopYearUTCDateTime + "]");
+                        }
+                        for (String facetQuery : facetQueries) {
+                            queryArgs.addFacetQuery(facetQuery);
                         }
                     }catch (Exception e){
                         log.error(LogManager.getHeader(context, "Error in Discovery while setting up date facet range", "date facet: " + dateFacet), e);

@@ -1,8 +1,14 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.CollectionServiceImpl;
@@ -20,6 +26,8 @@ import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.ExtendedDiscoveryConfiguration;
 import org.dspace.kernel.ServiceManager;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 public class StatisticsSearchUtils extends SearchUtils {
 
@@ -144,6 +152,74 @@ public class StatisticsSearchUtils extends SearchUtils {
 			}
 		}
 		return null;
+	}
+
+
+	/**
+	 * Conseguimos el label de año para una fecha dada. Por ejemplo, para la fecha '2018-01-10' se obtiene el valor 2018. 
+	 * El formato de fecha aceptada es 'YYYY', 'YYYY-M', 'YYYY-M-dd' o el Datetime entero 'YYYY-M-dd'T'HH:mm:ss'.
+	 */
+	public static String getYearFromDate(String dateToParse) throws ParseException{
+		if(isValidDate(dateToParse)) {
+			DateTime dateTimeUtc = new DateTime( dateToParse, DateTimeZone.UTC );
+			return String.valueOf(dateTimeUtc.getYear());
+		}
+		return null;
+	}
+	
+	/**
+	 * Conseguimos el label de año para una fecha dada. Por ejemplo, para la fecha "Wed Feb 18 08:03:58 ART 2015" se obtiene el valor 2015. 
+	 * El formato de fecha aceptada es "EEE MMM dd HH:mm:ss Z yyyy".
+	 */
+	public static String getYearFromCompleteDate(String dateToParse) throws ParseException{
+		//Para mas información ver https://stackoverflow.com/questions/11239814/parsing-a-java-date-back-from-tostring
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", new Locale("us"));
+		Date date = sdf.parse(dateToParse);
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(date);
+		return String.valueOf(calendar.get(Calendar.YEAR));
+	}
+
+
+	/**
+	 * Conseguimos el label del datetime correspondiente a una fecha dada. Por ejemplo, para la fecha '2018-01-10' se obtiene el valor '2018-01-01T00:00:00.000Z'. 
+	 * El formato de fecha aceptada es 'YYYY', 'YYYY-M', 'YYYY-M-dd' o el Datetime entero 'YYYY-M-dd'T'HH:mm:ss'.
+	 */
+	public static String getDateTimeStringFromDate(String dateToParse) throws ParseException{
+		if(isValidDate(dateToParse)) {
+			DateTime dateTimeUtc = getDateTimeFromDate(dateToParse);
+			return dateTimeUtc.toString();
+		}
+		return null;
+	}
+	
+	/**
+	 * Conseguimos el objeto DateTime del datetime correspondiente a una fecha dada. Por ejemplo, para la fecha '2018-01-10' se obtiene el valor '2018-01-01T00:00:00.000Z'. 
+	 * El formato de fecha aceptada es 'YYYY', 'YYYY-M', 'YYYY-M-dd' o el Datetime entero 'YYYY-M-dd'T'HH:mm:ss'.
+	 */
+	public static DateTime getDateTimeFromDate(String dateToParse) throws ParseException{
+		if(isValidDate(dateToParse)) {
+			return new DateTime( dateToParse, DateTimeZone.UTC );
+		}
+		return null;
+	}
+
+
+	/**
+	 * Revisamos si la fecha pasada como parámetro es parseable al formato UTC. Por ejemplo, si se recibe la fecha en el formato 
+	 * hora Argentina '2017-06-10T00:00:00-03:00' (ART), se verificará si se podrá pasar al formato universal '2017-06-10T03:00:00Z' (UTC).
+	 * 
+	 * @param dateRepresentation	es el String correspondiente a la fecha que se quiere parsear a UTC
+	 * @return true si es parseable
+	 */
+	public static boolean isValidDate(String dateRepresentation) {
+		try{
+			new DateTime(dateRepresentation, DateTimeZone.UTC );
+			return true;
+		} catch (IllegalArgumentException e) {
+			//Cuando se le pasa un String no válido al constructor de DateTime, entonces salta la IllegalArgumentException...
+			return false;
+		}
 	}
     
 }

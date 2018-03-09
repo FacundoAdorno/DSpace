@@ -464,6 +464,7 @@ public class StatisticsSearchFacetFilter extends AbstractDSpaceTransformer imple
             }
         }
 
+        //TODO fijarse para qué está esto....
         //We cannot create a filter for dates
         if(!browseParams.getFacetField().endsWith(".year")){
             // Create a clickable list of the alphabet

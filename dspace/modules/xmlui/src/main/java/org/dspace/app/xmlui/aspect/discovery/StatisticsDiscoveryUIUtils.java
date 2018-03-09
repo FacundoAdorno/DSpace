@@ -24,8 +24,6 @@ import org.dspace.discovery.StatisticsSearchUtils;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.StatisticsDiscoveryCombinedFilterFacet;
 import org.dspace.services.factory.DSpaceServicesFactory;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -300,23 +299,6 @@ public class StatisticsDiscoveryUIUtils {
     }
     
     /**
-     * Revisamos si la fecha pasada como parámetro es parseable al formato UTC. Por ejemplo, si se recibe la fecha en el formato 
-     * hora Argentina '2017-06-10T00:00:00-03:00' (ART), se verificará si se podrá pasar al formato universal '2017-06-10T03:00:00Z' (UTC).
-     * 
-     * @param dateRepresentation	es el String correspondiente a la fecha que se quiere parsear a UTC
-     * @return true si es parseable
-     */
-    public static boolean isValidDate(String dateRepresentation) {
-    	try{
-    		new DateTime(dateRepresentation, DateTimeZone.UTC );
-    		return true;
-		} catch (IllegalArgumentException e) {
-			//Cuando se le pasa un String no válido al constructor de DateTime, entonces salta la IllegalArgumentException...
-			return false;
-		}
-    }
-    
-    /**
      * Determina si el scope de la actual consulta es derivado de "/discover", es decir, si el scope son los DSO resultantes de una consulta realizada en "/discover"..
      * @param request
      * @return
@@ -524,6 +506,5 @@ public class StatisticsDiscoveryUIUtils {
         }
 
     }
-	
 }
 
