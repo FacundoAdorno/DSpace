@@ -24,6 +24,11 @@ public class StatisticsDiscoverResult extends GenericDiscoverResult{
     		return this.type;
     	}
     }
+    
+    /**
+     * Identificar único de acceso al registro estadístico
+     */
+    public static String STAT_ID_FIELD = "uuid";
 	
 	//Se agregan documentos agregándolos por tipo de búsqueda por ahora...
 	//Conviene ver si es mejor agregar por handle del objeto asociado a la estadística... Hay casos en que no hay handle asociado (por ejemplo algunas estadisticas de busqueda[search])

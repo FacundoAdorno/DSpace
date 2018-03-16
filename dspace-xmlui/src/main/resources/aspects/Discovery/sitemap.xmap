@@ -158,7 +158,10 @@ and the recent submissions listing
                 <map:transform type="StatisticsSearchFacetFilter"/>
                 <map:serialize type="xml"/>
             </map:match>
-
+            
+            <!-- Statistics-Discover Exports Transformer -->
+            <!-- TODO!!! Tiene que agregar el link en la página de "/statistics-discover" por cada exporter registrado-->
+            
             <!-- Handle specific features -->
             <map:match pattern="handle/*/**">
 

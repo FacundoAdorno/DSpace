@@ -956,7 +956,7 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
      * This method returns more expanded filter queries then the getParameterFilterQueries
      * @return an array containing the filter queries
      */
-    protected String[] getFilterQueries() {
+    public String[] getFilterQueries() {
         try {
             return ObjectModelHelper.getRequest(objectModel).getParameterValues("fq");
         }
@@ -1038,7 +1038,7 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
      *
      * @return The query string.
      */
-    protected abstract String getQuery() throws UIException;
+    public abstract String getQuery() throws UIException;
 
     /**
      * Generate a url to the given search implementation with the associated
@@ -1155,7 +1155,7 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
      *
      * @return The current scope.
      */
-    protected DSpaceObject getScope() throws SQLException {
+    public DSpaceObject getScope() throws SQLException {
         Request request = ObjectModelHelper.getRequest(objectModel);
         String scopeString = request.getParameter("scope");
 

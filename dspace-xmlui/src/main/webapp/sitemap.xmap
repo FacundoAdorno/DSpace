@@ -205,6 +205,7 @@
                                         
                     <map:reader name="HandleResolverReader" src="org.dspace.app.xmlui.aspect.handle.HandleResolverReader"/>
                     <map:reader name="DiscoveryUUIDsSearcher" src="org.dspace.app.xmlui.aspect.discovery.DiscoveryUUIDsInSearch"/>
+                    <map:reader name="StatisticsDiscoveryExporter" src="org.dspace.app.xmlui.cocoon.StatisticsDiscoveryExporter"/>
                 </map:readers>
                 <map:actions>
                         <map:action name="locale" src="org.dspace.app.xmlui.cocoon.DSpaceLocaleAction"/>
@@ -463,6 +464,15 @@
 							<map:read type="DiscoveryUUIDsSearcher" />
 							<map:serialize type="text"/>
 						</map:match>
+						
+						<!-- Exportation manager -->
+			            <map:match pattern="statistics-discover/export/*">
+			            	<map:read type="StatisticsDiscoveryExporter">
+			            		<map:parameter name="exporterSelector" value="{1}"/>
+			            	</map:read>
+			            	
+			            	<map:serialize type="text"/>
+			            </map:match>
             
                 </map:pipeline>
 
