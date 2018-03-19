@@ -178,6 +178,14 @@
 <message key="xmlui.ArtifactBrowser.AdvancedSearch.or">O</message>
 <message key="xmlui.ArtifactBrowser.AdvancedSearch.not">NO</message>
 
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_help">Al momento de exportar los resultados realiza un formateo de la salida para que sea legible por los humanos.</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_label">Formatear resultado</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.submit">Exportar a JSON</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-csv.controls.submit">Exportar a CSV</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.head">JSON - Opciones de exportación</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-csv.head">CSV - Opciones de exportación</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results.head">Exportación de resultados</message>
+
 
 	<!-- org.dspace.app.xmlui.artifactbrowser.ConfigureableBrowse.java -->
 <message key="xmlui.ArtifactBrowser.ConfigurableBrowse.general.starts_with">O introducir las primeras letras:</message>

@@ -13,16 +13,20 @@ import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Request;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
+import org.dspace.app.xmlui.cocoon.StatisticsDiscoveryExporter;
 import org.dspace.app.xmlui.utils.HandleUtil;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.Body;
+import org.dspace.app.xmlui.wing.element.Button;
 import org.dspace.app.xmlui.wing.element.Cell;
+import org.dspace.app.xmlui.wing.element.CheckBox;
 import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.Item;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.PageMeta;
+import org.dspace.app.xmlui.wing.element.Para;
 import org.dspace.app.xmlui.wing.element.Row;
 import org.dspace.app.xmlui.wing.element.Select;
 import org.dspace.app.xmlui.wing.element.Table;
@@ -36,6 +40,7 @@ import org.dspace.discovery.StatisticsSearchUtils;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
+import org.dspace.discovery.exporter.StatisticsJSONExporter;
 import org.xml.sax.SAXException;
 
 public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements CacheableProcessingComponent{
@@ -57,6 +62,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
 
     private static final Message T_head =
             message("xmlui.ArtifactBrowser.SimpleSearch.head");
+    
 
 //    private static final Message T_search_label =
 //            message("xmlui.discovery.SimpleSearch.search_label");
@@ -82,6 +88,15 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     
     private static final Message T_discovery_derived_scope = message("xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope");
     private static final Message T_discovery_derived_scope_link = message("xmlui.Statistics_Discovery.SimpleSearch.discovery_derived_scope_link");
+    
+    private static final Message T_statistics_export_head = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results.head");
+    private static final Message T_statistics_export_csv_head = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-csv.head");
+    private static final Message T_statistics_export_csv_submit = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-csv.controls.submit");
+    private static final Message T_statistics_export_json_head = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.head");
+    private static final Message T_statistics_export_json_submit = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.submit");
+    private static final Message T_statistics_export_json_format_label = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_label");
+    private static final Message T_statistics_export_json_format_help = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_help");
+    
 
 	
     private String aspectPath = "statistics-discover";
@@ -279,6 +294,11 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         //Division results = body.addDivision("results", "primary");
         //results.setHead(T_head);
         buildMainForm(search);
+        
+//        Division exportDivision = search.addDivision("discovery-export-results-box", "discoverySearchBox");
+        Division exportDivision = search.addDivision("discovery-export-results-box");
+        exportDivision.setHead(T_statistics_export_head);
+        buildExportResultsForm(exportDivision);
 
         // Add the result division
         try {
@@ -291,6 +311,44 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     }
     
     /**
+     * Agrega la sección para la exportación de resultados en el documento principal en los formatos definidos en la configuración statistics-discovery.cfg
+     * @param exportDivision	es el div donde poner todo lo relativo a la exportación de resulados
+     * @throws WingException 
+     * @throws SQLException 
+     */
+    private void buildExportResultsForm(Division exportDivision) throws WingException, SQLException {
+    	java.util.List<String> exportOptions = StatisticsDiscoveryExporter.getAvailablesExportOptions();
+    	Request request = ObjectModelHelper.getRequest(objectModel);
+    	Map<String, String[]> fqs = getParameterFilterQueries();
+    	
+    	for (String exportOption : exportOptions) {
+    		exportOption = exportOption.replace("statistics-discovery.exporter.selector.", "");
+    		if(exportOption.equals("csv")) {
+    			Division csvDiv = exportDivision.addDivision("csv_exportation");
+//    			csvDiv.setHead(T_statistics_export_csv_head);
+    			csvDiv.addPara(T_statistics_export_csv_head);
+    			Division csvExportForm = csvDiv.addInteractiveDivision("csv_export_form","statistics-discover/export/csv", Division.METHOD_GET, "statisticsFromQuery discovery-box");
+    			Para csvButtons = csvExportForm.addPara();
+    			csvButtons.addButton("statistics_csv_export_submit", "discovery-apply-filter-button").setValue(T_statistics_export_csv_submit);
+    			addHiddenFormFields("search", request, fqs, csvExportForm);
+    		}
+    		
+    		if(exportOption.equals("json")) {
+    			Division jsonDiv = exportDivision.addDivision("json_exportation");
+//    			jsonDiv.setHead(T_statistics_export_json_head);
+    			jsonDiv.addPara(T_statistics_export_json_head);
+    			Division jsonExportForm = jsonDiv.addInteractiveDivision("json_export_form","statistics-discover/export/json", Division.METHOD_GET, "statisticsFromQuery discovery-box");
+    			Para jsonButtons = jsonExportForm.addPara();
+    			CheckBox prettyFormatCheckbox = jsonButtons.addCheckBox(StatisticsJSONExporter.JsonExporterParams.PRETTY_FORMAT.toString());
+    			prettyFormatCheckbox.addOption(1, T_statistics_export_json_format_label);
+    			prettyFormatCheckbox.setHelp(T_statistics_export_json_format_help);
+    			jsonButtons.addButton("statistics_json_export_submit", "discovery-apply-filter-button").setValue(T_statistics_export_json_submit);
+    			addHiddenFormFields("search", request, fqs, jsonExportForm);
+    		}
+		}
+	}
+
+	/**
      * Print a filter row. This filter may be already applied or not, i.e. the filter is applied if it was instantiated and has a triplet (type,operator,value) assigned.
      * If filter is 'date' type, then print the operators available for a date.
      * 
@@ -376,7 +434,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
      * @return an array containing the filter queries
      */
     @Override
-    protected String[] getFilterQueries() {
+	public String[] getFilterQueries() {
     	DSpaceObject dso;
 		try {
 			dso = getScope();
@@ -395,7 +453,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
      * @throws org.dspace.app.xmlui.utils.UIException passed through.
      */
     @Override
-    protected String getQuery() throws UIException {
+	public String getQuery() throws UIException {
         Request request = ObjectModelHelper.getRequest(objectModel);
         String query = decodeFromURL(request.getParameter("query"));
         if (query == null)

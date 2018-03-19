@@ -137,7 +137,7 @@ public class GenericDiscoverResult {
     /**
      * This class contains values from the fields searched for in DiscoveryQuery.java
      */
-    public static final class SearchDocument{
+    public static class SearchDocument{
         private Map<String, List<String>> searchFields;
 
         public SearchDocument() {
@@ -163,6 +163,17 @@ public class GenericDiscoverResult {
             else
                 return searchFields.get(field);
         }
+        
+        //TODO: por ahi conviene crear una subclase de SearchDocument que permita cambiar los valores en vez de cambiarlos directamente
+        /**
+         * Se reemplaza un campo del documento por un conjunto nuevo de valores. El conjunto no debería estar vacío.
+         **/
+    	public void replaceFieldValues(String field, List<String> newValues) {
+    		if(searchFields.get(field) != null && newValues != null & !newValues.isEmpty()) {
+    			searchFields.remove(field);
+    			searchFields.put(field, newValues);
+    		}
+    	}
 
         public static String getDspaceObjectStringRepresentation(DSpaceObject dso){
             return dso.getType() + ":" + dso.getID();

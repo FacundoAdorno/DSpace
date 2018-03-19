@@ -175,6 +175,16 @@
    <message key="xmlui.ArtifactBrowser.AdvancedSearch.and">AND</message>
    <message key="xmlui.ArtifactBrowser.AdvancedSearch.or">OR</message>
    <message key="xmlui.ArtifactBrowser.AdvancedSearch.not">NOT</message>
+   
+   
+   <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results.head">Export of results</message>
+   <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-csv.head">CSV - Export options</message>
+   <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.head">JSON - Export options</message>
+   <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-csv.controls.submit">Export to CSV</message>
+   <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.submit">Export to JSON</message>
+   <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_label">Format the result</message>
+   <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_help">At the moment of exporting the results, it performs a formatting of the output so that it is readable by humans.</message>
+   
 
 
 	<!-- org.dspace.app.xmlui.artifactbrowser.ConfigureableBrowse.java -->
