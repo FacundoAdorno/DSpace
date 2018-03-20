@@ -40,28 +40,6 @@ public class StatisticsDSpaceCSVLine {
         }
     }
 
-    /**
-     * Get all the values that match the given metadata key. Will be null if none exist.
-     *
-     * @param key The metadata key
-     * @return All the elements that match
-     */
-    public List<String> get(String key)
-    {
-        // Return any relevant values
-        return statisticsRegistry.get(key);
-    }
-
-    /**
-     * Get all the metadata keys that are represented in this line
-     *
-     * @return An enumeration of all the keys
-     */
-    public Set<String> keys()
-    {
-        // Return the keys
-        return statisticsRegistry.keySet();
-    }
 
     /**
      * Write this line out as a CSV formatted string, in the order given by the headings provided
