@@ -206,6 +206,7 @@ public class StatisticsDiscoveryExporter extends AbstractReader {
         
      // set the object model on the simple search object
         statisticsSimpleSearch.objectModel = objectModel;
+        statisticsSimpleSearch.context = ContextUtil.obtainContext(objectModel);
         String queryString = statisticsSimpleSearch.getQuery();
         DSpaceObject scope = statisticsSimpleSearch.getScope();
         String[] fqs = statisticsSimpleSearch.getFilterQueries();
@@ -237,6 +238,8 @@ public class StatisticsDiscoveryExporter extends AbstractReader {
         		responseTransformer.afterQuery(document);
         	}
 		}
+        
+        context.setMode(originalMode);
 	}
 	
 	private int safeLongToInt(long l) {
