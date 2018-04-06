@@ -1,8 +1,10 @@
 package org.dspace.discovery;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.dspace.content.CollectionServiceImpl;
 import org.dspace.content.CommunityServiceImpl;
 import org.dspace.content.DSpaceObject;
@@ -28,6 +31,8 @@ import org.dspace.kernel.ServiceManager;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import java.util.TimeZone;
 
 public class StatisticsSearchUtils extends SearchUtils {
 
@@ -94,6 +99,14 @@ public class StatisticsSearchUtils extends SearchUtils {
 			return builder.toString();
 		}
 		return null;
+	}
+	
+	/**
+	 * Construye una expresión regular para obtener una matcheo exacto para el string pasado como parámetro
+	 * @return	expresión regular para un "exact match" construida a partir del parámetro recibido
+	 */
+	public static String getExactMatchFilter(String targetToexactMatch) {
+		return "/" + targetToexactMatch +"/";
 	}
 	
 	
@@ -179,6 +192,36 @@ public class StatisticsSearchUtils extends SearchUtils {
 		calendar.setTime(date);
 		return String.valueOf(calendar.get(Calendar.YEAR));
 	}
+	
+	/**
+	 * Conseguimos el label de año-mes-dia para una fecha dada. Por ejemplo, para la fecha "2015-02-18T11:03:58Z" se obtiene el valor "2015-02-18". 
+	 * El formato de fecha aceptada es "yyyy-MM-dd'T'HH:mm:ss'Z'".
+	 */
+	public static String getDateFromDatetime(String dateToParse) throws ParseException{
+		//Para mas información ver https://stackoverflow.com/questions/11239814/parsing-a-java-date-back-from-tostring
+		SimpleDateFormat datetimeformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = datetimeformat.parse(dateToParse);
+		return dateformat.format(date);
+	}
+	
+	/**
+	 * Conseguimos la fecha en formato UTC para una fecha dada. El formato de fecha aceptada es "EEE MMM dd HH:mm:ss Z yyyy".
+	 * Por ejemplo, para la fecha "Wed Feb 18 08:03:58 ART 2015" se obtiene el valor "2015-02-18T11:03:58.000Z". 
+	 * 
+	 */
+	public static String getUTCFromCompleteDate(String dateToParse) throws ParseException{
+		//Para mas información ver https://stackoverflow.com/questions/11239814/parsing-a-java-date-back-from-tostring
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", new Locale("us"));
+		Date date = sdf.parse(dateToParse);
+		TimeZone utc = TimeZone.getTimeZone("UTC");
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(date);
+		calendar.setTimeZone(utc);
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        formatter.setTimeZone(utc);
+		return formatter.format(calendar.getTime());
+	}
 
 
 	/**
@@ -221,5 +264,57 @@ public class StatisticsSearchUtils extends SearchUtils {
 			return false;
 		}
 	}
+	
+	
+	//TODO eliminamos este metodo en favor del escapeQueryChars???
+	/**
+	 * Realiza un escapado de los caracteres especiales en Solr, que son los siguientes: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ /. 
+	 * @see http://lucene.apache.org/core/6_5_1/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#Escaping_Special_Characters
+	 * @param target	el string a escapar los caraceteres especiales
+	 * @return el parámetro pasado con un escapado de los caracteres especiales
+	 */
+	public static String escapeForSolrQuery(String target) {
+		ArrayList<String> solrSpecialChars = new ArrayList<String>();
+		solrSpecialChars.add("+"); solrSpecialChars.add("-"); solrSpecialChars.add("&"); solrSpecialChars.add("|"); solrSpecialChars.add("!");
+		solrSpecialChars.add("("); solrSpecialChars.add(")"); solrSpecialChars.add("["); solrSpecialChars.add("]"); solrSpecialChars.add("^");
+		solrSpecialChars.add("\""); solrSpecialChars.add("~"); solrSpecialChars.add("*"); solrSpecialChars.add("?"); solrSpecialChars.add(":");
+		solrSpecialChars.add("\\"); solrSpecialChars.add("/");
+		
+		char[] chars = target.toCharArray();
+		StringBuilder result = new StringBuilder();
+		for (char ch : chars) {
+			if(solrSpecialChars.contains(String.valueOf(ch))) {
+				result.append("\\");
+			}
+			result.append(ch);
+		}
+		return result.toString();
+	}
+	
+	/**
+	 * Realiza un escapado de los caracteres especiales en Solr, que son los siguientes: + - && || ! ( ) { } [ ] ^ " ~ * ? : \ / 
+	 * @see http://lucene.apache.org/core/6_5_1/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#Escaping_Special_Characters
+	 * @param target	el string a escapar los caraceteres especiales
+	 * @return el parámetro pasado con un escapado de los caracteres especiales
+	 */
+    public static String escapeTargetChars(String target) {
+        // Use Solr's built in query escape tool
+        // WARNING: You should only escape characters from user entered queries,
+        // otherwise you may accidentally BREAK field-based queries (which often
+        // rely on special characters to separate the field from the query value)
+        return ClientUtils.escapeQueryChars(target);
+        
+        
+    }
+    
+    /**
+     * Se escapan los siguiente caracteres específicos de expresiones regulares: <([{\^-=$!|]})?*+."/~>.
+     * Mas informacion: http://lucene.apache.org/core/4_10_1/core/org/apache/lucene/util/automaton/RegExp.html
+     * @param target
+     * @return el parámetro pasado con un escapado de los caracteres reservados para expresiones regulares
+     */
+    public static String escapeRegexReservedChars(String target){
+  	  return target.replaceAll("[\\<\\(\\[\\{\\\\\\^\\-\\=\\$\\!\\|\\]\\}\\)\\?\\*\\+\\.\\\"\\/\\~\\>]", "\\\\$0");
+    }
     
 }

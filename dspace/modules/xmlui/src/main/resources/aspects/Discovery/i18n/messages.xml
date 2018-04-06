@@ -169,6 +169,43 @@
     <message key="xmlui.Discovery.SimpleSearch.stats_from_query">View statistics for the objects resulting from the current query...</message>
     <message key="xmlui.Discovery.SimpleSearch.stats_from_query.no_hierarchy_results">Non-hierarchical results</message>
 	<message key="xmlui.Discovery.SimpleSearch.stats_from_query.no_hierarchy_results_help">View statistics only for the objects determined by this discovery query and not include their children or successors</message>
+	
+	
+	<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label._version_">Version</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.type">DSO Type</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.id">DSO ID</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.ip">Access IP</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.time">Access Time</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.epersonid">Eperson ID</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.continent">Continent</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.country">Country</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.countryCode">Country</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.city">City</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.longitude">Longitude coordinate</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.latitude">Latitud coordinate</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.owningComm">Owning Communities</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.owningColl">Owning Collection</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.owningItem">Owning Item</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.dns">DNS</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.userAgent">User Agent</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.isBot">Is Bot</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.bundleName">Owning Bundle</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.referrer">Referrer</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.uid">UUID</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.statistics_type">Registry Statistics Type</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.query">Search query</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.scopeType">DSO Type used for search</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.scopeId">DSO ID used for search</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.rpp">Results Per Page (rpp) requested in search</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.sortBy">Order Field Name requested in search</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.sortOrder">Order Type requested in search</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.page">Page Number requested in search</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.workflowStep">Worklow Step</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.previousWorkflowStep">Previous Workflow Step</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.owner">Owner</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.submitter">Eperson ID who init the submission</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.actor">Eperson ID who take this step</message>
+<message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.workflowItemId">Workflow Item ID</message>
     
     <message key="xmlui.Discovery.RelatedItems.head">Related items</message>
     <message key="xmlui.Discovery.RelatedItems.help">Showing items related by title, author, creator and subject.</message>

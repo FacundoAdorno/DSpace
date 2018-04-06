@@ -382,6 +382,10 @@
 			    <!--  prints the social share buttons -->
                 <h3><i18n:text>xmlui.ArtifactBrowser.ItemViewer.social-share</i18n:text></h3>
                <xsl:call-template name="social-share-buttons"/>
+               
+               <!--  prints the statistics-discovery button -->
+                <h3><i18n:text>xmlui.ArtifactBrowser.ItemViewer.statistics-discovery</i18n:text></h3>
+               <xsl:call-template name="statistics-discovery-button"/>
 		        
 		        <!-- optional: Altmeric.com badge and PlumX widget -->
 		        <xsl:if test='confman:getProperty("altmetric.enabled") and ($identifier_doi or $identifier_handle)'>
@@ -756,6 +760,18 @@
             </ul>
         </div>
     </xsl:template>
+    
+    <xsl:template name="statistics-discovery-button">
+    	<div id="statistics-discovery-section">
+    		<a target="_blank" title="Navigate Statistics">
+    			<xsl:attribute name="href">
+    				<xsl:value-of select="concat($home-path,$statistics-discovery-path,'?scope=',$dso-handle)" />
+    			</xsl:attribute>
+    			<i aria-hidden="true" class="fa fa-signal fa-3x">&#160;</i>
+    		</a>
+    	</div>
+    </xsl:template>
+    
     
     <!-- custom cic xsl functions -->
     <func:function name="cic:is-empty-authority">

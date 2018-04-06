@@ -1,10 +1,14 @@
 package org.dspace.discovery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dspace.content.DSpaceObject;
+import org.dspace.discovery.GenericDiscoverResult.FacetResult;
 import org.dspace.discovery.GenericDiscoverResult.SearchDocument;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.discovery.configuration.StatisticsDiscoveryCombinedFilterFacet;
@@ -25,12 +29,21 @@ public class StatisticsDiscoverResult extends GenericDiscoverResult{
     	}
     }
     
+    
+    
     /**
      * Identificar único de acceso al registro estadístico
      */
     public static String STAT_ID_FIELD = "uuid";
+    
+    protected Map<String, List<DateRangeFacetResult>> rangeDatefacetResults;
 	
-	//Se agregan documentos agregándolos por tipo de búsqueda por ahora...
+    public StatisticsDiscoverResult(){
+    	super();
+    	this.rangeDatefacetResults = new LinkedHashMap<String, List<DateRangeFacetResult>>();
+    }
+
+    //Se agregan documentos agregándolos por tipo de búsqueda por ahora...
 	//Conviene ver si es mejor agregar por handle del objeto asociado a la estadística... Hay casos en que no hay handle asociado (por ejemplo algunas estadisticas de busqueda[search])
 	public void addSearchDocument(SearchDocument searchDocument){
         String statistics_type = searchDocument.getSearchFieldValues("statistics_type").get(0);
@@ -90,5 +103,66 @@ public class StatisticsDiscoverResult extends GenericDiscoverResult{
 		return new ArrayList<FacetResult>(uniqueListOfValues.values());
 		
 	}
+	
+	public void addDateRangeFacetResult(String dateRangeFacetField, DateRangeFacetResult ...dateRangeFacetResults){
+        List<DateRangeFacetResult> dateRangeFacetValues = this.rangeDatefacetResults.get(dateRangeFacetField);
+        if(dateRangeFacetValues == null)
+        {
+            dateRangeFacetValues = new ArrayList<DateRangeFacetResult>();
+        }
+        dateRangeFacetValues.addAll(Arrays.asList(dateRangeFacetResults));
+        this.rangeDatefacetResults.put(dateRangeFacetField, dateRangeFacetValues);
+    }
+
+    public Map<String, List<DateRangeFacetResult>> getDateRangeFacetResults() {
+        return rangeDatefacetResults;
+    }
+
+    public List<DateRangeFacetResult> getDateRangeFacetResult(String dateRangeFacetName){
+        return rangeDatefacetResults.get(dateRangeFacetName) == null ? new ArrayList<DateRangeFacetResult>() : rangeDatefacetResults.get(dateRangeFacetName);
+    }
+	
+	public static final class DateRangeFacetResult{
+        private String asFilterQuery;
+        private String displayedValue;
+        private long count;
+        private String gap;
+        private String startDate;
+        private String endDate;
+
+        public DateRangeFacetResult(String asFilterQuery, String displayedValue, long count, String gap, String startDate, String endDate) {
+            this.asFilterQuery = asFilterQuery;
+            this.displayedValue = displayedValue;
+            this.count = count;
+            this.gap = gap;
+            this.startDate = startDate;
+            this.endDate = endDate;
+        }
+
+        public String getAsFilterQuery() {
+            return asFilterQuery;
+        }
+
+        public String getDisplayedValue() {
+            return displayedValue;
+        }
+        
+        public long getCount() {
+            return count;
+        }
+        
+        public String getGap() {
+        	return this.gap;
+        }
+        
+        public String getStartDate() {
+        	return this.startDate;
+        }
+        
+        public String getEndDate() {
+        	return this.endDate;
+        }
+        
+    }
 	
 }

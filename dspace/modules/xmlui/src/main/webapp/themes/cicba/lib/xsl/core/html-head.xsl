@@ -207,6 +207,45 @@
 				CKEDITOR.config.language= "<xsl:value-of select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='page' and @qualifier='currentLocale']"/>";
 				</script>
 			</xsl:if>
+			
+			<!-- Si estamos renderizando la página de statistics-discover, entonces mostramos el javascript -->
+			<xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.discovery.StatisticsSimpleSearch.div.search']">
+				<!-- Primero importamos los dependencias y scripts necesarios para ejecutar C3 -->
+				<script type="text/javascript">
+					<xsl:attribute name="src">
+		                <xsl:call-template name="print-theme-path" >
+		                	<xsl:with-param name="path">js/d3.js</xsl:with-param>
+		                </xsl:call-template>
+		            </xsl:attribute>
+		            &#160;
+				</script>
+			    <link rel="stylesheet" type="text/css">
+			    	<xsl:attribute name="href">
+		                <xsl:call-template name="print-theme-path" >
+		                	<xsl:with-param name="path">css/c3.css</xsl:with-param>
+		                </xsl:call-template>
+		            </xsl:attribute>
+		            &#160;
+			    </link>
+			    <script type="text/javascript">
+					<xsl:attribute name="src">
+		                <xsl:call-template name="print-theme-path" >
+		                	<xsl:with-param name="path">js/c3.js</xsl:with-param>
+		                </xsl:call-template>
+		            </xsl:attribute>
+		            &#160;
+				</script>
+				
+				<script type="text/javascript">
+					<xsl:attribute name="src">
+		                <xsl:call-template name="print-theme-path" >
+		                	<xsl:with-param name="path">js/statistics-discovery.js</xsl:with-param>
+		                </xsl:call-template>
+		            </xsl:attribute>
+		            &#160;
+				</script>
+			    
+			</xsl:if>
 	</xsl:template>
 	
 	<xsl:template name="addPageTitle">

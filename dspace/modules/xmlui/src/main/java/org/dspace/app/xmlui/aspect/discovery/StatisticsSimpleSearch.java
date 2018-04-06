@@ -1,7 +1,6 @@
 package org.dspace.app.xmlui.aspect.discovery;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,12 +13,13 @@ import org.apache.cocoon.environment.Request;
 import org.apache.commons.lang.StringUtils;
 import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
 import org.dspace.app.xmlui.cocoon.StatisticsDiscoveryExporter;
+import org.dspace.app.xmlui.cocoon.StatisticsDiscoveryJSONReportParams.OneVarReports;
+import org.dspace.app.xmlui.cocoon.StatisticsDiscoveryJSONReportParams.TwoVarsOneFixedReports;
 import org.dspace.app.xmlui.utils.HandleUtil;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.Body;
-import org.dspace.app.xmlui.wing.element.Button;
 import org.dspace.app.xmlui.wing.element.Cell;
 import org.dspace.app.xmlui.wing.element.CheckBox;
 import org.dspace.app.xmlui.wing.element.Division;
@@ -41,6 +41,7 @@ import org.dspace.discovery.configuration.DiscoveryConfiguration;
 import org.dspace.discovery.configuration.DiscoveryConfigurationParameters;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.exporter.StatisticsJSONExporter;
+import org.dspace.services.factory.DSpaceServicesFactory;
 import org.xml.sax.SAXException;
 
 public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements CacheableProcessingComponent{
@@ -97,6 +98,14 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     private static final Message T_statistics_export_json_format_label = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_label");
     private static final Message T_statistics_export_json_format_help = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.export-results-json.controls.format_help");
     
+    private static final Message T_statistics_report_head = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.head");
+    private static final Message T_statistics_report_onevar_head = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.onevar.head");
+    private static final Message T_statistics_report_accumulative_label = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.countof.label");
+    private static final Message T_statistics_report_timelapse_label = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.timelapse.label");
+	private static final Message T_statistics_report_minresults_label = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.minresults.label");
+	private static final Message T_statistics_report_minresults_help = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.minresults.help");
+	private static final Message T_statistics_report_by_label = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.by.label");
+	private static final Message T_statistics_report_update_chart = message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.update_chart");
 
 	
     private String aspectPath = "statistics-discover";
@@ -306,11 +315,80 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         } catch (SearchServiceException e) {
             throw new UIException(e.getMessage(), e);
         }
+        
+        //Add chart generation section
+        Division chartSection = body.addDivision("statistics-discovery-chart-section");
+        chartSection.setHead(T_statistics_report_head);
+        buildStatisticsChartSection(chartSection);
 
         context.setMode(originalMode);
     }
     
     /**
+     * Agrega una sección que permite la generación de algunos reportes predefinidos sobre el core statistics.
+     * @param chartSection
+     * @throws WingException 
+     */
+    private void buildStatisticsChartSection(Division chartSection) throws WingException {
+    	chartSection.addPara(T_statistics_report_onevar_head);
+    	//Generamos la URL para indicar dónde realizar las consultas al endpoint JSON
+    	Map<String, String> parameters = new HashMap<String, String>();
+    	String jsonEndpointURL = generateURL(parameters);
+    	jsonEndpointURL = addFilterQueriesToUrl(jsonEndpointURL);
+    	String jsonEndpointURLOnevar = jsonEndpointURL.replace(aspectPath, aspectPath + "/report/json/onevar");
+    	String jsonEndpointURLTwoVarsOneFixed = jsonEndpointURL.replace(aspectPath, aspectPath + "/report/json/twovars-onefixed");
+    	
+    	//One var charts
+    	Division onevarDivision = chartSection.addDivision("statistics_discovery_onevar_chart_options", "discovery-box");
+    	Para onevarOptions = onevarDivision.addPara();
+    	onevarOptions.addContent(T_statistics_report_accumulative_label);
+    	Select onevarCountof = onevarOptions.addSelect("countof");
+    	for(OneVarReports.COUNTOF_VALUES countof: OneVarReports.COUNTOF_VALUES.values()){
+    		onevarCountof.addOption(countof.toString()).addContent(message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.onevar.countof." + countof.toString()));
+    	}
+    	onevarOptions.addContent(T_statistics_report_timelapse_label);
+    	Select onevarTimelapse = onevarOptions.addSelect("timelapse");
+    	onevarTimelapse.addOption("").addContent(message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.onevar.timelapse.novalue"));
+    	for(OneVarReports.TIMELAPSE_VALUES timelapse: OneVarReports.TIMELAPSE_VALUES.values()){
+    		onevarTimelapse.addOption(timelapse.toString()).addContent(message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.onevar.timelapse." + timelapse.toString()));
+    	}
+    	onevarOptions.addContent(T_statistics_report_minresults_label);
+    	Text onevar_minresults = onevarOptions.addText("min_results");
+    	onevar_minresults.setValue("1");
+    	onevar_minresults.setHelp(T_statistics_report_minresults_help);
+    	onevarOptions.addButton("statistics_onevar_report_bttn", "discovery-apply-filter-button statistics_discovery_report_bttn").setValue(T_statistics_report_update_chart);
+//    	onevarOptions.addXref(DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + "/"+ aspectPath + "/report/json/onevar", "path-onevar-onefixed", "hidden","report-onevar-path");
+    	onevarOptions.addXref(jsonEndpointURLOnevar, "path-onevar-onefixed", "hidden","report-onevar-path");
+    	
+    	//Two vars one fixed charts
+    	Division twovarsonefixedDivision = chartSection.addDivision("statistics_discovery_twovarsonefixed_chart_options", "discovery-box");
+    	Para twovarsonefixedOptions = twovarsonefixedDivision.addPara();
+    	twovarsonefixedOptions.addContent(T_statistics_report_accumulative_label);
+    	Select twovarsonefixedCountof = twovarsonefixedOptions.addSelect("countof");
+    	for(TwoVarsOneFixedReports.COUNTOF_VALUES countof: TwoVarsOneFixedReports.COUNTOF_VALUES.values()){
+    		twovarsonefixedCountof.addOption(countof.toString()).addContent(message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.twovarsonefixed.countof." + countof.toString()));
+    	}
+    	twovarsonefixedOptions.addContent(T_statistics_report_by_label);
+    	Select twovarsonefixedBy = twovarsonefixedOptions.addSelect("by");
+    	for(TwoVarsOneFixedReports.BY_VALUES timelapse: TwoVarsOneFixedReports.BY_VALUES.values()){
+    		twovarsonefixedBy.addOption(timelapse.toString()).addContent(message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.twovarsonefixed.by." + timelapse.toString()));
+    	}
+    	twovarsonefixedOptions.addContent(T_statistics_report_timelapse_label);
+    	Select twovarsonefixedTimelapse = twovarsonefixedOptions.addSelect("timelapse");
+    	twovarsonefixedTimelapse.addOption("").addContent(message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.twovarsonefixed.timelapse.novalue"));
+    	for(TwoVarsOneFixedReports.TIMELAPSE_VALUES timelapse: TwoVarsOneFixedReports.TIMELAPSE_VALUES.values()){
+    		twovarsonefixedTimelapse.addOption(timelapse.toString()).addContent(message("xmlui.ArtifactBrowser.StatisticsSimpleSearch.report-statistics.twovarsonefixed.timelapse." + timelapse.toString()));
+    	}
+    	twovarsonefixedOptions.addContent(T_statistics_report_minresults_label);
+    	Text twovarsonefixed_minresults = twovarsonefixedOptions.addText("min_results");
+    	twovarsonefixed_minresults.setValue("1");
+    	twovarsonefixed_minresults.setHelp(T_statistics_report_minresults_help);
+    	twovarsonefixedOptions.addButton("statistics_twovarsonefixed_report_bttn", "discovery-apply-filter-button statistics_discovery_report_bttn").setValue(T_statistics_report_update_chart);
+//    	twovarsonefixedOptions.addXref(DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + "/"+ aspectPath + "/report/json/twovars-onefixed", "path-twovars-onefixed", "hidden", "report-twovars_onefixed-path");
+    	twovarsonefixedOptions.addXref(jsonEndpointURLTwoVarsOneFixed, "path-twovars-onefixed", "hidden", "report-twovars_onefixed-path");
+	}
+
+	/**
      * Agrega la sección para la exportación de resultados en el documento principal en los formatos definidos en la configuración statistics-discovery.cfg
      * @param exportDivision	es el div donde poner todo lo relativo a la exportación de resulados
      * @throws WingException 
@@ -330,7 +408,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     			Division csvExportForm = csvDiv.addInteractiveDivision("csv_export_form","statistics-discover/export/csv", Division.METHOD_GET, "statisticsFromQuery discovery-box");
     			Para csvButtons = csvExportForm.addPara();
     			csvButtons.addButton("statistics_csv_export_submit", "discovery-apply-filter-button").setValue(T_statistics_export_csv_submit);
-    			addHiddenFormFields("search", request, fqs, csvExportForm);
+    			addHiddenFormFields("allParams", request, fqs, csvExportForm);
     		}
     		
     		if(exportOption.equals("json")) {
@@ -343,7 +421,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     			prettyFormatCheckbox.addOption(1, T_statistics_export_json_format_label);
     			prettyFormatCheckbox.setHelp(T_statistics_export_json_format_help);
     			jsonButtons.addButton("statistics_json_export_submit", "discovery-apply-filter-button").setValue(T_statistics_export_json_submit);
-    			addHiddenFormFields("search", request, fqs, jsonExportForm);
+    			addHiddenFormFields("allParams", request, fqs, jsonExportForm);
     		}
 		}
 	}
@@ -527,7 +605,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
      * @throws SQLException
      */
     private void addHiddenFormFields(String type, Request request, Map<String, String[]> fqs, Division division) throws WingException, SQLException {
-        if(type.equals("filter") || type.equals("sort")){
+        if(type.equals("filter") || type.equals("sort") || type.equals("allParams")){
             if(request.getParameter("query") != null){
                 division.addHidden("query").setValue(request.getParameter("query"));
             }
@@ -537,7 +615,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         }
 
         //Add the filter queries, current search settings so these remain saved when performing a new search !
-        if(type.equals("search") || type.equals("sort"))
+        if(type.equals("search") || type.equals("sort") || type.equals("allParams"))
         {
             for (String parameter : fqs.keySet())
             {
@@ -548,7 +626,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
             }
         }
 
-        if(type.equals("search") || type.equals("filter")){
+        if(type.equals("search") || type.equals("filter") || type.equals("allParams")){
             if(request.getParameter("rpp") != null){
                 division.addHidden("rpp").setValue(request.getParameter("rpp"));
             }

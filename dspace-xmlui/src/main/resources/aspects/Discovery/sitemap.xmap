@@ -218,6 +218,8 @@ and the recent submissions listing
                             <map:transform type="RobotsNoIndexTransformer"/>
                             <map:serialize type="xml"/>
                         </map:match>
+                        
+                        <!-- TODO falta hacer el handle/*/*/statistics-search-filter !!!!! -->
 
                         <map:match pattern="handle/*/*/recent-submissions">
                             <map:transform type="RecentSubmissionTransformer">

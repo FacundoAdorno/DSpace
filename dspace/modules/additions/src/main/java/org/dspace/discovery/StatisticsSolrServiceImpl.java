@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.params.FacetParams;
@@ -254,7 +255,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
     }
 	
 	
-	protected StatisticsDiscoverResult retrieveResult(Context context, DiscoverQuery query, QueryResponse solrQueryResponse) throws SQLException {
+	protected StatisticsDiscoverResult retrieveResult(Context context, DiscoverQuery query, QueryResponse solrQueryResponse) throws SQLException, StatisticsSearchServiceException {
 		StatisticsDiscoverResult result = new StatisticsDiscoverResult();
 
         if(solrQueryResponse != null)
@@ -359,6 +360,24 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
                         result.addFacetResult(facetField, new DiscoverResult.FacetResult(filter, name, null, name, count));
                     }
                 }
+            }
+            
+            //Procesamos los date facet ranges si existen en la respuesta
+            if(solrQueryResponse.getFacetRanges() != null && solrQueryResponse.getFacetRanges().size() > 0) {
+            	for (RangeFacet rangeFacet : solrQueryResponse.getFacetRanges()) {
+            		for (  Object count : rangeFacet.getCounts()) {
+            			RangeFacet.Count dateRangeCount = (RangeFacet.Count) count;
+            			String dateUTC = dateRangeCount.getValue();
+            			String dateFormatted;
+						try {
+							dateFormatted = StatisticsSearchUtils.getDateFromDatetime(dateUTC);
+						} catch (ParseException e) {
+							throw new StatisticsSearchServiceException(e);
+						}
+            			result.addDateRangeFacetResult(rangeFacet.getName(), new StatisticsDiscoverResult.DateRangeFacetResult(
+            					dateUTC, dateFormatted, dateRangeCount.getCount(), rangeFacet.getGap().toString(), rangeFacet.getStart().toString(), rangeFacet.getEnd().toString()));
+					}
+				}
             }
         }
 

@@ -78,4 +78,6 @@
 	</xsl:variable>
 	
 	<xsl:variable name="statistics-discovery-path"><xsl:text>/statistics-discover</xsl:text></xsl:variable>
+	
+	<xsl:variable name="dso-handle" select="substring-after(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='object']/text(),'hdl:')"/>
 </xsl:stylesheet>
