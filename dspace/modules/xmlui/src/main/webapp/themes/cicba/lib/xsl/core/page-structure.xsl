@@ -692,6 +692,34 @@
 			</xsl:if>
 		
 		
+			<!--  Se agrega el script de filtros en uso -->
+		 <xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.discovery.SimpleSearch.div.search']">
+		 	<script type="text/javascript">
+		 		<xsl:attribute name="src">
+                   	<xsl:call-template name="print-theme-path">
+                   		<xsl:with-param name="path">js/filter_control.js</xsl:with-param>
+                   	</xsl:call-template>
+               	</xsl:attribute>&#160;
+               </script>
+         	<script type="text/javascript">
+         		create_filter_badgets();
+         	</script>
+		 </xsl:if>
+		 
+		 <!--  Se agrega el script de filtros en uso para statistics-discover -->
+		 <xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.discovery.StatisticsSimpleSearch.div.search']">
+		 	<script type="text/javascript">
+		 		<xsl:attribute name="src">
+                   	<xsl:call-template name="print-theme-path">
+                   		<xsl:with-param name="path">js/statistics_discovery_filter_control.js</xsl:with-param>
+                   	</xsl:call-template>
+               	</xsl:attribute>&#160;
+               </script>
+         	<script type="text/javascript">
+         		create_filter_badgets();
+         	</script>
+		 </xsl:if>  
+		 
 	</xsl:template>
 
 

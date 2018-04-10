@@ -245,19 +245,8 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
                                 String filterType = value.getFilterType();
                                 String paramsQuery = retrieveParameters(request);
                                 if (fqs.contains(getSearchService().toFilterQuery(context, field.getIndexFieldName(), value.getFilterType(), value.getAsFilterQuery()).getFilterQuery())) {
-                                	org.dspace.app.xmlui.wing.element.Item item = filterValsList.addItem(Math.random() + "", "selected");
-                                	item.addContent(displayedValue + " (" + value.getCount() + ")");
-                                	String escapedFilterQuery = filterQuery; 
-                                	//Si el parámetro es de tipo fecha, entonces conseguimos el string con la fecha 
-                                	if(field.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
-                                		//reemplazamos el simbolo "[" por "\[" para que lo tome la expresión regular dentro del getUrlWithoutFilter...
-                                		//TODO esto habria que hacerlo dentro del metodo getUrlWithoutFilter
-                                		escapedFilterQuery = filterQuery.replace("[","\\[").replace("]", "\\]");
-                                	}
-                                	String urlWithoutFilter = StatisticsDiscoveryUIUtils.getUrlWithoutFilter(contextPath + (dso == null ? "" : "/handle/" + dso.getHandle()) + 
-                                			"/statistics-discover?" + paramsQuery, field.getIndexFieldName(), value.getFilterType(), escapedFilterQuery);
-                                	item.addXref(urlWithoutFilter,"", null, "removeFacet");
-                                	
+                                	//Dejo el mismo comportamiento que en Discovery ya que los filtros aplicados se desaplican desde los badgets de filtros
+                                	filterValsList.addItem(Math.random() + "", "selected").addContent(displayedValue + " (" + value.getCount() + ")");
                                 } else {
                                     filterValsList.addItem().addXref(
                                             contextPath +

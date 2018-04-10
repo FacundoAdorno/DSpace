@@ -275,6 +275,7 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 				qArgs.setFacetMinCount(minResultsCount);		//TODO solo deberían tener minCount=1 los reportes de cantidad sin fecha, es decir, timelapse...
 				//Hacemos la busqueda
 				qResults = StatisticsSearchUtils.getStatisticsSearchService().search(context, scope, qArgs);
+				//TODO conviene utilizar el framework "Executor" para la ejecución multithread, ya que algunas consultas tardan mucho en ejecutarse. Ver mas en http://www.vogella.com/tutorials/JavaConcurrency/article.html#threads-pools-with-the-executor-framework.
 				if(timelapseParam != null) {
 					withTimelapse = true;
 					//Remuevo el facet ya que no lo necesito para realizar las siguientes consultas por timelapse

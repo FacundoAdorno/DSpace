@@ -42,6 +42,7 @@
 							<xsl:apply-templates />
 						</div>
 						<div class="col-md-3" id="cic-sidebar">
+							<xsl:call-template name="renderStatisticsDiscoveryForContainerIfApply"/>
 							<h3>
 								<xsl:copy-of select="/dri:document/dri:options/dri:list[@n='discovery' or @n='statistics-discovery']/dri:head" />
 							</h3>
@@ -196,5 +197,19 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</div>
+	</xsl:template>
+	
+	<xsl:template name="renderStatisticsDiscoveryForContainerIfApply">
+		<xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.artifactbrowser.CommunityViewer.div.community-home' or @id='aspect.artifactbrowser.CollectionViewer.div.collection-home']">
+			<xsl:variable name="dso-handle-container" select="substring-after(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container']/text(),'hdl:')"/>
+			<div id="statistics-discovery-section">
+	    		<a target="_blank" title="Navigate Statistics">
+	    			<xsl:attribute name="href">
+	    				<xsl:value-of select="concat($home-path,$statistics-discovery-path,'?scope=',$dso-handle-container)" />
+	    			</xsl:attribute>
+	    			<i aria-hidden="true" class="fa fa-signal fa-3x">&#160;</i>
+	    		</a>
+	    	</div>
+		</xsl:if>
 	</xsl:template>
 </xsl:stylesheet>

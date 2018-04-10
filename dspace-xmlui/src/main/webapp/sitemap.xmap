@@ -486,8 +486,8 @@
 			            
 			            <map:match pattern="handle/*/*/statistics-discover/report/json/*">
 			            	<map:read type="StatisticsDiscoveryJSONReport">
-			            		<!-- expected values are "onevar" or "twovars" -->
-			            		<map:parameter name="typeOfReport" value="{1}"/>
+			            		<!-- expected values are "onevar" or "twovars-onefixed" -->
+			            		<map:parameter name="typeOfReport" value="{3}"/>
 			            	</map:read>
 			            	<map:serialize type="text"/>
 			            </map:match>
