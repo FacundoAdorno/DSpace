@@ -59,7 +59,10 @@
                     var param = params[i].split('=')[0];
                     var value = params[i].split('=')[1];
 
-                    mainForm.find('input[name="' + param + '"]').val(value);
+                    //Evitamos la impresión del campo "discovery_query" desde acá ya que produce errores (no se decodifica bien); por defecto, ya esta en el formulario...
+                    if(param != "discovery_query"){
+                    	mainForm.find('input[name="' + param + '"]').val(value);
+                    }
                 }
                 //Clear the page param
                 mainForm.find('input[name="page"]').val('1');

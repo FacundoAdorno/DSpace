@@ -19,6 +19,7 @@ import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.I18nUtil;
 import org.dspace.discovery.StatisticsSearchService;
 import org.dspace.discovery.StatisticsSearchUtils;
 import org.dspace.discovery.configuration.DiscoverySearchFilter;
@@ -505,6 +506,35 @@ public class StatisticsDiscoveryUIUtils {
             throw new UIException(uee);
         }
 
+    }
+    
+    /**
+     * Get the i18n message string for a given key and locale
+     *
+     * @param key
+     *        String - name of the key to get the message for
+     * @param locale
+     *        Locale, to get the message for
+     *
+     * @return message
+     *         String of the message
+     */
+    public static String getMessage(String key)
+    {
+        Locale locale = I18nUtil.getDefaultLocale();
+        ResourceBundle.Control control = 
+            ResourceBundle.Control.getNoFallbackControl(
+            ResourceBundle.Control.FORMAT_DEFAULT);
+
+        ResourceBundle messages = ResourceBundle.getBundle("statistics-discovery", locale, control);
+        try {
+            String message = messages.getString(key.trim());
+            return message;
+        } catch (MissingResourceException e) {
+            log.error("'" + key + "' translation undefined in locale '"
+                    + locale.toString() + "'");
+            return key;
+        }
     }
 }
 

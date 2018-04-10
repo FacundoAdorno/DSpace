@@ -36,19 +36,21 @@
 					</div>
 				</xsl:when>
 				<!-- Si tenemos datos de discovery para mostrar, lo hacemos en un sidebar -->
-				<xsl:when test="/dri:document/dri:options/dri:list[@n='discovery']/child::node()">
+				<xsl:when test="/dri:document/dri:options/dri:list[@n='discovery' or @n='statistics-discovery']/child::node()">
 					<div class="row">
 						<div class="col-md-9">
 							<xsl:apply-templates />
 						</div>
 						<div class="col-md-3" id="cic-sidebar">
 							<h3>
-								<xsl:copy-of select="/dri:document/dri:options/dri:list[@n='discovery']/dri:head" />
+								<xsl:copy-of select="/dri:document/dri:options/dri:list[@n='discovery' or @n='statistics-discovery']/dri:head" />
 							</h3>
-							<xsl:for-each select="/dri:document/dri:options/dri:list[@n='discovery']/dri:list">								
+							<xsl:for-each select="/dri:document/dri:options/dri:list[@n='discovery' or @n='statistics-discovery']/dri:list">								
 								<xsl:variable name="group" select="/dri:document/dri:meta/dri:userMeta/dri:metadata[@element='identifier' and @qualifier='group']"/>
 								<xsl:if test="not(current()[@n='has_content_in_original_bundle']) or ($group = 'CIC-ADMIN') or ($group = 'Administrator')">	
-									<xsl:call-template name="buildPanelFromList" />
+									<xsl:call-template name="buildPanelFromList">
+										<xsl:with-param name="customClasses">sidebar_facet_value</xsl:with-param>
+									</xsl:call-template>
 								</xsl:if>
 							</xsl:for-each>
 						</div>

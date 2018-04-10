@@ -297,7 +297,7 @@ public class StatisticsSearchUtils extends SearchUtils {
 	 * @param target	el string a escapar los caraceteres especiales
 	 * @return el parámetro pasado con un escapado de los caracteres especiales
 	 */
-    public static String escapeTargetChars(String target) {
+    public static String escapeQueryChars(String target) {
         // Use Solr's built in query escape tool
         // WARNING: You should only escape characters from user entered queries,
         // otherwise you may accidentally BREAK field-based queries (which often

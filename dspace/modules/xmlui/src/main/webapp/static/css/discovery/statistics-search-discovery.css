@@ -114,13 +114,17 @@ ul.statistics-discovery-list-results li div.first-row search-result{
     user-select: none;
 }
 
+a.bttn-remove{
+	color: #d8392d;
+}
+
 /* The actual popup */
 .popup .popuptext {
     visibility: hidden;
     width: 500px;
     background-color: #555;
     color: #fff;
-    text-align: center;
+    text-align: left;
     border-radius: 6px;
     padding: 8px 0;
     position: absolute;
@@ -158,6 +162,7 @@ ul.statistics-discovery-list-results li div.first-row search-result{
 }
 .popuptext ul li{
 	border: none;
+	margin-bottom: 8px;
 }
 
 .popup-label-element{

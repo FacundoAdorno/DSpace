@@ -671,6 +671,9 @@
 				    		//cargamos los datetimepickers
 				    		loadDateTimePickers();
 				    		
+				    		//Agregamos los botones de exclusión de filtros
+				    		addExcludeFacetBttns();
+				    		
 				    		//configuramos botones para generación de gráficos de reportes statistics-discover
 				    		var onevarUpdateBttn = $('input[name="statistics_onevar_report_bttn"]');
 				    		var twovarsonefixedUpdateBttn = $('input[name="statistics_twovarsonefixed_report_bttn"]');

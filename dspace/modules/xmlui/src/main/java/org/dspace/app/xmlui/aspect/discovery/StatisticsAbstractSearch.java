@@ -233,10 +233,11 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
 
         String query = getQuery();
         //Indicate that the form we are submitting lists search results
-        mainForm.addHidden("search-result").setValue(Boolean.TRUE.toString());
+        /** Oculto los parámetros "search-result" y "current-scope"... **/
+        //mainForm.addHidden("search-result").setValue(Boolean.TRUE.toString());
         mainForm.addHidden("query").setValue(query);
 
-        mainForm.addHidden("current-scope").setValue(dso == null ? "" : dso.getHandle());
+        //mainForm.addHidden("current-scope").setValue(dso == null ? "" : dso.getHandle());
         Map<String, String[]> fqs = getParameterFilterQueries();
         if (fqs != null)
         {
@@ -274,6 +275,20 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
         {
             mainForm.addHidden("page").setValue(request.getParameter("page"));
         }
+        
+        //TODO patch temporal porque en este formulario (que hasta ahora solo lo utiliza el manejo de los links de sort en "statistics-search-control.js")
+	      //Add hidden fields for the Discovery Derived Context/Scope, if apply and only if the scope is not fixed or dynamic (handle/XX/YY/statistics-discover or scope=XX/YY, respectively)
+	        if (getScope() == null) {
+	        	if(StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
+	        		mainForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_QUERY_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryQueryParam(request));
+	        		if(StatisticsDiscoveryUIUtils.existDiscoveryScopeParam(request)) {
+	        			mainForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryScopeParam(request));
+	        		}
+	        		if(!StatisticsDiscoveryUIUtils.isHierarchicalDiscoveryScope(request)) {
+	        			mainForm.addHidden(StatisticsDiscoveryUIUtils.DISCOVERY_SCOPE_NO_HIERARCHICAL_PARAM).setValue(StatisticsDiscoveryUIUtils.getDiscoveryHierarchicalScopeParam(request));
+	        		}
+	        	}
+	        }
     }
 
     protected abstract String getBasicUrl() throws SQLException;
@@ -511,6 +526,7 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
         }
         return pageURLMask;
     }
+	
 
     /**
      * Render the given item, add all snippets to the list 

@@ -44,6 +44,7 @@ import org.dspace.discovery.exporter.StatisticsJSONExporter;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.xml.sax.SAXException;
 
+
 public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements CacheableProcessingComponent{
 
 	/**
@@ -81,8 +82,8 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
     private static final Message T_filter_equals = message("xmlui.Discovery.SimpleSearch.filter.equals");
     private static final Message T_filter_notcontain = message("xmlui.Discovery.SimpleSearch.filter.notcontains");
     private static final Message T_filter_notequals = message("xmlui.Discovery.SimpleSearch.filter.notequals");
-    private static final Message T_filter_authority = message("xmlui.Discovery.SimpleSearch.filter.authority");
-    private static final Message T_filter_notauthority = message("xmlui.Discovery.SimpleSearch.filter.notauthority");
+//    private static final Message T_filter_authority = message("xmlui.Discovery.SimpleSearch.filter.authority");
+//    private static final Message T_filter_notauthority = message("xmlui.Discovery.SimpleSearch.filter.notauthority");
     //DATE OPERATORS
     private static final Message T_filter_from_date = message("xmlui.Discovery.SimpleSearch.filter.from_date");
     private static final Message T_filter_until_date = message("xmlui.Discovery.SimpleSearch.filter.until_date");
@@ -174,9 +175,18 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         if (getScope() != null) {
         	if (variableScope())
             {
-        		Select scope = searchList.addItem().addSelect("scope");
-        		scope.setLabel(T_search_scope);
-        		buildScopeList(scope);
+        		DSpaceObject scopeDSO = getScope();
+        		if(scopeDSO.getType() == org.dspace.core.Constants.ITEM) {
+        			searchList.addItem("Estadísticas relativas al item ");
+        			org.dspace.content.Item item = (org.dspace.content.Item)scopeDSO;
+        			String handle = item.getHandle();
+        			String title = item.getName();
+            		searchList.addItem().addXref(DSpaceServicesFactory.getInstance().getConfigurationService().getProperty("dspace.url") + "/handle/" + handle).addContent("\""+title+"\"");
+        		} else {
+        			Select scope = searchList.addItem().addSelect("scope");
+        			scope.setLabel(T_search_scope);
+        			buildScopeList(scope);
+        		}
             }
         } else if (StatisticsDiscoveryUIUtils.isDiscoveryDerivedScope(request)) {
     		//Si el scope es derivado de una búsqueda de Discovery, entonces mostramos la consulta de Discovery de la que deriva el scope...
@@ -453,10 +463,10 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
             Select typeSelect = row.addCell("text-filter_operators_" + index, Cell.ROLE_DATA, "selection").addSelect("filter_relational_operator_" + index);
             typeSelect.addOption(StringUtils.equals(relationalOperator, "contains"), "contains", T_filter_contain);
             typeSelect.addOption(StringUtils.equals(relationalOperator, "equals"), "equals", T_filter_equals);
-            typeSelect.addOption(StringUtils.equals(relationalOperator, "authority"), "authority", T_filter_authority);
+//            typeSelect.addOption(StringUtils.equals(relationalOperator, "authority"), "authority", T_filter_authority);
             typeSelect.addOption(StringUtils.equals(relationalOperator, "notcontains"), "notcontains", T_filter_notcontain);
             typeSelect.addOption(StringUtils.equals(relationalOperator, "notequals"), "notequals", T_filter_notequals);
-            typeSelect.addOption(StringUtils.equals(relationalOperator, "notauthority"), "notauthority", T_filter_notauthority);
+//            typeSelect.addOption(StringUtils.equals(relationalOperator, "notauthority"), "notauthority", T_filter_notauthority);
             
           //Add a box so we can search for our value
           row.addCell("text-filter_value_" + index, Cell.ROLE_DATA, "discovery-filter-input-cell").addText("filter_" + index, "discovery-filter-input text-input").setValue(value == null ? "" : value);

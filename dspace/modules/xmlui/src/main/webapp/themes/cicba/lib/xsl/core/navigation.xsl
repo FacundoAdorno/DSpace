@@ -16,6 +16,7 @@
 	<xsl:output indent="yes" />
 
 	<xsl:template name="buildPanelFromList">
+		<xsl:param name="customClasses" select="''"/>
 		<!-- Solo imprimo el panel si tiene algun dato -->
 		
 			<div class="panel panel-info">
@@ -61,7 +62,12 @@
 				<xsl:if test="count(dri:item) &gt; 0">
 					<ul class="list-group">
 						<xsl:for-each select="dri:item">
-							<li class="list-group-item">
+							<li>
+								<xsl:attribute name="class">
+									<xsl:text>list-group-item</xsl:text>
+									<xsl:text> </xsl:text>
+									<xsl:value-of select="$customClasses"/>													
+								</xsl:attribute>
 								<xsl:for-each select="dri:xref">
 									<a>
 										<xsl:attribute name="href"><xsl:value-of

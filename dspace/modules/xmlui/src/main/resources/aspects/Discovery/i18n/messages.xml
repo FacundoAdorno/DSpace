@@ -207,6 +207,15 @@
 <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.actor">Eperson ID who take this step</message>
 <message key="xmlui.ArtifactBrowser.StatisticsSimpleSearch.statistics_field.label.workflowItemId">Workflow Item ID</message>
     
+    <message key="xmlui.Discovery.AbstractSearch.sort_by.ip_asc">IP (ascending)</message>
+<message key="xmlui.Discovery.AbstractSearch.sort_by.ip_desc">IP (descendening)</message>
+<message key="xmlui.Discovery.AbstractSearch.sort_by.time_asc">Acceso Time (ascending)</message>
+<message key="xmlui.Discovery.AbstractSearch.sort_by.time_desc">Acceso Time (descending)</message>
+<message key="xmlui.Discovery.AbstractSearch.sort_by.countryCode_asc">Country (ascending)</message>
+<message key="xmlui.Discovery.AbstractSearch.sort_by.countryCode_desc">Country (descending)</message>
+<message key="çxmlui.Discovery.AbstractSearch.sort_by.statistics_type_asc">Statistics Type (ascending)</message>
+<message key="xmlui.Discovery.AbstractSearch.sort_by.statistics_type_desc">Statistics Type (descending)</message>
+    
     <message key="xmlui.Discovery.RelatedItems.head">Related items</message>
     <message key="xmlui.Discovery.RelatedItems.help">Showing items related by title, author, creator and subject.</message>
 

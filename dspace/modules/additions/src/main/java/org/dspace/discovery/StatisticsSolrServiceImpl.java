@@ -426,22 +426,19 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
         StringBuilder filterQuery = new StringBuilder();
         if(StringUtils.isNotBlank(field) && StringUtils.isNotBlank(value))
         {
-        	//TODO agregar nuevo tipo filtro "String"
-        	//TODO modificar lógica para los campos del tipo "String"
             filterQuery.append(field);
-            if("equals".equals(operator))
+            if("equals".equals(operator) || "notequals".equals(operator))
             {
             }
-            else if ("authority".equals(operator))
+            else if ("contains".equals(operator) || "notcontains".equals(operator))
             {
             }
             //Date fields operators
             else if ("fromDate".equals(operator) || "untilDate".equals(operator)) {
             	
             }
-            else if ("notequals".equals(operator)
-                    || "notcontains".equals(operator)
-                    || "notauthority".equals(operator))
+            if ("notequals".equals(operator)
+                    || "notcontains".equals(operator))
             {
                 filterQuery.insert(0, "-");
             }
@@ -464,6 +461,13 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
                 	}
                 	filterQuery.append(value);
                 }
+            }
+            //contains o notcontains términos en medio de un campo "String" de solr, por loo que estamos obligados a ponerlo en forma de expresión regular,
+            //por ejemplo: si el término para este operador es "Plata", el filtro tendría que ser "city:/.*Plata.*/"... es CASE-SENSITIVE...
+            else if ("contains".equals(operator) || "notcontains".equals(operator)) 
+            {
+            	//TODO fijarse si se puede escribir una expresión no CASE-SENSITIVE
+            	filterQuery.append("/.*" + StatisticsSearchUtils.escapeRegexReservedChars(value) + ".*/");
             }
             //Date fields operators
             else if("fromDate".equals(operator) || "untilDate".equals(operator)) {

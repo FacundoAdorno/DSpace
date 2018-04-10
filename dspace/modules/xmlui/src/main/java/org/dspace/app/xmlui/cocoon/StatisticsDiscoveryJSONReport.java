@@ -22,6 +22,7 @@ import org.apache.cocoon.environment.Request;
 import org.apache.cocoon.environment.Response;
 import org.apache.cocoon.environment.SourceResolver;
 import org.apache.cocoon.reading.AbstractReader;
+import org.dspace.app.xmlui.aspect.discovery.StatisticsDiscoveryUIUtils;
 import org.dspace.app.xmlui.aspect.discovery.StatisticsSimpleSearch;
 import org.dspace.app.xmlui.cocoon.StatisticsDiscoveryJSONReportParams.OneVarReports;
 import org.dspace.app.xmlui.cocoon.StatisticsDiscoveryJSONReportParams.OneVarReports.COUNTOF_VALUES;
@@ -278,6 +279,7 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 					withTimelapse = true;
 					//Remuevo el facet ya que no lo necesito para realizar las siguientes consultas por timelapse
 					qArgs.getFacetFields().remove(facet);
+					//TODO limitar las búsquedas de la minDate y la maxDate a los valores de facet determinados por qArgs.setFacetMinCount(minResultsCount). Sino se puede generar un reporte para un rango de fecha superior al relativo al facet...
 					minDate = getMinDate(context, scope, qArgs);
 					maxDate = getMaxDate(context, scope, qArgs);
 					qArgs.addProperty("facet", "true");
@@ -288,7 +290,8 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 					qArgs.addProperty("facet.range.gap", solrTimelapseGap);
 				}
 				//escribimos los resultados en la salida JSON
-				generateSimpleStringField(generator, "report_name", I18nUtil.getMessage(messageKeyForTitle));
+//				generateSimpleStringField(generator, "report_name", I18nUtil.getMessage(messageKeyForTitle));
+				generateSimpleStringField(generator, "report_name", StatisticsDiscoveryUIUtils.getMessage(messageKeyForTitle));
 				//Init "data" object
 				generator.writeFieldName("data");
 				generator.writeStartObject();
@@ -299,9 +302,10 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 					for(java.util.Iterator<FacetResult> resultsIterator = results.iterator(); resultsIterator.hasNext();) {
 						FacetResult facetValue = resultsIterator.next();
 						if(withTimelapse) {
-							//TODO para el caso de las IPs, hay que escapar el signo "." con "\." para evitar que se desencadene un lenta busqueda por expresión regular
 							//Iteramos sobre cada valor del facet general para consultar el range.facet en el timelapse especificado en la petición...
-							String facetValueFilterQuery = solrFieldName + ":" + StatisticsSearchUtils.getExactMatchFilter(StatisticsSearchUtils.escapeRegexReservedChars(facetValue.getAsFilterQuery()));
+//							String facetValueFilterQuery = solrFieldName + ":" + StatisticsSearchUtils.getExactMatchFilter(StatisticsSearchUtils.escapeRegexReservedChars(facetValue.getAsFilterQuery()));
+							//Reemplazamos los espacios por "\ "
+							String facetValueFilterQuery = solrFieldName + ":" + StatisticsSearchUtils.escapeQueryChars(facetValue.getAsFilterQuery()).replaceAll(" ", "\\ ");
 							qArgs.addFilterQueries(facetValueFilterQuery);
 							qResults = StatisticsSearchUtils.getStatisticsSearchService().search(context, scope, qArgs);
 							if(dateLabels==null) {

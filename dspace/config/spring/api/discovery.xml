@@ -569,7 +569,12 @@
                 <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="defaultSortOrder" value="desc"/>
                 <property name="sortFields">
-                    <list/>
+                    <list>
+                    	<ref bean="sortIP" />
+                        <ref bean="sortTime" />
+                        <ref bean="sortCountry" />
+                        <ref bean="sortStatisticsType" />
+                    </list>
                 </property>
             </bean>
         </property>
@@ -697,6 +702,23 @@
             </list>
         </property>
         <property name="type" value="date"/>
+    </bean>
+    
+    
+    <!--Sort properties-->
+    <bean id="sortIP" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="ip"/>
+    </bean>
+    
+    <bean id="sortTime" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="time"/>
+    </bean>
+    <bean id="sortCountry" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="countryCode"/>
+    </bean>
+    
+    <bean id="sortStatisticsType" class="org.dspace.discovery.configuration.DiscoverySortFieldConfiguration">
+        <property name="metadataField" value="statistics_type"/>
     </bean>
     
 </beans>

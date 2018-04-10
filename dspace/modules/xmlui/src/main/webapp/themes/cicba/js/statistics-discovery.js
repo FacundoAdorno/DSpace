@@ -96,12 +96,18 @@ function updateC3Chart(JsonDataURL,typeOfChart){
         	} else {
         		dateFormat = '%Y';
         	}
-        	//Nos fijamos el primer arreglo dentro de "columnData". Si solo tiene 2 elementos (p.e. ["La Plata", 100]) entonces mostramos el grafico como de barras
-        	if(columnData[1].length == 2){
-        		chart_type = "bar";
+        	//Si columnData[1] es vacío, es porque no hay datos
+        	if(typeof columnData[1] != 'undefined'){
+	        	//Nos fijamos el primer arreglo dentro de "columnData". Si solo tiene 2 elementos (p.e. ["La Plata", 100]) entonces mostramos el grafico como de barras
+	        	if(columnData[1].length == 2){
+	        		chart_type = "bar";
+	        	} else {
+	        		chart_type = "area";
+	        	}
         	} else {
-        		chart_type = "area";
+        		chart_type = "bar";
         	}
+        	
             x_axis = 
                 {
                     type: 'timeseries',
@@ -118,6 +124,10 @@ function updateC3Chart(JsonDataURL,typeOfChart){
                 };
             x_label_element = "label";
             chart_type = "bar";
+        }
+        
+        if(typeof columnData[1] == 'undefined'){
+        	chartTitle.text = chartTitle.text + " (NO EXISTEN DATOS)"
         }
         
         chart = c3.generate({
@@ -177,4 +187,15 @@ function showPopUp(popupIdToShow) {
 		$('.popup .popuptext').removeClass("show");
 		$('#' + popupIdToShow).toggleClass("show");
 	}
+}
+
+//Agregamos botones para excluir facetings
+function addExcludeFacetBttns(){
+	$("li.sidebar_facet_value").each(function (){
+		var facetHref = $(this).find("a").attr("href");
+		if(facetHref != '' && facetHref.indexOf("\/statistics-search-filter") === -1){
+			facetHref = facetHref.replace("filter_relational_operator=equals", "filter_relational_operator=notequals");
+			$(this).append('<a class="bttn-remove" href="' + facetHref + '" title="Exclude result from faceting"><i class="glyphicon glyphicon-remove-sign"> <i> </a>');
+		}
+	});
 }

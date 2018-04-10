@@ -116,8 +116,13 @@
             <div class="col-md-10">
             	<span>IP de acceso:  <xsl:value-of select="$ip"/> (<xsl:value-of select="$city"/>, <xsl:value-of select="$country"/>)</span>
             </div>
-            <div class="col-md-2" title="Ver registro completo">
+            <div class="col-md-1" title="Ver registro completo">
             	<xsl:call-template name="putPopUpForCompleteStatistic">
+	            	<xsl:with-param name="context" select="."/>
+	            </xsl:call-template>
+            </div>
+            <div class="col-md-1" title="Ver ubicación en OpenStreetMaps. Se muestra la ubicación registrada en el registro actual (latitude,longitude) en un mapamundi.">
+            	<xsl:call-template name="createOpenStreetMapsLink">
 	            	<xsl:with-param name="context" select="."/>
 	            </xsl:call-template>
             </div>
@@ -177,8 +182,13 @@
 	           <div class="col-md-10">
 	           		<span>IP de acceso:  <xsl:value-of select="$ip"/> (<xsl:value-of select="$city"/>, <xsl:value-of select="$country"/>)</span>
 	           </div>
-	           <div class="col-md-2" title="Ver registro completo">
+	           <div class="col-md-1" title="Ver registro completo">
 	            	<xsl:call-template name="putPopUpForCompleteStatistic">
+		            	<xsl:with-param name="context" select="."/>
+		            </xsl:call-template>
+	            </div>
+	            <div class="col-md-1" title="Ver ubicación en OpenStreetMaps. Se muestra la ubicación registrada en el registro actual (latitude,longitude) en un mapamundi.">
+	            	<xsl:call-template name="createOpenStreetMapsLink">
 		            	<xsl:with-param name="context" select="."/>
 		            </xsl:call-template>
 	            </div>
@@ -230,10 +240,15 @@
             <div class="col-md-10">
             <span>IP de acceso:  <xsl:value-of select="$ip"/> (<xsl:value-of select="$city"/>, <xsl:value-of select="$country"/>)</span>
             </div>
-            <div class="col-md-2" title="Ver registro completo">
+            <div class="col-md-1" title="Ver registro completo">
             	<xsl:call-template name="putPopUpForCompleteStatistic">
-            	<xsl:with-param name="context" select="."/>
-            </xsl:call-template>
+	            	<xsl:with-param name="context" select="."/>
+	            </xsl:call-template>
+            </div>
+            <div class="col-md-1" title="Ver ubicación en OpenStreetMaps. Se muestra la ubicación registrada en el registro actual (latitude,longitude) en un mapamundi.">
+            	<xsl:call-template name="createOpenStreetMapsLink">
+	            	<xsl:with-param name="context" select="."/>
+	            </xsl:call-template>
             </div>
     </xsl:template>
     
@@ -603,6 +618,28 @@
     			</ul>
     		</div>
     	</span>
+    </xsl:template>
+    
+    <xsl:template name="createOpenStreetMapsLink">
+    	<xsl:param name="context"/>
+		<xsl:variable name="longitude"><xsl:value-of select="$context/dri:list[@n='longitude']/dri:item[1]/text()"/></xsl:variable>
+		<xsl:variable name="latitude"><xsl:value-of select="$context/dri:list[@n='latitude']/dri:item[1]/text()"/></xsl:variable>
+    	
+    	<a class="glyphicon glyphicon-map-marker" target="_blank">
+    		<xsl:attribute name="href">
+    			<xsl:text>https://www.openstreetmap.org/directions?from=</xsl:text>
+    			<xsl:value-of select="$latitude"/>
+    			<xsl:text>%2C</xsl:text>
+    			<xsl:value-of select="$longitude"/>
+    			<xsl:text>#map=15/</xsl:text>
+    			<xsl:value-of select="$latitude"/>
+    			<xsl:text>/</xsl:text>
+    			<xsl:value-of select="$longitude"/>
+    		</xsl:attribute>
+    		<span class="hidden">
+    			OpenStreeMaps
+    		</span>
+    	</a>
     </xsl:template>
 
 </xsl:stylesheet>

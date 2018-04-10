@@ -215,7 +215,7 @@ public class StatisticsSidebarFacetsTransformer extends AbstractDSpaceTransforme
 
                         if(browse == null){
                             //Since we have a value it is safe to add the sidebar (doing it this way will ensure that we do not end up with an empty sidebar)
-                            browse = options.addList("discovery");
+                            browse = options.addList("statistics-discovery");
 
                             browse.setHead(T_FILTER_HEAD);
                         }
