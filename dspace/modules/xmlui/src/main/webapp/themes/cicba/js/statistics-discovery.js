@@ -193,7 +193,7 @@ function showPopUp(popupIdToShow) {
 function addExcludeFacetBttns(){
 	$("li.sidebar_facet_value").each(function (){
 		var facetHref = $(this).find("a").attr("href");
-		if(facetHref != '' && facetHref.indexOf("\/statistics-search-filter") === -1){
+		if(typeof facetHref != 'undefined' && facetHref != '' && facetHref.indexOf("\/statistics-search-filter") === -1){
 			facetHref = facetHref.replace("filter_relational_operator=equals", "filter_relational_operator=notequals");
 			$(this).append('<a class="bttn-remove" href="' + facetHref + '" title="Exclude result from faceting"><i class="glyphicon glyphicon-remove-sign"> <i> </a>');
 		}
