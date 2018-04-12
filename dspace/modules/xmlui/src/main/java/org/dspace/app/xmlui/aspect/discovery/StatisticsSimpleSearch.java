@@ -491,6 +491,7 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
             typeSelect.addOption(StringUtils.equals(relationalOperator, "untilDate"), "untilDate", T_filter_until_date);
             //Agregamos este campo en el filtro para las fechas para poder realizar búsquedas por rango (p.e., '[2016-01-01T00:00:00Z TO 2017-01-01T00:00:00Z]') o exactas, al estilo Discovery
             typeSelect.addOption(StringUtils.equals(relationalOperator, "equals"), "equals", T_filter_equals);
+            typeSelect.addOption(StringUtils.equals(relationalOperator, "notequals"), "notequals", T_filter_notequals);
             
           //Add a box so we can search for our value
           row.addCell("date-filter_value_" + index, Cell.ROLE_DATA, "discovery-filter-input-cell").addText("filter_" + index, "discovery-filter-input date-input").setValue(value == null ? "" : value);
