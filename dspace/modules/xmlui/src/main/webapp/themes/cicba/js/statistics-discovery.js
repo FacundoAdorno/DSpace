@@ -11,6 +11,15 @@ function loadDateTimePickers(){
 	});
 }
 
+function loadChartTabs(){
+	$('#aspect_discovery_StatisticsSimpleSearch_div_statistics-discovery-chart-section p:first').after('<div id="tabs_chart"></div>');
+	var tabMainDiv = $('div#tabs_chart');
+	$(tabMainDiv).append('<ul><li><a href="#aspect_discovery_StatisticsSimpleSearch_div_statistics_discovery_onevar_chart_options">Reporte por campo de registro</a></li><li><a href="#aspect_discovery_StatisticsSimpleSearch_div_statistics_discovery_twovarsonefixed_chart_options">Reporte por campo de registro condicionado</a></li></ul>');
+	$('div#aspect_discovery_StatisticsSimpleSearch_div_statistics_discovery_onevar_chart_options').appendTo($(tabMainDiv));
+	$('div#aspect_discovery_StatisticsSimpleSearch_div_statistics_discovery_twovarsonefixed_chart_options').appendTo($(tabMainDiv));
+	$(tabMainDiv).tabs();
+}
+
 /**
 * Funciones que se encarga de renderizar los graficos de Statistics-Discovery usando c3.js
 **/

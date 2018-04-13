@@ -180,3 +180,26 @@ a.bttn-remove{
     from {opacity: 0;}
     to {opacity:1 ;}
 }
+
+/* Agregamos estilo a algunos JQueryUi Widgets*/
+/* JqueryUI Tabs */
+#tabs_chart {
+  background-color: #fafafa;
+}
+#tabs_chart .ui-widget-header {
+  background-color: #f8f6f6;
+  border-color: whitesmoke;
+  /*! font-family: inherit; */
+}
+#tabs_chart .ui-state-hover, #tabs_chart .ui-state-active {
+  background-color: #fcfcfc;
+  border-color: #cccccc;
+}
+#tabs_chart .ui-state-hover .ui-tabs-anchor, #tabs_chart .ui-state-active .ui-tabs-anchor{
+  color: #1c94c4;
+}
+/* DateTime picker extension */
+.ui-datepicker-header.ui-widget-header{
+  background-color: #fafafa;
+  border-color: #cccccc;
+}

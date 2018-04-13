@@ -475,7 +475,6 @@ public abstract class StatisticsAbstractSearch extends AbstractDSpaceTransformer
                 }
             }
             **/
-        	results.addPara("Falta completar la vista de resultados");
 
         } else {
             results.addPara(T_no_results);

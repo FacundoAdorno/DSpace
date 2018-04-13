@@ -674,6 +674,9 @@
 				    		//Agregamos los botones de exclusión de filtros
 				    		addExcludeFacetBttns();
 				    		
+				    		//Cargamos los tabs de la sección de generacion de reportes
+				    		loadChartTabs();
+				    		
 				    		//configuramos botones para generación de gráficos de reportes statistics-discover
 				    		var onevarUpdateBttn = $('input[name="statistics_onevar_report_bttn"]');
 				    		var twovarsonefixedUpdateBttn = $('input[name="statistics_twovarsonefixed_report_bttn"]');
