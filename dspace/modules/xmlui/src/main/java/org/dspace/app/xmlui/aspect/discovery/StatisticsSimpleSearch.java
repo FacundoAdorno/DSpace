@@ -314,11 +314,6 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         //results.setHead(T_head);
         buildMainForm(search);
         
-//        Division exportDivision = search.addDivision("discovery-export-results-box", "discoverySearchBox");
-        Division exportDivision = search.addDivision("discovery-export-results-box");
-        exportDivision.setHead(T_statistics_export_head);
-        buildExportResultsForm(exportDivision);
-
         // Add the result division
         try {
             buildSearchResultsDivision(search);
@@ -330,6 +325,11 @@ public class StatisticsSimpleSearch extends StatisticsAbstractSearch implements 
         Division chartSection = body.addDivision("statistics-discovery-chart-section");
         chartSection.setHead(T_statistics_report_head);
         buildStatisticsChartSection(chartSection);
+        
+        //Add the export statistics-discovery results section
+        Division exportDivision = search.addDivision("discovery-export-results-box");
+        exportDivision.setHead(T_statistics_export_head);
+        buildExportResultsForm(exportDivision);
 
         context.setMode(originalMode);
     }

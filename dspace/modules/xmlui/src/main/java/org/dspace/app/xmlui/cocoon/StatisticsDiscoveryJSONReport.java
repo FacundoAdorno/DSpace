@@ -13,6 +13,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.avalon.framework.parameters.ParameterException;
 import org.apache.avalon.framework.parameters.Parameters;
@@ -245,6 +247,7 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 				String solrFieldName;
 				String solrTimelapseGap = "";
 				String messageKeyForTitle;
+				long totalNumRegistries; long facetTotalCount=0;
 				if(reportType.equalsIgnoreCase(ONEVAR_REPORT)) {
 					//No verifico que exista un enumerativo válido porque ya se valida en el #setup()
 					OneVarReports.COUNTOF_VALUES countOf = OneVarReports.COUNTOF_VALUES.getEnumByValue(countOfParam);
@@ -275,7 +278,7 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 				qArgs.setFacetMinCount(minResultsCount);		//TODO solo deberían tener minCount=1 los reportes de cantidad sin fecha, es decir, timelapse...
 				//Hacemos la busqueda
 				qResults = StatisticsSearchUtils.getStatisticsSearchService().search(context, scope, qArgs);
-				//TODO conviene utilizar el framework "Executor" para la ejecución multithread, ya que algunas consultas tardan mucho en ejecutarse. Ver mas en http://www.vogella.com/tutorials/JavaConcurrency/article.html#threads-pools-with-the-executor-framework.
+				totalNumRegistries = qResults.getTotalSearchResults();
 				if(timelapseParam != null) {
 					withTimelapse = true;
 					//Remuevo el facet ya que no lo necesito para realizar las siguientes consultas por timelapse
@@ -302,6 +305,8 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 					
 					for(java.util.Iterator<FacetResult> resultsIterator = results.iterator(); resultsIterator.hasNext();) {
 						FacetResult facetValue = resultsIterator.next();
+						facetTotalCount = facetTotalCount + facetValue.getCount();
+						//TODO conviene utilizar el framework "Executor" para la ejecución multithread, ya que algunas consultas tardan mucho en ejecutarse. Ver mas en http://www.vogella.com/tutorials/JavaConcurrency/article.html#threads-pools-with-the-executor-framework.
 						if(withTimelapse) {
 							//Iteramos sobre cada valor del facet general para consultar el range.facet en el timelapse especificado en la petición...
 //							String facetValueFilterQuery = solrFieldName + ":" + StatisticsSearchUtils.getExactMatchFilter(StatisticsSearchUtils.escapeRegexReservedChars(facetValue.getAsFilterQuery()));
@@ -324,6 +329,29 @@ public class StatisticsDiscoveryJSONReport extends AbstractReader {
 						generateArrayStringFields(generator, facetValue.getDisplayedValue(),values);
 						//Limpiamos la lista de valores para reutilizarla en el siguiente facet value
 						values.clear();
+					}
+					//Verificamos si la cantidad total de facets (facetTotalCount) se corresponde con la cantidad total de registros (totalNumRegistries) para la consulta actual. 
+					//Si facetTotalCount es menor, entonces hay que crear la categoria "Otros" que contiene la difencia (totalNumRegistries - facetTotalCount)
+					if(facetTotalCount < totalNumRegistries) {
+						long countOfOthers = totalNumRegistries - facetTotalCount;
+						ArrayList<String> emptyValues = new ArrayList<String>();
+						if(timelapseParam == null) {
+							emptyValues.add(String.valueOf(countOfOthers));
+						} else {
+							//Add the "countof" empty filter
+							String countOfEmptyFilter = "-"+solrFieldName+":[* TO *]"; // Por ejemplo: -city:[* TO *] filtro para buscar registros sin campo 'city'
+							qArgs.addFilterQueries(countOfEmptyFilter);
+							StatisticsDiscoverResult result = StatisticsSearchUtils.getStatisticsSearchService().search(context, scope, qArgs);
+							
+							List<DateRangeFacetResult> rangeDateFacetValues = result.getDateRangeFacetResults().get(TIMELAPSE_VALUES.getSolrField());
+							for ( DateRangeFacetResult rangeValue : rangeDateFacetValues) {
+								emptyValues.add(String.valueOf(rangeValue.getCount()));
+							}
+							//Sacamos el filtro de "countof" vacio
+							qArgs.getFilterQueries().remove(countOfEmptyFilter);
+						}
+						//Generate the empty value array
+						generateArrayStringFields(generator, "Otros", emptyValues);
 					}
 				}
 				//End "data" object

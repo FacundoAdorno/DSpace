@@ -231,6 +231,7 @@ public class StatisticsSolrServiceImpl implements StatisticsSearchService {
                 }
             }
 
+            //TODO conviene sacarlo fuera de esta lógica, ya que una consulta Solr podría tener facetQueries sin tener un facetField configurado...
             List<String> facetQueries = discoveryQuery.getFacetQueries();
             for (String facetQuery : facetQueries)
             {

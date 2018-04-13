@@ -104,6 +104,7 @@ public class StatisticsDiscoverResult extends GenericDiscoverResult{
 		
 	}
 	
+	//TODO en un futuro conviene mover todo lo de RangeFacetResult en la superclass GenericDiscoverResult
 	public void addDateRangeFacetResult(String dateRangeFacetField, DateRangeFacetResult ...dateRangeFacetResults){
         List<DateRangeFacetResult> dateRangeFacetValues = this.rangeDatefacetResults.get(dateRangeFacetField);
         if(dateRangeFacetValues == null)
