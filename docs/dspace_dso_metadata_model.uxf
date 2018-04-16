@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>170</x>
+      <y>220</y>
+      <w>120</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>**DSpaceObject**
+--
+- uuid
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>340</x>
+      <y>220</y>
+      <w>120</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>**MetadataValue**
+--
+- value
+- authority
+- confidence
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>500</x>
+      <y>220</y>
+      <w>130</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>**MetadataField**
+--
+- element
+- qualifier
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>660</x>
+      <y>220</y>
+      <w>140</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>**MetadataSchema**
+--
+- name
+- namespace
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>210</x>
+      <y>180</y>
+      <w>190</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1
+m1pos=0,5
+m2=*
+m2pos=-15,5</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;10.0;170.0;10.0;170.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>400</x>
+      <y>180</y>
+      <w>190</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=*
+m1pos=0,5
+m2=1
+m2pos=-20,5</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;10.0;170.0;10.0;170.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>580</x>
+      <y>180</y>
+      <w>190</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=*
+m1pos=0,5
+m2=1
+m2pos=-20,5</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;10.0;170.0;10.0;170.0;40.0</additional_attributes>
+  </element>
+</diagram>
