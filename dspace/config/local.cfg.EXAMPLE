@@ -208,3 +208,9 @@ handle.canonical.prefix = http://digital.cic.gba.gob.ar/handle/
 # Authentication by Password (encrypted in DSpace's database). See authentication-password.cfg for default configuration.
 # Enabled by default in authentication.cfg
 #plugin.sequence.org.dspace.authenticate.AuthenticationMethod = org.dspace.authenticate.PasswordAuthentication
+
+
+##########################
+# STATISTICS-DISCOVERY #
+##########################
+statistics-discover.exporter.dir = ${dspace.dir}/exports/statistics-exports
