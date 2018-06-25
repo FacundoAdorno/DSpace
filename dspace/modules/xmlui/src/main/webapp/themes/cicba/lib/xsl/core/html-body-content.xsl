@@ -203,6 +203,7 @@
 		<xsl:if test="/dri:document/dri:body/dri:div[@id='aspect.artifactbrowser.CommunityViewer.div.community-home' or @id='aspect.artifactbrowser.CollectionViewer.div.collection-home']">
 			<xsl:variable name="dso-handle-container" select="substring-after(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='focus' and @qualifier='container']/text(),'hdl:')"/>
 			<div id="statistics-discovery-section">
+                <h3><i18n:text>xmlui.statistics.Navigation.title</i18n:text></h3>
 	    		<a target="_blank" title="Navigate Statistics">
 	    			<xsl:attribute name="href">
 	    				<xsl:value-of select="concat($home-path,$statistics-discovery-path,'?scope=',$dso-handle-container)" />
