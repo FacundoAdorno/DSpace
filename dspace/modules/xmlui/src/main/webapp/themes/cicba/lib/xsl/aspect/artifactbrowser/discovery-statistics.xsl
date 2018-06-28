@@ -18,8 +18,9 @@
     xmlns:xalan="http://xml.apache.org/xalan"
     xmlns:encoder="xalan://java.net.URLEncoder"
     xmlns:xmlui="xalan://ar.edu.unlp.sedici.dspace.xmlui.util.XSLTHelper"
+    xmlns:stringescapeutils="org.apache.commons.lang3.StringEscapeUtils"
     extension-element-prefixes="xmlui"
-    exclude-result-prefixes="xalan encoder i18n dri mets dim  xlink xsl">
+    exclude-result-prefixes="xalan encoder i18n dri mets dim  xlink xsl stringescapeutils">
 
     <xsl:output indent="yes"/>
 
@@ -28,6 +29,60 @@
     Since Discovery uses hit highlighting separate templates are required !
 -->
 
+
+    <xsl:template match="dri:list[@id='aspect.discovery.StatisticsSimpleSearch.list.primary-search']//dri:item[dri:field[@id='aspect.discovery.StatisticsSimpleSearch.field.query'] and not(dri:field[@id='aspect.discovery.StatisticsSimpleSearch.field.scope'])]" priority="3">
+    	
+  	     <div>
+            <xsl:call-template name="standardAttributes">
+                <xsl:with-param name="class">
+                    <xsl:text>ds-form-item row</xsl:text>
+                </xsl:with-param>
+            </xsl:call-template>
+
+            <div class="ds-form-content">              
+                    <xsl:apply-templates select="dri:field[@id='aspect.discovery.StatisticsSimpleSearch.field.query']"/>
+                    <xsl:apply-templates select="dri:field[@id='aspect.discovery.StatisticsSimpleSearch.field.submit']"/>
+        	</div>
+        </div>
+        <xsl:if test="dri:item[@id='aspect.discovery.StatisticsSimpleSearch.item.did-you-mean']">
+            <xsl:apply-templates select="dri:item[@id='aspect.discovery.StatisticsSimpleSearch.item.did-you-mean']"/>
+        </xsl:if>   
+    	    <div id="filters-overview" ></div>
+    	     <xsl:call-template name="renderUsedFiltersForStatistics">
+    	     	 <xsl:with-param name="context" select="."></xsl:with-param>
+    	     </xsl:call-template>
+    </xsl:template>
+    
+     <xsl:template name="renderUsedFiltersForStatistics"> 
+    	<xsl:param name="context"/>
+        <script type="text/javascript">
+            <xsl:text>
+                if (!window.DSpace) {
+                    window.DSpace = {};
+                }
+                if (!window.DSpace.discovery) {
+                    window.DSpace.discovery = {};
+                }
+                if (!window.DSpace.discovery.filters) {
+                    window.DSpace.discovery.filters = [];
+                }
+              </xsl:text>
+              <xsl:for-each select="$context/../../../dri:div/dri:div/dri:table/dri:row[starts-with(@id,'aspect.discovery.StatisticsSimpleSearch.row.used-filters-')]">
+	               <xsl:variable name="type" select="dri:cell/dri:field[starts-with(@n, 'filtertype')]/dri:value/@option"/>
+	               <xsl:variable name="query" select="dri:cell/dri:field[@rend = 'discovery-filter-input']/dri:value"/>
+	               <xsl:variable name="value" select="//dri:options/dri:list/dri:list[@id=concat('aspect.discovery.SidebarFacetsTransformer.list.',$type)]/dri:item[@n=$query]"/>
+	               <xsl:text>
+	               window.DSpace.discovery.filters.push({
+	               type: '</xsl:text><xsl:value-of select="stringescapeutils:escapeEcmaScript(dri:cell/dri:field[starts-with(@n, 'filtertype')]/dri:value/@option)"/><xsl:text>',
+	               relational_operator: '</xsl:text><xsl:value-of select="stringescapeutils:escapeEcmaScript(dri:cell/dri:field[starts-with(@n, 'filter_relational_operator')]/dri:value/@option)"/><xsl:text>',
+			       query: '</xsl:text><xsl:value-of select="stringescapeutils:escapeEcmaScript(dri:cell/dri:field[starts-with(@rend,'discovery-filter-input')]/dri:value/text())"/><xsl:text>',
+	            });
+	         </xsl:text>
+	         </xsl:for-each>
+            
+          
+        </script>
+    </xsl:template>
 
     <xsl:template match="dri:list[@n='statistics-search-results-repository']" priority="2">
         <xsl:apply-templates select="dri:head"/>
